@@ -231,8 +231,49 @@
  '(package-selected-packages
    '(## auctex boogie-friends codex corfu-terminal exec-path-from-shell
 	gnu-elpa-keyring-update gptel kind-icon lv magit markdown-mode
-	meow nael orderless pdf-tools pyvenv rust-mode tuareg vertico)))
+	meow nael orderless pdf-tools python-mode pyvenv rust-mode
+	tuareg vertico vterm))
+ '(package-vc-selected-packages
+   '((lean4-mode :url
+		 "https://github.com/leanprover-community/lean4-mode.git"))))
 
 (use-package nael
   :ensure t
   :hook (nael-mode . abbrev-mode))
+
+
+(setq eat-shell (executable-find "fish"))
+
+(blink-cursor-mode -1)
+
+(use-package eglot
+  :ensure nil
+  :config
+  (add-to-list 'eglot-server-programs
+               '(python-mode
+                 . ("uv" "run" "--active" "pyright-langserver" "--stdio")))
+  (add-to-list 'eglot-server-programs
+               '(python-ts-mode
+                 . ("uv" "run" "--active" "pyright-langserver" "--stdio"))))
+(use-package pyvenv
+  :ensure t
+  :config
+  (pyvenv-mode 1))
+
+(defun my/auto-activate-uv-venv ()
+  "Activate the project's .venv, if it exists."
+  (when-let* ((project (project-current))
+              (root (project-root project))
+              (venv (expand-file-name ".venv" root)))
+    (when (file-directory-p venv)
+      (pyvenv-activate venv))))
+
+
+(use-package python-ts-mode
+  :ensure nil
+  :mode "\\.py\\'"
+  :hook
+  (python-ts-mode . my/auto-activate-uv-venv)
+  (python-ts-mode . eglot-ensure))
+
+
