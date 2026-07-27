@@ -183,6 +183,7 @@
 (define-key my-window-map (kbd "q") #'delete-window)
 (define-key my-window-map (kbd "v") #'split-window-right)
 (define-key my-window-map (kbd "s") #'split-window-below)
+(define-key my-window-map (kbd "K") #'kill-buffer)
 
 ;; Makes C-c w h/j/k/l work everywhere.
 (global-set-key (kbd "C-c w") my-window-map)
@@ -224,5 +225,6 @@
 	gnu-elpa-keyring-update gptel kind-icon lv magit markdown-mode
 	meow nael orderless pdf-tools pyvenv rust-mode tuareg vertico)))
 
-(use-package nael :ensure t)
-
+(use-package nael
+  :ensure t
+  :hook (nael-mode . abbrev-mode))
