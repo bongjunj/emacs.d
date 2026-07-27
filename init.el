@@ -194,6 +194,14 @@
 
 (global-set-key (kbd "C-x C-d") #'dired)
 
+(defvar my-bookmark-map (make-sparse-keymap) "Bookmark keymap.")
+(global-set-key (kbd "C-c B") my-bookmark-map)
+
+(define-key my-bookmark-map (kbd "j") #'bookmark-jump)
+(define-key my-bookmark-map (kbd "m") #'bookmark-set)
+(define-key my-bookmark-map (kbd "l") #'bookmark-bmenu-list)
+
+
 (setq org-agenda-files '("~/malloc099@gmail.com - Google Drive/My Drive/org/"))
 
 (defun my-gptel-set-model ()
