@@ -4,19 +4,17 @@
 (load-theme 'tango-dark)
 (global-display-line-numbers-mode 1)
 (global-completion-preview-mode)
+(blink-cursor-mode -1)
 
 (set-face-attribute 'default nil
                     :family "JetBrains Mono"
-                    :height 180
+                    :height 160
                     :weight 'regular
                     :slant 'normal)
 
 (require 'package)
 (add-to-list 'package-archives '("melpa" . "https://melpa.org/packages/") t)
 (package-initialize)
-
-(setq rust-format-on-save t)
-(add-hook 'rust-mode-hook (lambda () (prettify-symbols-mode)))
 
 (setq show-trailing-whitespace t)
 
@@ -31,7 +29,7 @@
   :config
   (add-to-list 'tramp-remote-path 'tramp-own-remote-path))
 
-;; --- 1. AUCTeX Setup ---
+;; TODO: resetup with text/synctex
 (use-package tex
   :ensure auctex
   :config
@@ -58,19 +56,6 @@
 	    (lambda ()
 	      (add-hook 'after-save-hook #'TeX-command-run-all nil t))))
 
-;; --- 3. PDF Tools Setup ---
-(use-package pdf-tools
-  :ensure t
-  :mode ("\\.pdf\\'" . pdf-view-mode)
-  :config
-  ;; Initialize PDF Tools (compiles epdfinfo backend on first run)
-  (pdf-tools-install)
-  ;; Match theme background when reading PDFs
-  (setq-default pdf-view-display-size 'fit-width)
-  (add-hook 'pdf-view-mode-hook #'pdf-view-auto-slice-minor-mode)
-
-  :hook (pdf-view-mode . (lambda () (display-line-number-mode -1))))
-
 (use-package magit
   :ensure t
   :bind
@@ -82,9 +67,7 @@
   (setq auto-revert-remote-files t)
   (global-auto-revert-mode 1))
 
-(use-package rust-mode :ensure t)
-(use-package tuareg :ensure t)
-
+;; Meow & Keybindings
 (defun meow-setup ()
   (setq meow-cheatsheet-layout meow-cheatsheet-layout-qwerty)
   (meow-motion-define-key
@@ -186,6 +169,7 @@
 (define-key my-window-map (kbd "v") #'split-window-right)
 (define-key my-window-map (kbd "s") #'split-window-below)
 (define-key my-window-map (kbd "K") #'kill-buffer)
+(define-key my-window-map (kbd "F") #'make-frame)
 
 ;; Makes C-c w h/j/k/l work everywhere.
 (global-set-key (kbd "C-c w") my-window-map)
@@ -203,75 +187,34 @@
 (define-key my-bookmark-map (kbd "m") #'bookmark-set)
 (define-key my-bookmark-map (kbd "l") #'bookmark-bmenu-list)
 
-
 (setq org-agenda-files '("~/malloc099@gmail.com - Google Drive/My Drive/org/"))
-
-(defun my-gptel-set-model ()
-  (interactive)
-  (setq gptel-model (read-string "gptel model: " gptel-model))
-  (message "gptel model set to %s" gptel-model))
-
-(use-package gptel
-  :ensure t
-  :config
-  (setq gptel-backend (gptel-make-openai-oauth "ChatGPT"))
-  (setq gptel-model "gpt-5.6-luna")
-
-  (define-prefix-command 'my-gptel-prefix)
-  (global-set-key (kbd "C-c a") #'my-gptel-prefix)
-  (define-key my-gptel-prefix (kbd "RET") #'gptel-send)
-  (define-key my-gptel-prefix (kbd "a") #'gptel-context-add))
-
-(setq enable-recursive-minibuffers t)
-(minibuffer-depth-indicate-mode 1)
-
-(custom-set-variables
- ;; custom-set-variables was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- '(package-selected-packages nil)
- '(package-vc-selected-packages
-   '((lean4-mode :url
-		 "https://github.com/leanprover-community/lean4-mode.git"))))
-
-(use-package nael
-  :ensure t
-  :hook (nael-mode . abbrev-mode))
-
-
-(setq eat-shell (executable-find "fish"))
-
-(blink-cursor-mode -1)
 
 (use-package eglot
   :ensure nil
+  :hook ((python-ts-mode rust-ts-mode tuareg-mode nael-mode) . eglot-ensure)
   :config
-  (add-to-list 'eglot-server-programs
-               '(python-mode
-                 . ("uv" "run" "--active" "pyright-langserver" "--stdio")))
   (add-to-list 'eglot-server-programs
                '(python-ts-mode
-                 . ("uv" "run" "--active" "pyright-langserver" "--stdio"))))
-(use-package pyvenv
+                 . ("uv" "tool" "run" "ty" "server"))))
+
+;; Python
+(setq major-mode-remap-alist
+      '((python-mode . python-ts-mode))) ;; Use python-ts-mode as default
+
+;; Rust
+(use-package rust-mode
   :ensure t
   :config
-  (pyvenv-mode 1))
-
-(defun my/auto-activate-uv-venv ()
-  "Activate the project's .venv, if it exists."
-  (when-let* ((project (project-current))
-              (root (project-root project))
-              (venv (expand-file-name ".venv" root)))
-    (when (file-directory-p venv)
-      (pyvenv-activate venv))))
-
-
-(use-package python-ts-mode
-  :ensure nil
-  :mode "\\.py\\'"
+  (setq rust-format-on-save t)
   :hook
-  (python-ts-mode . my/auto-activate-uv-venv)
-  (python-ts-mode . eglot-ensure))
+  (prettify-symbols-mode))
+
+;; OCaml
+(use-package tuareg :ensure t)
+
+;; Lean4
+(use-package nael
+  :ensure t
+  :hook (nael-mode . abbrev-mode))
 
 
