@@ -1,22 +1,24 @@
+(setq inhibit-startup-screen t)
+(tool-bar-mode 0)
+(scroll-bar-mode 0)
+(load-theme 'tango-dark)
+(global-display-line-numbers-mode 1)
+(global-completion-preview-mode)
+
+(set-face-attribute 'default nil
+                    :family "JetBrains Mono"
+                    :height 180
+                    :weight 'regular
+                    :slant 'normal)
+
 (require 'package)
 (add-to-list 'package-archives '("melpa" . "https://melpa.org/packages/") t)
 (package-initialize)
-
-(load-theme 'tango-dark)
-(global-display-line-numbers-mode 1)
-
-(custom-set-faces
- ;; custom-set-faces was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- '(default ((t (:family "JetBrains Mono" :foundry "nil" :slant normal :weight regular :height 160 :width normal)))))
 
 (setq rust-format-on-save t)
 (add-hook 'rust-mode-hook (lambda () (prettify-symbols-mode)))
 
 (setq show-trailing-whitespace t)
-(global-completion-preview-mode)
 
 (use-package exec-path-from-shell
   :ensure t
@@ -228,11 +230,7 @@
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
- '(package-selected-packages
-   '(## auctex boogie-friends codex corfu-terminal exec-path-from-shell
-	gnu-elpa-keyring-update gptel kind-icon lv magit markdown-mode
-	meow nael orderless pdf-tools python-mode pyvenv rust-mode
-	tuareg vertico vterm))
+ '(package-selected-packages nil)
  '(package-vc-selected-packages
    '((lean4-mode :url
 		 "https://github.com/leanprover-community/lean4-mode.git"))))
