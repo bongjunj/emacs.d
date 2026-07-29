@@ -169,25 +169,17 @@
 (global-set-key (kbd "C-v") 'View-scroll-half-page-forward)
 (global-set-key (kbd "M-v") 'View-scroll-half-page-backward)
 
-(defvar my-window-map (make-sparse-keymap)
-  "Window navigation keymap.")
-
-(define-key my-window-map (kbd "h") #'windmove-left)
-(define-key my-window-map (kbd "j") #'windmove-down)
-(define-key my-window-map (kbd "k") #'windmove-up)
-(define-key my-window-map (kbd "l") #'windmove-right)
-(define-key my-window-map (kbd "q") #'delete-window)
-(define-key my-window-map (kbd "v") #'split-window-right)
-(define-key my-window-map (kbd "s") #'split-window-below)
-(define-key my-window-map (kbd "K") #'kill-buffer)
-(define-key my-window-map (kbd "F") #'make-frame)
-
-;; Makes C-c w h/j/k/l work everywhere.
-(global-set-key (kbd "C-c w") my-window-map)
-
-;; org-mode has C-c w defined. unbind it.
-(with-eval-after-load 'org
-  (define-key org-mode-map (kbd "C-c w") nil))
+(with-eval-after-load 'meow
+  (meow-leader-define-key
+   '("w h" . windmove-left)
+   '("w j" . windmove-down)
+   '("w k" . windmove-up)
+   '("w l" . windmove-right)
+   '("w q" . delete-window)
+   '("w v" . split-window-right)
+   '("w s" . split-window-below)
+   '("w K" . kill-buffer)
+   '("w F" . make-frame)))
 
 (global-set-key (kbd "C-x C-d") #'dired)
 
