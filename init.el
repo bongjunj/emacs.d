@@ -1,3 +1,6 @@
+(setq custom-file "~/.emacs.d/custom.el")
+(load custom-file)
+
 (setq inhibit-startup-screen t)
 (tool-bar-mode 0)
 (scroll-bar-mode 0)
@@ -191,6 +194,7 @@
 (define-key my-bookmark-map (kbd "m") #'bookmark-set)
 (define-key my-bookmark-map (kbd "l") #'bookmark-bmenu-list)
 
+
 (setq org-agenda-files '("~/malloc099@gmail.com - Google Drive/My Drive/org/"))
 
 (use-package vertico
@@ -230,11 +234,20 @@
   (add-to-list 'completion-at-point-functions #'cape-file)
   (add-to-list 'completion-at-point-functions #'cape-dabbrev))
 
+(use-package consult
+  :ensure t
+  :bind ("M-s r" . consult-ripgrep)
+        ("M-s l" . consult-line))
 
 (use-package eglot
   :ensure nil
   :hook ((python-ts-mode rust-ts-mode tuareg-mode nael-mode) . eglot-ensure)
+  :bind (:map eglot-mode-map
+	      ("C-c C-e d" . #'xref-find-definitions)
+	      ("C-c C-e r" . #'xref-find-references)
+	      ("C-c C-e o" . #'xref-go-back))
   :config
+  (setq treesit-font-lock-level 4)
   (add-to-list 'eglot-server-programs
                '(python-ts-mode . ("uv" "tool" "run" "ty" "server"))))
 
@@ -258,21 +271,3 @@
   :ensure t
   :hook (nael-mode . abbrev-mode))
 
-
-(custom-set-variables
- ;; custom-set-variables was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- '(package-selected-packages
-   '(auctex boogie-friends cape codex codex-ide corfu-terminal
-	    exec-path-from-shell f gnu-elpa-keyring-update gptel ht
-	    kind-icon lv magit marginalia markdown-mode meow nael
-	    orderless pdf-tools python-mode pyvenv rust-mode spinner
-	    tuareg vertico vterm)))
-(custom-set-faces
- ;; custom-set-faces was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- )
