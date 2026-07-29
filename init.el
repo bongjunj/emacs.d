@@ -3,7 +3,6 @@
 (scroll-bar-mode 0)
 (load-theme 'tango-dark)
 (global-display-line-numbers-mode 1)
-(global-completion-preview-mode)
 (blink-cursor-mode -1)
 
 (set-face-attribute 'default nil
@@ -17,6 +16,11 @@
 (package-initialize)
 
 (setq show-trailing-whitespace t)
+
+(use-package which-key
+  :ensure nil ;; built-in
+  :config
+  (which-key-mode))
 
 (use-package exec-path-from-shell
   :ensure t
@@ -189,6 +193,44 @@
 
 (setq org-agenda-files '("~/malloc099@gmail.com - Google Drive/My Drive/org/"))
 
+(use-package vertico
+  :ensure t
+  :init
+  (vertico-mode 1)
+  :config
+  (setq vertico-cycle t))
+
+(use-package orderless
+  :ensure t
+  :custom
+  (completion-styles '(orderless basic))
+  (completion-category-defaults nil)
+  (completion-category-overrides '((file (styles basic partial-completion)))))
+
+(use-package marginalia
+  :ensure t
+  :init
+  (marginalia-mode 1))
+
+(use-package corfu
+  :ensure t
+  :custom
+  (corfu-auto t)                 ;; Enable auto completion
+  (corfu-auto-delay 0.2)         ;; Delay in seconds before popup appears
+  (corfu-auto-prefix 2)          ;; Minimum length of prefix to trigger popup
+  (corfu-cycle t)                ;; Enable cycling through candidates
+  (corfu-preselect 'prompt)      ;; Always preselect the prompt by default
+  :init
+  (global-corfu-mode 1))
+
+(use-package cape
+  :ensure t
+  :config
+  ;; Add dabbrev (words in buffer) and file-path completion globally
+  (add-to-list 'completion-at-point-functions #'cape-file)
+  (add-to-list 'completion-at-point-functions #'cape-dabbrev))
+
+
 (use-package eglot
   :ensure nil
   :hook ((python-ts-mode rust-ts-mode tuareg-mode nael-mode) . eglot-ensure)
@@ -217,3 +259,20 @@
   :hook (nael-mode . abbrev-mode))
 
 
+(custom-set-variables
+ ;; custom-set-variables was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ '(package-selected-packages
+   '(auctex boogie-friends cape codex codex-ide corfu-terminal
+	    exec-path-from-shell f gnu-elpa-keyring-update gptel ht
+	    kind-icon lv magit marginalia markdown-mode meow nael
+	    orderless pdf-tools python-mode pyvenv rust-mode spinner
+	    tuareg vertico vterm)))
+(custom-set-faces
+ ;; custom-set-faces was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ )
