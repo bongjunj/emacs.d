@@ -29,7 +29,8 @@
   :ensure t
   :init
   (when (memq window-system '(mac ns x pgtk))
-  (exec-path-from-shell-initialize)))
+    (exec-path-from-shell-initialize)))
+
 
 (use-package tramp
   :ensure t
@@ -165,6 +166,9 @@
     (meow-global-mode 1)
     (meow-setup))
 
+(global-set-key (kbd "C-v") 'View-scroll-half-page-forward)
+(global-set-key (kbd "M-v") 'View-scroll-half-page-backward)
+
 (defvar my-window-map (make-sparse-keymap)
   "Window navigation keymap.")
 
@@ -227,6 +231,8 @@
   :init
   (global-corfu-mode 1))
 
+(setq tab-always-indent 'complete)
+
 (use-package cape
   :ensure t
   :config
@@ -236,20 +242,31 @@
 
 (use-package consult
   :ensure t
-  :bind ("M-s r" . consult-ripgrep)
-        ("M-s l" . consult-line))
+  :init
+  (with-eval-after-load 'meow
+    (meow-leader-define-key
+     '("s l" . consult-line)
+     '("s r" . consult-ripgrep)
+     '("s b" . consult-buffer)
+     '("s i" . consult-imenu)
+     '("s g" . consult-git-grep)
+     '("s f" . consult-find))))
 
 (use-package eglot
   :ensure nil
   :hook ((python-ts-mode rust-ts-mode tuareg-mode nael-mode) . eglot-ensure)
-  :bind (:map eglot-mode-map
-	      ("C-c C-e d" . #'xref-find-definitions)
-	      ("C-c C-e r" . #'xref-find-references)
-	      ("C-c C-e o" . #'xref-go-back))
   :config
   (setq treesit-font-lock-level 4)
   (add-to-list 'eglot-server-programs
-               '(python-ts-mode . ("uv" "tool" "run" "ty" "server"))))
+               '(python-ts-mode . ("uv" "tool" "run" "ty" "server")))
+
+  (with-eval-after-load 'meow
+    (meow-leader-define-key
+     '("e d" . xref-find-definitions)
+     '("e r" . xref-find-references)
+     '("e o" . xref-go-back)
+     '("e a" . eglot-code-actions)
+     '("e R" . eglot-rename))))
 
 ;; Python
 (setq major-mode-remap-alist
@@ -271,3 +288,19 @@
   :ensure t
   :hook (nael-mode . abbrev-mode))
 
+(use-package treesit-fold
+  :ensure t
+  :init
+  ;; Bind fold commands under Meow's leader key (SPC z ...)
+  (with-eval-after-load 'meow
+    (meow-leader-define-key
+     '("z z" . treesit-fold-toggle)
+     '("z o" . treesit-fold-open)
+     '("z c" . treesit-fold-close)
+     '("z m" . treesit-fold-close-all)
+     '("z r" . treesit-fold-open-all)
+     '("z R" . treesit-fold-open-recursively)))
+  :config
+  (setq treesit-fold-line-count-show t)
+  (global-treesit-fold-mode 1)
+  (global-treesit-fold-indicators-mode 1))
