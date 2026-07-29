@@ -18,4 +18,7 @@ tramp
 /eln-cache/
 /.cache/
 /tree-sitter/
+
 *.elc
+/projectile-bookmarks.eld
+custom.el
