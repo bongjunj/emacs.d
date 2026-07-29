@@ -80,8 +80,9 @@
   :config
   (setq magit-save-repository-buffers 'dontask)
   :init
-  (meow-leader-define-key
-   '("v v" . magit-status)))
+  (with-eval-after-load 'meow
+    (meow-leader-define-key
+      '("v v" . magit-status))))
 
 (use-package autorevert
   :ensure nil ; built-in
