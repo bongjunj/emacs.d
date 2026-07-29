@@ -4,7 +4,7 @@
 (setq inhibit-startup-screen t)
 (tool-bar-mode 0)
 (scroll-bar-mode 0)
-(load-theme 'modus-vivendi-tinted)
+(load-theme 'modus-operandi-tinted)
 (global-display-line-numbers-mode 1)
 (blink-cursor-mode -1)
 
@@ -273,6 +273,7 @@
   :ensure nil
   :hook ((python-ts-mode rust-ts-mode tuareg-mode nael-mode) . eglot-ensure)
   :config
+  (eglot-inlay-hints-mode -1)
   (setq treesit-font-lock-level 4)
   (add-to-list 'eglot-server-programs
                '(python-ts-mode . ("uv" "tool" "run" "ty" "server")))
