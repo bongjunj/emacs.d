@@ -67,7 +67,12 @@
 (use-package magit
   :ensure t
   :bind
-  ("C-x g" . magit-status))
+  ("C-x g" . magit-status)
+  :config
+  (setq magit-save-repository-buffers 'dontask)
+  :init
+  (meow-leader-define-key
+   '("v v" . magit-status)))
 
 (use-package autorevert
   :ensure nil ; built-in
