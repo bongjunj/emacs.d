@@ -214,7 +214,7 @@
 (setq org-default-notes-file (concat org-directory "/notes.org"))
 (setq org-capture-templates
       '(("t" "Todo" entry (file+headline "tasks.org" "Tasks")
-         "* TODO %?\n%U\n  %i\n  %a")
+         "* TODO %? %^G\nSCHEDULED: %^t\n%U\n  %i\n  %a")
         ("j" "Journal" entry (file+olp+datetree "journal.org")
          "* %?\nEntered on %U\n  %i\n  %a")
 	("n" "Note" entry (file "notes.org") "* %?\n%U\n%a\n")))
