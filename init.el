@@ -296,3 +296,31 @@
   (setq treesit-fold-line-count-show t)
   (global-treesit-fold-mode 1)
   (global-treesit-fold-indicators-mode 1))
+
+(use-package projectile
+  :ensure t
+  :init
+  (projectile-mode 1)
+  :config
+  (setq projectile-completion-system 'default))
+
+(use-package consult-projectile
+  :ensure t
+  :after (projectile consult)
+  :init
+  (with-eval-after-load 'meow
+    (meow-leader-define-key
+     ;; Consult-powered project navigation (with Vertico previews)
+     '("p p" . consult-projectile-switch-project)
+     '("p f" . consult-projectile-find-file)
+     '("p b" . consult-projectile-switch-to-buffer)
+     '("p P" . consult-projectile)              ;; Multi-source project view
+     
+     ;; Core Projectile utilities
+     '("p s" . projectile-ripgrep)              ;; Search project with ripgrep
+     '("p d" . projectile-find-dir)
+     '("p r" . projectile-recentf)
+     '("p k" . projectile-kill-buffers)
+     '("p c" . projectile-compile-project)
+     '("p !" . projectile-run-shell-command-in-root)
+     '("p &" . projectile-run-async-shell-command-in-root))))
