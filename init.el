@@ -181,8 +181,8 @@
     (meow-global-mode 1)
     (meow-setup))
 
-(global-set-key (kbd "C-v") View-scroll-half-page-forward)
-(global-set-key (kbd "M-v") View-scroll-half-page-backward)
+(global-set-key (kbd "C-d") #'View-scroll-half-page-forward)
+(global-set-key (kbd "C-k") #'View-scroll-half-page-backward)
 
 (with-eval-after-load 'meow
   (meow-leader-define-key
