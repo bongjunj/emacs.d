@@ -10,7 +10,7 @@
 
 (set-face-attribute 'default nil
                     :family "JetBrains Mono"
-                    :height 140
+                    :height 160
                     :weight 'regular
                     :slant 'normal)
 
