@@ -8,6 +8,15 @@
 (global-display-line-numbers-mode 1)
 (blink-cursor-mode -1)
 
+(defalias 'list-buffers 'ibuffer)
+(setq ibuffer-saved-filter-groups
+      '(("default"
+	 ("dired" (mode . dired-mode)))
+	 ("magit" (name . "^magit"))))
+(add-hook 'ibuffer-mode-hook
+	  (lambda ()
+	    (ibuffer-switch-to-saved-filter-groups "default")))
+
 (set-face-attribute 'default nil
                     :family "JetBrains Mono"
                     :height 160
