@@ -181,8 +181,8 @@
     (meow-global-mode 1)
     (meow-setup))
 
-(global-set-key (kbd "C-v") 'View-scroll-half-page-forward)
-(global-set-key (kbd "M-v") 'View-scroll-half-page-backward)
+(global-set-key (kbd "C-v") View-scroll-half-page-forward)
+(global-set-key (kbd "M-v") View-scroll-half-page-backward)
 
 (with-eval-after-load 'meow
   (meow-leader-define-key
@@ -194,6 +194,7 @@
    '("w v" . split-window-right)
    '("w s" . split-window-below)
    '("w K" . kill-buffer)
+   '("w f" . delete-other-windows)
    '("w F" . make-frame)))
 
 (global-set-key (kbd "C-x C-d") #'dired)
@@ -206,7 +207,16 @@
 (define-key my-bookmark-map (kbd "l") #'bookmark-bmenu-list)
 
 
-(setq org-agenda-files '("~/malloc099@gmail.com - Google Drive/My Drive/org/"))
+(setq org-directory "~/Documents/orgfiles/")
+(setq org-agenda-files (list org-directory))
+(setq org-default-notes-file (concat org-directory "/notes.org"))
+
+(with-eval-after-load 'meow
+  (meow-leader-define-key
+   '("o c" . org-capture)
+   '("o a" . org-agenda)
+   '("o l" . org-store-link)
+   '("o b" . org-switchb))
 
 (use-package vertico
   :ensure t
