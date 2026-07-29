@@ -6,7 +6,9 @@
 (scroll-bar-mode 0)
 (load-theme 'modus-operandi-tinted)
 (global-display-line-numbers-mode 1)
+(global-visual-line-mode 1)
 (blink-cursor-mode -1)
+(pixel-scroll-precision-mode 1)
 
 (defalias 'list-buffers 'ibuffer)
 (setq ibuffer-saved-filter-groups
