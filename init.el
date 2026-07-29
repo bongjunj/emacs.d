@@ -8,7 +8,7 @@
 
 (set-face-attribute 'default nil
                     :family "JetBrains Mono"
-                    :height 160
+                    :height 140
                     :weight 'regular
                     :slant 'normal)
 
@@ -194,8 +194,7 @@
   :hook ((python-ts-mode rust-ts-mode tuareg-mode nael-mode) . eglot-ensure)
   :config
   (add-to-list 'eglot-server-programs
-               '(python-ts-mode
-                 . ("uv" "tool" "run" "ty" "server"))))
+               '(python-ts-mode . ("uv" "tool" "run" "ty" "server"))))
 
 ;; Python
 (setq major-mode-remap-alist
