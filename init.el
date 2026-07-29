@@ -4,7 +4,7 @@
 (setq inhibit-startup-screen t)
 (tool-bar-mode 0)
 (scroll-bar-mode 0)
-(load-theme 'tango-dark)
+(load-theme 'modus-vivendi-tinted)
 (global-display-line-numbers-mode 1)
 (blink-cursor-mode -1)
 
