@@ -374,5 +374,6 @@
      '("a c" . gptel-context-add)
      '("a k" . gptel-context-remove-all)
      '("a K" . gptel-abort)
-     '("a r" . gptel-rewrite))))
+     '("a r" . gptel-rewrite)
+     '("a t" . gptel-org-set-topic))))
 
