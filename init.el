@@ -8,7 +8,7 @@
 (tool-bar-mode 0)
 (scroll-bar-mode 0)
 (global-display-line-numbers-mode 1)
-(global-visual-line-mode 1)
+(global-visual-line-mode -1)
 (blink-cursor-mode -1)
 (pixel-scroll-precision-mode 1)
 
@@ -226,7 +226,7 @@
    '("o c" . org-capture)
    '("o a" . org-agenda)
    '("o l" . org-store-link)
-   '("o b" . org-switchb))
+   '("o b" . org-switchb)))
 
 (use-package vertico
   :ensure t
@@ -287,7 +287,6 @@
   (setq treesit-font-lock-level 4)
   (add-to-list 'eglot-server-programs
                '(python-ts-mode . ("uv" "tool" "run" "ty" "server")))
-
   (with-eval-after-load 'meow
     (meow-leader-define-key
      '("e d" . xref-find-definitions)

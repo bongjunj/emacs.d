@@ -22,3 +22,4 @@ tramp
 *.elc
 /projectile-bookmarks.eld
 custom.el
+*.eld
