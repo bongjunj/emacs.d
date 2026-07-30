@@ -366,6 +366,7 @@
   :config
   (setq gptel-backend
         (gptel-make-openai-oauth "ChatGPT"))
+  (setq gptel-default-mode 'org-mode)
   :init
   (with-eval-after-load 'meow
     (meow-leader-define-key
