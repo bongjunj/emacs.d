@@ -23,7 +23,7 @@
 
 (set-face-attribute 'default nil
                     :family "JetBrains Mono"
-                    :height 160
+                    :height 140
                     :weight 'regular
                     :slant 'normal)
 
@@ -295,9 +295,10 @@
      '("e a" . eglot-code-actions)
      '("e R" . eglot-rename))))
 
-;; Python
 (setq major-mode-remap-alist
-      '((python-mode . python-ts-mode))) ;; Use python-ts-mode as default
+      '((python-mode . python-ts-mode)
+	(c-mode . c-ts-mode)
+	(rust-mode . rust-ts-mode))) ;; Use treesitter modes as default
 
 ;; Rust
 (use-package rust-mode
@@ -359,3 +360,19 @@
      '("p c" . projectile-compile-project)
      '("p !" . projectile-run-shell-command-in-root)
      '("p &" . projectile-run-async-shell-command-in-root))))
+
+;; Log-in to OpenAI with (gptel-openai-oauth-login)
+(use-package gptel
+  :config
+  (setq gptel-backend
+        (gptel-make-openai-oauth "ChatGPT"))
+  :init
+  (with-eval-after-load 'meow
+    (meow-leader-define-key
+     '("a s" . gptel-send)
+     '("a a" . gptel-menu)
+     '("a c" . gptel-context-add)
+     '("a k" . gptel-context-remove-all)
+     '("a K" . gptel-abort)
+     '("a r" . gptel-rewrite))))
+
