@@ -1,10 +1,12 @@
 (setq custom-file "~/.emacs.d/custom.el")
 (load custom-file)
 
+(add-to-list 'custom-theme-load-path "~/.emacs.d/themes/")
+(load-theme 'lauds)
+
 (setq inhibit-startup-screen t)
 (tool-bar-mode 0)
 (scroll-bar-mode 0)
-(load-theme 'modus-operandi-tinted)
 (global-display-line-numbers-mode 1)
 (global-visual-line-mode 1)
 (blink-cursor-mode -1)
