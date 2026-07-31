@@ -48,7 +48,7 @@
 (set-face-attribute 'variable-pitch nil
                     :family "Source Serif 4"
                     :height 160
-                    :weight 'regular
+                    :weight 'medium
                     :slant 'normal)
 
 (use-package mixed-pitch
@@ -210,11 +210,6 @@
     (meow-global-mode 1)
     (meow-setup))
 
-(use-package view
-  :ensure nil
-  :bind (("C-d" . View-scroll-half-page-forward)
-         ("C-k" . View-scroll-half-page-backward)))
-
 (with-eval-after-load 'meow
   (meow-leader-define-key
    '("w h" . windmove-left)
@@ -224,7 +219,7 @@
    '("w q" . delete-window)
    '("w v" . split-window-right)
    '("w s" . split-window-below)
-   '("w K" . kill-buffer)
+   '("w K" . kill-buffer-and-window)
    '("w f" . delete-other-windows)
    '("w F" . make-frame)))
 
