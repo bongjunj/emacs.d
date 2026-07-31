@@ -220,6 +220,7 @@
    '("w v" . split-window-right)
    '("w s" . split-window-below)
    '("w K" . kill-buffer-and-window)
+   '("w Q" . delete-frame)
    '("w f" . delete-other-windows)
    '("w F" . make-frame)))
 
