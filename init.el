@@ -21,17 +21,41 @@
 	  (lambda ()
 	    (ibuffer-switch-to-saved-filter-groups "default")))
 
-(set-face-attribute 'default nil
-                    :family "JetBrains Mono"
-                    :height 140
-                    :weight 'regular
-                    :slant 'normal)
+(add-hook 'org-mode-hook #'variable-pitch-mode)
 
 (require 'package)
 (add-to-list 'package-archives '("melpa" . "https://melpa.org/packages/") t)
 (package-initialize)
 
 (setq show-trailing-whitespace t)
+
+(use-package mixed-pitch
+  :ensure t
+  :hook
+  (org-mode . mixed-pitch-mode)
+  (LaTeX-mode . mixed-pitch-mode))
+
+(set-face-attribute 'default nil
+                    :family "JetBrains Mono"
+                    :height 160
+                    :weight 'regular
+                    :slant 'normal)
+
+(set-face-attribute 'fixed-pitch nil
+                    :family "JetBrains Mono"
+                    :height 160)
+
+(set-face-attribute 'variable-pitch nil
+                    :family "Source Serif 4"
+                    :height 160
+                    :weight 'regular
+                    :slant 'normal)
+
+(use-package mixed-pitch
+  :ensure t
+  :hook ((org-mode . mixed-pitch-mode)
+         (LaTeX-mode . mixed-pitch-mode)))
+
 
 (use-package which-key
   :ensure nil ;; built-in
@@ -86,7 +110,8 @@
   :init
   (with-eval-after-load 'meow
     (meow-leader-define-key
-      '("v v" . magit-status))))
+     '("v v" . magit-status)
+     '("v C" . magit-clone))))
 
 (use-package autorevert
   :ensure nil ; built-in
@@ -185,8 +210,10 @@
     (meow-global-mode 1)
     (meow-setup))
 
-(global-set-key (kbd "C-d") #'View-scroll-half-page-forward)
-(global-set-key (kbd "C-k") #'View-scroll-half-page-backward)
+(use-package view
+  :ensure nil
+  :bind (("C-d" . View-scroll-half-page-forward)
+         ("C-k" . View-scroll-half-page-backward)))
 
 (with-eval-after-load 'meow
   (meow-leader-define-key
@@ -366,7 +393,8 @@
   :config
   (setq gptel-backend
         (gptel-make-openai-oauth "ChatGPT"))
-  (setq gptel-default-mode 'org-mode)
+  (setq gptel-default-mode 'markdown-mode)
+  (setq gptel-model "gpt-5.6-luna")
   :init
   (with-eval-after-load 'meow
     (meow-leader-define-key

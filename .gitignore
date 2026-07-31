@@ -23,3 +23,6 @@ tramp
 /projectile-bookmarks.eld
 custom.el
 *.eld
+*.ttf
+/README.txt
+/OFL.txt
