@@ -246,7 +246,7 @@
          "* TODO %? %^G\nSCHEDULED: %^t\n%U\n  %i\n  %a")
         ("j" "Journal" entry (file+olp+datetree "journal.org")
          "* %?\nEntered on %U\n  %i\n  %a")
-	("n" "Note" entry (file "notes.org") "* %?\n%U\n%a\n")))
+	("n" "Note" entry (file "notes.org") "* %?\n  %U\n  %a")))
 
 (with-eval-after-load 'meow
   (meow-leader-define-key
