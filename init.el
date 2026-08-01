@@ -240,13 +240,16 @@
 (setq org-capture-templates
       `(("t" "Todo" entry
 	 (file+headline "tasks.org" "Tasks")
-         "* TODO %? %^G\nSCHEDULED: %^t\n%U\n  %i\n  %A")
+         "* TODO %? %^G\nSCHEDULED: %^t\n%U\n  %i\n  %A"
+	 :empty-lines 1)
         ("j" "Journal" entry
 	 (file+olp+datetree "journal.org")
-         "* %?\nEntered on %U\n  %i\n  %A")
+         "* %?\nEntered on %U\n  %i\n  %A"
+	 :empty-lines 1)
 	("n" "Note" entry
 	 (file "notes.org")
-	 "* %?\n  %U\n  %A")
+	 "* %?\n  %U\n  %A"
+	 :empty-lines 1)
 	("s" "Seminar" entry
 	 (file "seminars.org")
 	 ,(concat "%[" (file-name-concat org-directory "templates" "seminars.org") "]")
