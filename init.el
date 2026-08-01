@@ -2,21 +2,24 @@
 (load custom-file)
 
 (add-to-list 'custom-theme-load-path "~/.emacs.d/themes/")
-(load-theme 'lauds)
+(load-theme 'compline)
 
 (setq inhibit-startup-screen t)
 (tool-bar-mode 0)
 (scroll-bar-mode 0)
+(menu-bar-mode 0)
 (global-display-line-numbers-mode 1)
 (global-visual-line-mode -1)
+(toggle-truncate-lines)
 (blink-cursor-mode -1)
 (pixel-scroll-precision-mode 1)
 
 (defalias 'list-buffers 'ibuffer)
 (setq ibuffer-saved-filter-groups
       '(("default"
-	 ("dired" (mode . dired-mode)))
-	 ("magit" (name . "^magit"))))
+	 ("Dired" (mode . dired-mode))
+	 ("Org" (mode . org-mode))
+	 ("magit" (name . "^magit")))))
 (add-hook 'ibuffer-mode-hook
 	  (lambda ()
 	    (ibuffer-switch-to-saved-filter-groups "default")))
@@ -33,6 +36,8 @@
   :ensure t
   :hook
   (org-mode . mixed-pitch-mode)
+  (markdown-mode . mixed-pitch-mode)
+  (help-mode . mixed-pitch-mode)
   (LaTeX-mode . mixed-pitch-mode))
 
 (set-face-attribute 'default nil
@@ -47,7 +52,7 @@
 
 (set-face-attribute 'variable-pitch nil
                     :family "Source Serif 4"
-                    :height 160
+                    :height 180
                     :weight 'medium
                     :slant 'normal)
 
@@ -116,7 +121,6 @@
 (use-package autorevert
   :ensure nil ; built-in
   :config
-  (setq auto-revert-remote-files t)
   (global-auto-revert-mode 1))
 
 ;; Meow & Keybindings
@@ -240,15 +244,15 @@
 (setq org-capture-templates
       `(("t" "Todo" entry
 	 (file+headline "tasks.org" "Tasks")
-         "* TODO %? %^G\nSCHEDULED: %^t\n%U\n  %i\n  %A"
+         "* TODO %? %^G\nSCHEDULED: %^t\n%U\n  %i\n  %a"
 	 :empty-lines 1)
         ("j" "Journal" entry
 	 (file+olp+datetree "journal.org")
-         "* %?\nEntered on %U\n  %i\n  %A"
+         "* %?\nEntered on %U\n  %i"
 	 :empty-lines 1)
 	("n" "Note" entry
 	 (file "notes.org")
-	 "* %?\n  %U\n  %A"
+	 "* %^{Title}\n  %U\n  %a"
 	 :empty-lines 1)
 	("s" "Seminar" entry
 	 (file "seminars.org")
@@ -268,6 +272,10 @@
   (vertico-mode 1)
   :config
   (setq vertico-cycle t))
+
+(use-package vterm
+  :ensure t
+  :hook (vterm-mode . meow-insert))
 
 (use-package orderless
   :ensure t
@@ -400,7 +408,7 @@
   :config
   (setq gptel-backend
         (gptel-make-openai-oauth "ChatGPT"))
-  (setq gptel-default-mode 'markdown-mode)
+  (setq gptel-default-mode 'org-mode)
   (setq gptel-model "gpt-5.6-luna")
   :init
   (with-eval-after-load 'meow
@@ -420,3 +428,16 @@
     (meow-leader-define-key
      '("w t" . rotate-layout) ;; transpose
      )))
+
+(require 'ls-lisp)
+(setq dired-listing-switches "-lh --group-directories-first")
+(setq ls-lisp-dirs-first t)
+(setq ls-lisp-use-insert-directory-program nil)
+
+(use-package diff-hl
+  :ensure t
+  :init
+  (global-diff-hl-mode)
+  :config
+  ;; Update indicators dynamically as you type (instead of only on save)
+  (diff-hl-flydiff-mode 1))
