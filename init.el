@@ -410,3 +410,10 @@
      '("a r" . gptel-rewrite)
      '("a t" . gptel-org-set-topic))))
 
+(use-package rotate
+  :ensure t
+  :init
+  (with-eval-after-load 'meow
+    (meow-leader-define-key
+     '("w t" . rotate-layout) ;; transpose
+     )))
