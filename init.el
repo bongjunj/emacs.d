@@ -2,7 +2,7 @@
 (load custom-file)
 
 (add-to-list 'custom-theme-load-path "~/.emacs.d/themes/")
-(load-theme 'compline)
+(load-theme 'lauds)
 
 (setq inhibit-startup-screen t)
 (tool-bar-mode 0)
