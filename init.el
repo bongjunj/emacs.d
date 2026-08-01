@@ -42,17 +42,17 @@
 
 (set-face-attribute 'default nil
                     :family "JetBrains Mono"
-                    :height 160
+                    :height 140
                     :weight 'regular
                     :slant 'normal)
 
 (set-face-attribute 'fixed-pitch nil
                     :family "JetBrains Mono"
-                    :height 160)
+                    :height 140)
 
 (set-face-attribute 'variable-pitch nil
                     :family "Source Serif 4"
-                    :height 180
+                    :height 140
                     :weight 'medium
                     :slant 'normal)
 
@@ -357,6 +357,10 @@
 (use-package nael
   :ensure t
   :hook (nael-mode . abbrev-mode))
+
+;; Dafny
+(use-package boogie-friends
+  :ensure t)
 
 (use-package treesit-fold
   :ensure t
