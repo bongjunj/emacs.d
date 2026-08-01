@@ -238,11 +238,19 @@
 (setq org-agenda-files (list org-directory))
 (setq org-default-notes-file (concat org-directory "/notes.org"))
 (setq org-capture-templates
-      '(("t" "Todo" entry (file+headline "tasks.org" "Tasks")
-         "* TODO %? %^G\nSCHEDULED: %^t\n%U\n  %i\n  %a")
-        ("j" "Journal" entry (file+olp+datetree "journal.org")
-         "* %?\nEntered on %U\n  %i\n  %a")
-	("n" "Note" entry (file "notes.org") "* %?\n  %U\n  %a")))
+      `(("t" "Todo" entry
+	 (file+headline "tasks.org" "Tasks")
+         "* TODO %? %^G\nSCHEDULED: %^t\n%U\n  %i\n  %A")
+        ("j" "Journal" entry
+	 (file+olp+datetree "journal.org")
+         "* %?\nEntered on %U\n  %i\n  %A")
+	("n" "Note" entry
+	 (file "notes.org")
+	 "* %?\n  %U\n  %A")
+	("s" "Seminar" entry
+	 (file "seminars.org")
+	 ,(concat "%[" (file-name-concat org-directory "templates" "seminars.org") "]")
+         :empty-lines 1)))
 
 (with-eval-after-load 'meow
   (meow-leader-define-key
