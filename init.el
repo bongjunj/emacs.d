@@ -13,6 +13,9 @@
 (blink-cursor-mode -1)
 (pixel-scroll-precision-mode 1)
 
+(setq org-agenda-span 'week)
+(add-hook 'emacs-startup-hook (lambda () (org-agenda-list)))
+
 (defalias 'list-buffers 'ibuffer)
 (setq ibuffer-saved-filter-groups
       '(("default"
@@ -135,6 +138,13 @@
     (meow-leader-define-key
      '("v v" . magit-status)
      '("v C" . magit-clone))))
+
+
+
+(add-to-list 'display-buffer-alist
+             '((major-mode . magit-status-mode)
+               (display-buffer-below-selected)))
+
 
 (use-package autorevert
   :ensure nil ; built-in
@@ -364,9 +374,7 @@
 (use-package rust-mode
   :ensure t
   :config
-  (setq rust-format-on-save t)
-  :hook
-  (prettify-symbols-mode))
+  (setq rust-format-on-save t))
 
 ;; OCaml
 (use-package tuareg :ensure t)
