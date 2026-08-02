@@ -12,6 +12,8 @@
 (toggle-truncate-lines)
 (blink-cursor-mode -1)
 (pixel-scroll-precision-mode 1)
+(setq-default indent-tabs-mode nil)
+(setq-default tab-width 2)
 
 (setq org-agenda-span 'week)
 (add-hook 'emacs-startup-hook (lambda () (org-agenda-list)))
@@ -32,56 +34,11 @@
 (add-to-list 'package-archives '("melpa" . "https://melpa.org/packages/") t)
 (package-initialize)
 
-;; use system clipboard in emacs -nw
-(unless (display-graphic-p)
-  (defun my/pbcopy (text &optional _push)
-    (let ((process-connection-type nil)
-          (process (start-process "pbcopy" nil "pbcopy")))
-      (process-send-string process text)
-      (process-send-eof process)))
-
-  (defun my/pbpaste ()
-    (let ((text (shell-command-to-string "pbpaste")))
-      (unless (string-empty-p text) text)))
-
-  (setq interprogram-cut-function #'my/pbcopy
-        interprogram-paste-function #'my/pbpaste))
-
 (add-to-list 'package-selected-packages 'dash)
 (add-to-list 'package-selected-packages 'lsp-mode)
 (add-to-list 'package-selected-packages 'magit-section)
 
 (setq show-trailing-whitespace t)
-
-(use-package mixed-pitch
-  :ensure t
-  :hook
-  (org-mode . mixed-pitch-mode)
-  (markdown-mode . mixed-pitch-mode)
-  (help-mode . mixed-pitch-mode)
-  (LaTeX-mode . mixed-pitch-mode))
-
-(set-face-attribute 'default nil
-                    :family "JetBrains Mono"
-                    :height 140
-                    :weight 'regular
-                    :slant 'normal)
-
-(set-face-attribute 'fixed-pitch nil
-                    :family "JetBrains Mono"
-                    :height 140)
-
-(set-face-attribute 'variable-pitch nil
-                    :family "Source Serif 4"
-                    :height 140
-                    :weight 'medium
-                    :slant 'normal)
-
-(use-package mixed-pitch
-  :ensure t
-  :hook ((org-mode . mixed-pitch-mode)
-         (LaTeX-mode . mixed-pitch-mode)))
-
 
 (use-package which-key
   :ensure nil ;; built-in
@@ -143,12 +100,24 @@
 
 (add-to-list 'display-buffer-alist
              '((major-mode . magit-status-mode)
-               (display-buffer-below-selected)))
+               (display-buffer-below-selected)
+               (window-height . 0.3)))
+(add-to-list 'display-buffer-alist
+             '("\\*Async Shell Command\\*"
+               (display-buffer-below-selected)
+               (window-height . 0.3)))
+
+(setq org-agenda-window-setup 'other-window)
+(add-to-list 'display-buffer-alist
+             '("\\*Agenda Commands\\*"
+               (display-buffer-at-bottom)
+               (window-height . 0.35)))
 
 
 (use-package autorevert
   :ensure nil ; built-in
   :config
+  (setq auto-revert-remote-files t)
   (global-auto-revert-mode 1))
 
 ;; Meow & Keybindings
@@ -387,7 +356,9 @@
 
 ;; Dafny
 (use-package boogie-friends
-  :ensure t)
+  :ensure t
+  :hook
+  (dafny-mode . (lambda () (prettify-symbols-mode -1))))
 
 (use-package treesit-fold
   :ensure t
