@@ -1,8 +1,7 @@
 (setq custom-file "~/.emacs.d/custom.el")
 (load custom-file)
 
-(add-to-list 'custom-theme-load-path "~/.emacs.d/themes/")
-(load-theme 'lauds)
+(load-theme 'tango)
 
 (setq inhibit-startup-screen t)
 (tool-bar-mode 0)
@@ -29,6 +28,10 @@
 (require 'package)
 (add-to-list 'package-archives '("melpa" . "https://melpa.org/packages/") t)
 (package-initialize)
+
+(add-to-list 'package-selected-packages 'dash)
+(add-to-list 'package-selected-packages 'lsp-mode)
+(add-to-list 'package-selected-packages 'magit-section)
 
 (setq show-trailing-whitespace t)
 
@@ -354,9 +357,10 @@
 (use-package tuareg :ensure t)
 
 ;; Lean4
-(use-package nael
-  :ensure t
-  :hook (nael-mode . abbrev-mode))
+(use-package lean4-mode
+  :commands lean4-mode
+  :vc (:url "https://github.com/leanprover-community/lean4-mode.git"
+       :rev :last-release))
 
 ;; Dafny
 (use-package boogie-friends
