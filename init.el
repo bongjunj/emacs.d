@@ -29,6 +29,21 @@
 (add-to-list 'package-archives '("melpa" . "https://melpa.org/packages/") t)
 (package-initialize)
 
+;; use system clipboard in emacs -nw
+(unless (display-graphic-p)
+  (defun my/pbcopy (text &optional _push)
+    (let ((process-connection-type nil)
+          (process (start-process "pbcopy" nil "pbcopy")))
+      (process-send-string process text)
+      (process-send-eof process)))
+
+  (defun my/pbpaste ()
+    (let ((text (shell-command-to-string "pbpaste")))
+      (unless (string-empty-p text) text)))
+
+  (setq interprogram-cut-function #'my/pbcopy
+        interprogram-paste-function #'my/pbpaste))
+
 (add-to-list 'package-selected-packages 'dash)
 (add-to-list 'package-selected-packages 'lsp-mode)
 (add-to-list 'package-selected-packages 'magit-section)
