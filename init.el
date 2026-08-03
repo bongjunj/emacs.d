@@ -262,7 +262,7 @@
    '("w s" . split-window-below)
    '("w K" . kill-buffer)
    '("w Q" . delete-frame)
-   '("w f" . delete-other-windows)
+   '("w f" . delete-other-windows) ;; focus!
    '("w F" . make-frame)
    '("w S h" . windmove-swap-states-left)
    '("w S j" . windmove-swap-states-down)
@@ -368,8 +368,8 @@
      '("s r" . consult-ripgrep)
      '("s b" . consult-buffer)
      '("s i" . consult-imenu)
-     '("s g" . consult-git-grep)
-     '("s f" . consult-find))))
+     '("s h" . consult-org-heading)
+     '("s f" . consult-fd))))
 
 (use-package eglot
   :ensure nil
