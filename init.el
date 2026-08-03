@@ -263,7 +263,11 @@
    '("w K" . kill-buffer)
    '("w Q" . delete-frame)
    '("w f" . delete-other-windows)
-   '("w F" . make-frame)))
+   '("w F" . make-frame)
+   '("w S h" . windmove-swap-states-left)
+   '("w S j" . windmove-swap-states-down)
+   '("w S k" . windmove-swap-states-up)
+   '("w S l" . windmove-swap-states-right)))
 
 (global-set-key (kbd "C-x C-d") #'dired)
 
