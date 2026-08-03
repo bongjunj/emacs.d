@@ -15,6 +15,15 @@
 (setq-default indent-tabs-mode nil)
 (setq-default tab-width 2)
 
+;; visual indicator at the column of width 80
+(setopt display-fill-column-indicator-column 80)
+(add-hook 'prog-mode-hook
+          (lambda () (display-fill-column-indicator-mode 1)))
+(add-hook 'org-mode-hook
+          (lambda () (display-fill-column-indicator-mode 1)))
+(add-hook 'markdown-mode-hook
+          (lambda () (display-fill-column-indicator-mode 1)))
+
 (setq org-agenda-span 'week)
 (add-hook 'emacs-startup-hook (lambda () (org-agenda-list)))
 
@@ -28,8 +37,6 @@
 	  (lambda ()
 	    (ibuffer-switch-to-saved-filter-groups "default")))
 
-(add-hook 'org-mode-hook #'variable-pitch-mode)
-
 (require 'package)
 (add-to-list 'package-archives '("melpa" . "https://melpa.org/packages/") t)
 (package-initialize)
@@ -40,6 +47,11 @@
 
 (setq show-trailing-whitespace t)
 
+(set-face-attribute 'default nil
+                    :family "Menlo"
+                    :height 140
+                    :weight 'regular
+                    :slant 'normal)
 (use-package which-key
   :ensure nil ;; built-in
   :config
@@ -217,6 +229,7 @@
    '("w j" . windmove-down)
    '("w k" . windmove-up)
    '("w l" . windmove-right)
+   '("w d" . toggle-window-dedicated)
    '("w q" . delete-window)
    '("w v" . split-window-right)
    '("w s" . split-window-below)
