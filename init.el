@@ -32,8 +32,6 @@
  '(:application tramp :protocol "scp")
  'remote-direct-async-process)
 
-(setq magit-tramp-pipe-stty-settings 'pty)
-
 (with-eval-after-load 'tramp
   (with-eval-after-load 'compile
     (remove-hook 'compilation-mode-hook #'tramp-compile-disable-ssh-controlmaster-options)))
@@ -125,11 +123,17 @@
   ("C-x g" . magit-status)
   :config
   (setq magit-save-repository-buffers 'dontask)
+  (setq magit-tramp-pipe-stty-settings 'pty)
+  (setq magit-refresh-status-buffer nil)
+  (setq magit-commit-show-diff nil)
+  (setq magit-revert-status-buffers nil)
   :init
   (with-eval-after-load 'meow
     (meow-leader-define-key
      '("v v" . magit-status)
-     '("v C" . magit-clone))))
+     '("v C" . magit-clone)
+     '("v m" . magit-dispatch)
+     '("v M" . magit-file-dispatch))))
 
 
 
