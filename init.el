@@ -132,6 +132,13 @@
     (meow-leader-define-key
      '("v v" . magit-status)
      '("v C" . magit-clone)
+     '("v P" . magit-push)
+     '("v F" . magit-pull-from-upstream)
+     '("v l" . magit-log-all)
+     '("v L" . magit-log-current)
+     '("v B" . magit-blame)
+     '("v a" . magit-stage)
+     '("v u" . magit-unstage)
      '("v m" . magit-dispatch)
      '("v M" . magit-file-dispatch))))
 
