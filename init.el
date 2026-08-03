@@ -140,6 +140,7 @@
      '("v a" . magit-stage)
      '("v u" . magit-unstage)
      '("v m" . magit-dispatch)
+     '("v c" . magit-commit-create)
      '("v M" . magit-file-dispatch))))
 
 
