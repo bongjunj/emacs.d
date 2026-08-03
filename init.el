@@ -161,12 +161,6 @@
                (window-height . 0.35)))
 
 
-(use-package autorevert
-  :ensure nil ; built-in
-  :config
-  (setq auto-revert-remote-files t)
-  (global-auto-revert-mode 1))
-
 ;; Meow & Keybindings
 (defun meow-setup ()
   (setq meow-cheatsheet-layout meow-cheatsheet-layout-qwerty)
