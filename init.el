@@ -45,8 +45,6 @@
 (add-hook 'markdown-mode-hook
           (lambda () (display-fill-column-indicator-mode 1)))
 
-(setq org-agenda-span 'week)
-(add-hook 'emacs-startup-hook (lambda () (org-agenda-list)))
 
 (defalias 'list-buffers 'ibuffer)
 (setq ibuffer-saved-filter-groups
@@ -262,7 +260,7 @@
    '("w q" . delete-window)
    '("w v" . split-window-right)
    '("w s" . split-window-below)
-   '("w K" . kill-buffer-and-window)
+   '("w K" . kill-buffer)
    '("w Q" . delete-frame)
    '("w f" . delete-other-windows)
    '("w F" . make-frame)))
@@ -276,6 +274,8 @@
 (define-key my-bookmark-map (kbd "m") #'bookmark-set)
 (define-key my-bookmark-map (kbd "l") #'bookmark-bmenu-list)
 
+(setq org-agenda-span 'week)
+(add-hook 'emacs-startup-hook (lambda () (org-agenda-list)))
 
 (setq org-directory "~/Documents/orgfiles/")
 (setq org-agenda-files (list org-directory))
@@ -296,7 +296,12 @@
 	("s" "Seminar" entry
 	 (file "seminars.org")
 	 ,(concat "%[" (file-name-concat org-directory "templates" "seminars.org") "]")
-         :empty-lines 1)))
+   :empty-lines 1)))
+
+(setq org-clock-persist t)
+(org-clock-persistence-insinuate)
+(setq org-clock-auto-clock-resolution 'when-no-clock-is-running)
+
 
 (with-eval-after-load 'meow
   (meow-leader-define-key
