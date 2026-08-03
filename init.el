@@ -12,8 +12,31 @@
 (toggle-truncate-lines)
 (blink-cursor-mode -1)
 (pixel-scroll-precision-mode 1)
+(winner-mode 1)
 (setq-default indent-tabs-mode nil)
 (setq-default tab-width 2)
+
+;; TRAMP Optimization: https://coredumped.dev/2025/06/18/making-tramp-go-brrrr./
+(setq remote-file-name-inhibit-locks t
+      tramp-use-scp-direct-remote-copying t
+      remote-file-name-inhibit-auto-save-visited t)
+
+(setq tramp-copy-size-limit (* 1024 1024) ;; 1MB
+      tramp-verbose 2)
+
+(connection-local-set-profile-variables
+ 'remote-direct-async-process
+ '((tramp-direct-async-process . t)))
+
+(connection-local-set-profiles
+ '(:application tramp :protocol "scp")
+ 'remote-direct-async-process)
+
+(setq magit-tramp-pipe-stty-settings 'pty)
+
+(with-eval-after-load 'tramp
+  (with-eval-after-load 'compile
+    (remove-hook 'compilation-mode-hook #'tramp-compile-disable-ssh-controlmaster-options)))
 
 ;; visual indicator at the column of width 80
 (setopt display-fill-column-indicator-column 80)
@@ -276,6 +299,10 @@
    '("o l" . org-store-link)
    '("o b" . org-switchb)))
 
+(use-package vterm
+  :ensure t
+  :hook (vterm-mode . meow-insert))
+
 (use-package vertico
   :ensure t
   :init
@@ -283,16 +310,13 @@
   :config
   (setq vertico-cycle t))
 
-(use-package vterm
-  :ensure t
-  :hook (vterm-mode . meow-insert))
-
 (use-package orderless
   :ensure t
-  :custom
-  (completion-styles '(orderless basic))
-  (completion-category-defaults nil)
-  (completion-category-overrides '((file (styles basic partial-completion)))))
+  :config
+  (setq orderless-matching-styles '(orderless-prefixes))
+  (setq completion-ignore-case t)
+  (setq completion-styles '(basic substring initials orderless))
+  (setq completion-category-overrides '((file (styles basic partial-completion)))))
 
 (use-package marginalia
   :ensure t
@@ -307,17 +331,18 @@
   (corfu-auto-prefix 2)          ;; Minimum length of prefix to trigger popup
   (corfu-cycle t)                ;; Enable cycling through candidates
   (corfu-preselect 'prompt)      ;; Always preselect the prompt by default
+  :config
+  (corfu-popupinfo-mode 1)
   :init
   (global-corfu-mode 1))
 
 (setq tab-always-indent 'complete)
 
 (use-package cape
-  :ensure t
+  :defer 1
   :config
-  ;; Add dabbrev (words in buffer) and file-path completion globally
-  (add-to-list 'completion-at-point-functions #'cape-file)
-  (add-to-list 'completion-at-point-functions #'cape-dabbrev))
+  (add-hook 'completion-at-point-functions #'cape-dabbrev 20) ; words from buffer
+  (add-hook 'completion-at-point-functions #'cape-file 20))
 
 (use-package consult
   :ensure t
@@ -358,7 +383,7 @@
   :config
   (setq rust-format-on-save t))
 
-;; OCaml
+;; ml
 (use-package tuareg :ensure t)
 
 ;; Lean4
@@ -444,11 +469,6 @@
      '("w t" . rotate-layout) ;; transpose
      )))
 
-(require 'ls-lisp)
-(setq dired-listing-switches "-lh --group-directories-first")
-(setq ls-lisp-dirs-first t)
-(setq ls-lisp-use-insert-directory-program nil)
-
 (use-package diff-hl
   :ensure t
   :init
@@ -456,3 +476,9 @@
   :config
   ;; Update indicators dynamically as you type (instead of only on save)
   (diff-hl-flydiff-mode 1))
+
+(use-package winpulse
+  :vc (:url "https://github.com/xenodium/winpulse"
+       :rev :newest)
+  :config
+  (winpulse-mode +1))
