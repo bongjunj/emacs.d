@@ -1,0 +1,7 @@
+* MacOS settings
+
+If you use multiple input source (e.g. Korean, English),
+turn off the shortcut to change input source at
+=System Settings > Keyboard Shorcuts... > Input Sources=.
+
+
