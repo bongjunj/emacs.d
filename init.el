@@ -266,6 +266,7 @@
    '("w Q" . delete-frame)
    '("w f" . delete-other-windows) ;; focus!
    '("w F" . make-frame)
+   '("w r" . revert-buffer-quick)
    '("w S h" . windmove-swap-states-left)
    '("w S j" . windmove-swap-states-down)
    '("w S k" . windmove-swap-states-up)
