@@ -287,21 +287,36 @@
 (setq org-default-notes-file (concat org-directory "/notes.org"))
 (setq org-capture-templates
       `(("t" "Todo" entry
-	 (file+headline "tasks.org" "Tasks")
+	       (file+headline "tasks.org" "Tasks")
          "* TODO %? %^G\nSCHEDULED: %^t\n%U\n  %i\n  %a"
-	 :empty-lines 1)
+	       :empty-lines 1)
         ("j" "Journal" entry
-	 (file+olp+datetree "journal.org")
+	       (file+olp+datetree "journal.org")
          "* %?\nEntered on %U\n  %i"
-	 :empty-lines 1)
-	("n" "Note" entry
-	 (file "notes.org")
-	 "* %^{Title}\n  %U\n  %a"
-	 :empty-lines 1)
-	("s" "Seminar" entry
-	 (file "seminars.org")
-	 ,(concat "%[" (file-name-concat org-directory "templates" "seminars.org") "]")
-   :empty-lines 1)))
+	       :empty-lines 1)
+	      ("n" "Note" entry
+	       (file "notes.org")
+	       "* %^{Title}\n  %U\n  %a"
+	       :empty-lines 1)
+	      ("s" "Seminar" entry
+	       (file "seminars.org")
+	       ,(concat "%[" (file-name-concat org-directory "templates" "seminars.org") "]")
+         :empty-lines 1)
+        ("w" "Weekly research note"
+         entry
+         (file "research-weekly.org")
+         ,(concat
+           "* %<%G-W%V> — %^{Topic}\n"
+           ":PROPERTIES:\n"
+           ":DATE: %u\n"
+           ":END:\n\n"
+           "** Objective\n\n%?\n\n"
+           "** Work Log\n\n"
+           "** Findings\n\n"
+           "** Problems\n\n"
+           "** Next Week\n\n"
+           "- [ ] ")
+         :empty-lines 1)))
 
 (with-eval-after-load 'org-clock
   (setq org-clock-persist t)
@@ -369,6 +384,7 @@
      '("s r" . consult-ripgrep)
      '("s b" . consult-buffer)
      '("s i" . consult-imenu)
+     '("s o" . consult-org-agenda)
      '("s h" . consult-org-heading)
      '("s f" . consult-fd))))
 
@@ -468,10 +484,11 @@
   (setq gptel-default-mode 'org-mode)
   (setq gptel-model "gpt-5.6-luna")
   (setq gptel-use-tools t)
-  (setq gptel-system-prompt
-        "You are a large language model living in Emacs and a helpful assistant.
-         Read ~/.emacs.d/init.el to understand the current configuration.
-         Respond concisely.")
+(setq gptel-system-prompt
+      (concat
+       "You are a large language model living in Emacs and a helpful assistant. "
+       "Read ~/.emacs.d/init.el to understand the current configuration. "
+       "Respond concisely."))
   :init
   (with-eval-after-load 'meow
     (meow-leader-define-key
