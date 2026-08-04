@@ -1,7 +1,8 @@
+(require 'cl-lib)
 (setq custom-file "~/.emacs.d/custom.el")
-(load custom-file)
+(load custom-file nil nil)
 
-(load-theme 'tango)
+(load-theme 'leuven)
 
 (setq inhibit-startup-screen t)
 (tool-bar-mode 0)
@@ -240,6 +241,7 @@
    '("y" . meow-save)
    '("Y" . meow-sync-grab)
    '("z" . meow-pop-selection)
+   '("<" . meow-indent)
    '("'" . repeat)
    '("<escape>" . ignore)))
 
@@ -271,12 +273,11 @@
 
 (global-set-key (kbd "C-x C-d") #'dired)
 
-(defvar my-bookmark-map (make-sparse-keymap) "Bookmark keymap.")
-(global-set-key (kbd "C-c B") my-bookmark-map)
-
-(define-key my-bookmark-map (kbd "j") #'bookmark-jump)
-(define-key my-bookmark-map (kbd "m") #'bookmark-set)
-(define-key my-bookmark-map (kbd "l") #'bookmark-bmenu-list)
+(with-eval-after-load 'meow
+  (meow-leader-define-key
+   '("b j" . bookmark-jump)
+   '("b m" . bookmark-set)
+   '("b l" . bookmark-bmenu-list)))
 
 (setq org-agenda-span 'week)
 (add-hook 'emacs-startup-hook (lambda () (org-agenda-list)))
@@ -302,10 +303,10 @@
 	 ,(concat "%[" (file-name-concat org-directory "templates" "seminars.org") "]")
    :empty-lines 1)))
 
-(setq org-clock-persist t)
-(org-clock-persistence-insinuate)
-(setq org-clock-auto-clock-resolution 'when-no-clock-is-running)
-
+(with-eval-after-load 'org-clock
+  (setq org-clock-persist t)
+  (org-clock-persistence-insinuate)
+  (setq org-clock-auto-clock-resolution 'when-no-clock-is-running))
 
 (with-eval-after-load 'meow
   (meow-leader-define-key
@@ -460,21 +461,168 @@
 
 ;; Log-in to OpenAI with (gptel-openai-oauth-login)
 (use-package gptel
+  :ensure t
   :config
   (setq gptel-backend
         (gptel-make-openai-oauth "ChatGPT"))
   (setq gptel-default-mode 'org-mode)
   (setq gptel-model "gpt-5.6-luna")
+  (setq gptel-use-tools t)
   :init
   (with-eval-after-load 'meow
     (meow-leader-define-key
-     '("a s" . gptel-send)
+     '("a s" . gptel)
      '("a a" . gptel-menu)
      '("a c" . gptel-context-add)
      '("a k" . gptel-context-remove-all)
      '("a K" . gptel-abort)
      '("a r" . gptel-rewrite)
      '("a t" . gptel-org-set-topic))))
+
+(setq gptel-tools         ;; <-- Holds a list of tools
+      (list        
+       (gptel-make-tool
+        :function (lambda (buffer)
+                    (unless (buffer-live-p (get-buffer buffer))
+                      (error "Error: buffer %s is not live." buffer))
+                    (with-current-buffer  buffer
+                      (buffer-substring-no-properties (point-min) (point-max))))
+        :name "read_buffer"
+        :description "Return the contents of an Emacs buffer"
+        :args (list '(:name "buffer"
+                            :type "string"
+                            :description "The name of the buffer whose contents are to be retrieved"))
+        :category "emacs")
+       (gptel-make-tool
+        :name "list_buffers"
+        :function (lambda ()
+                    (mapconcat #'buffer-name (buffer-list) "\n"))
+        :description "List the names of all existing Emacs buffers."
+        :args nil
+        :category "emacs")
+       (gptel-make-tool
+        :name "list_windows"
+        :function
+        (lambda ()
+          (mapconcat
+           (lambda (window)
+             (format "frame=%s window=%s buffer=%s %dx%d+%d+%d%s"
+                     (frame-parameter (window-frame window) 'name)
+                     window
+                     (buffer-name (window-buffer window))
+                     (window-pixel-width window)
+                     (window-pixel-height window)
+                     (window-pixel-left window)
+                     (window-pixel-top window)
+                     (if (eq window (selected-window)) " [selected]" "")))
+           (cl-loop for frame in (frame-list)
+                    append (window-list frame))
+           "\n"))
+        :description "List all Emacs windows, their frames, buffers, sizes, and positions."
+        :args nil
+        :category "emacs")
+       (gptel-make-tool
+        :name "list_frames"
+        :function
+        (lambda ()
+          (mapconcat
+           (lambda (frame)
+             (format "frame=%s name=%s terminal=%s %dx%d%s"
+                     frame
+                     (or (frame-parameter frame 'name) "")
+                     (frame-terminal frame)
+                     (frame-pixel-width frame)
+                     (frame-pixel-height frame)
+                     (if (eq frame (selected-frame)) " [selected]" "")))
+           (frame-list)
+           "\n"))
+        :description "List all existing Emacs frames and their dimensions."
+        :args nil
+        :category "emacs")
+
+       (gptel-make-tool
+        :name "get_current_context"
+        :function
+        (lambda ()
+          (with-current-buffer (window-buffer (selected-window))
+            (format
+             (concat "buffer: %s\n"
+                     "file: %s\n"
+                     "major-mode: %s\n"
+                     "point: %d\n"
+                     "line: %d\n"
+                     "column: %d\n"
+                     "region: %s\n"
+                     " narrowed: %s\n\n"
+                     "context:\n%s")
+             (buffer-name)
+             (or buffer-file-name "")
+             major-mode
+             (point)
+             (line-number-at-pos)
+             (current-column)
+             (if (use-region-p)
+                 (format "%d-%d" (region-beginning) (region-end))
+               "none")
+             (if (buffer-narrowed-p) "yes" "no")
+             (buffer-substring-no-properties
+              (max (point-min) (- (point) 1000))
+              (min (point-max) (+ (point) 1000))))))
+        :description
+        "Return the current buffer, file, mode, cursor position, region, and nearby text."
+        :args nil
+        :category "emacs")
+       (gptel-make-tool
+        :name "describe_symbol"
+        :function
+        (lambda (symbol)
+          (let* ((sym (intern symbol))
+                 (function-doc (when (fboundp sym)
+                                 (documentation sym t)))
+                 (variable-doc (when (boundp sym)
+                                 (documentation-property
+                                  sym 'variable-documentation t)))
+                 (value (when (boundp sym)
+                          (format "%S" (symbol-value sym)))))
+            (unless (or (fboundp sym) (boundp sym))
+              (error "Unknown symbol: %s" symbol))
+            (format
+             "symbol: %s\nfunction: %s\n\nvariable value: %s\nvariable documentation: %s"
+             sym
+             (or function-doc "Not a function")
+             (or value "Not a bound variable")
+             (or variable-doc "No variable documentation"))))
+        :description
+        "Describe an Emacs Lisp function, variable, or both."
+        :args
+        (list '(:name "symbol"
+                      :type "string"
+                      :description "The name of the function or variable to describe."))
+        :category "emacs")
+
+       (gptel-make-tool
+        :function (lambda (directory)
+	                  (mapconcat #'identity
+                               (directory-files directory)
+                               "\n"))
+        :name "list_directory"
+        :description "List the contents of a given directory"
+        :args (list '(:name "directory"
+	                          :type "string"
+	                          :description "The path to the directory to list"))
+        :category "filesystem")
+       (gptel-make-tool
+        :function (lambda (filepath)
+	                  (with-temp-buffer
+	                    (insert-file-contents (expand-file-name filepath))
+	                    (buffer-string)))
+        :name "read_file"
+        :description "Read and display the contents of a file"
+        :args (list '(:name "filepath"
+	                          :type "string"
+	                          :description "Path to the file to read.  Supports relative paths and ~."))
+        :category "filesystem")))
+
 
 (use-package rotate
   :ensure t
