@@ -262,7 +262,7 @@
    '("w q" . delete-window)
    '("w v" . split-window-right)
    '("w s" . split-window-below)
-   '("w K" . kill-buffer)
+   '("w K" . kill-current-buffer)
    '("w Q" . delete-frame)
    '("w f" . delete-other-windows) ;; focus!
    '("w F" . make-frame)
@@ -468,6 +468,10 @@
   (setq gptel-default-mode 'org-mode)
   (setq gptel-model "gpt-5.6-luna")
   (setq gptel-use-tools t)
+  (setq gptel-system-prompt
+        "You are a large language model living in Emacs and a helpful assistant.
+         Read ~/.emacs.d/init.el to understand the current configuration.
+         Respond concisely.")
   :init
   (with-eval-after-load 'meow
     (meow-leader-define-key
@@ -479,7 +483,22 @@
      '("a r" . gptel-rewrite)
      '("a t" . gptel-org-set-topic))))
 
-(setq gptel-tools         ;; <-- Holds a list of tools
+
+(defun my-gptel-magit-git-readonly (directory args)
+  "Run a read-only Git command through Magit in DIRECTORY."
+  (require 'magit)
+  (let ((args (append args nil))
+        (allowed-commands
+         '("status" "log" "diff" "show" "branch" "rev-parse")))
+    (unless (and args (member (car args) allowed-commands))
+      (error "Git command not allowed: %s" (car args)))
+    (let ((default-directory
+           (file-name-as-directory (expand-file-name directory))))
+      (mapconcat #'identity
+                 (apply #'magit-git-lines args)
+                 "\n"))))
+
+(setq gptel-tools
       (list        
        (gptel-make-tool
         :function (lambda (buffer)
@@ -539,7 +558,6 @@
         :description "List all existing Emacs frames and their dimensions."
         :args nil
         :category "emacs")
-
        (gptel-make-tool
         :name "get_current_context"
         :function
@@ -600,6 +618,27 @@
                       :description "The name of the function or variable to describe."))
         :category "emacs")
 
+       ;; Magit Tools
+       (gptel-make-tool
+        :name "magit_git_readonly"
+        :function #'my-gptel-magit-git-readonly
+        :description
+        "Run a read-only Git command through Magit in a local or TRAMP repository.
+Allowed commands include status, log, diff, show, branch, and rev-parse."
+        :args
+        (list
+         '(:name "directory"
+                 :type "string"
+                 :description "Repository directory.")
+         '(:name "args"
+                 :type "array"
+                 :items (:type "string")
+                 :description
+                 "Git arguments, e.g. [\"status\", \"--short\", \"--branch\"]."))
+        :category "git")
+
+
+       
        (gptel-make-tool
         :function (lambda (directory)
 	                  (mapconcat #'identity
