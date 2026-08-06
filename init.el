@@ -149,6 +149,8 @@
      '("v c" . magit-commit-create)
      '("v M" . magit-file-dispatch))))
 
+(setq switch-to-buffer-obey-display-actions t)
+
 (defun display-buffer-my-bottom-buffer-p (buffer-name _action)
   "Match compilation and async-shell-command buffers."
   (let ((name (if (bufferp buffer-name)
@@ -157,17 +159,44 @@
     (or (string= name "*compilation*")
         (string= name "*Async Shell Command*"))))
 
-(setq switch-to-buffer-obey-display-actions t)
+(defun my-magit-diff-buffer-p (buffer _action)
+  (with-current-buffer (get-buffer buffer)
+    (derived-mode-p 'magit-diff-mode
+                    'magit-revision-mode
+                    'magit-show-mode)))
+
 (setq display-buffer-alist
       '(("\\*Help\\*"
          (display-buffer-reuse-window
           display-buffer-pop-up-window)
          (inhibit-same-window . t))
+        ;; Magit Status
         ((major-mode . magit-status-mode)
          (display-buffer-in-side-window)
          (side . left)
          (slot . 0)
-         (window-height . 0.3))
+         (window-width . 0.28)
+         (inhibit-same-window . t))
+
+        ;; Commit message: fixed bottom panel
+        ("COMMIT_EDITMSG"
+         (display-buffer-reuse-window
+          display-buffer-in-side-window)
+         (side . left)
+         (slot . 1)
+         (window-width . 0.28)
+         (window-height . 0.35)
+         (inhibit-same-window . t))
+
+        ((major-mode . magit-diff-mode)
+         (display-buffer-reuse-window
+          display-buffer-in-side-window)
+         (side . left)
+         (slot . 1)
+         (window-width . 0.4)
+         (window-height . 0.7)
+         (inhibit-same-window . t))
+
         ((major-mode . dired-mode)
          (display-buffer-reuse-window display-buffer-in-side-window)
          (side . left)
@@ -184,6 +213,8 @@
          (side . bottom)
          (slot . 0)
          (window-height . 0.35))))
+
+
 
 (setq org-agenda-window-setup 'current-window)
 
