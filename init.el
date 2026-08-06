@@ -772,39 +772,9 @@ Allowed commands include status, log, diff, show, branch, and rev-parse."
   (winpulse-mode +1))
 
 (use-package rmsbolt
+  :vc (:url "https://github.com/bongjunj/rmsbolt"
+       :rev :newest)
   :ensure t
   :config
-  ;; RMSBolt parses a source-location record for many assembly lines.  On a
-  ;; TRAMP buffer it has already stripped the TRAMP prefix, so its use of
-  ;; `file-equal-p' needlessly canonicalizes identical remote paths on the
-  ;; local machine.  Rust also emits locations for standard-library source
-  ;; files, so comparisons must avoid canonicalizing non-matching paths while
-  ;; RMSBolt is parsing output for a remote source buffer.
-  (defvar my/rmsbolt--remote-path-comparison nil
-    "Non-nil while RMSBolt parses source paths from a remote buffer.")
-
-  (defun my/rmsbolt-file-equal-p (src-path target-path)
-    "Compare RMSBolt source paths without needless canonicalization."
-    (let ((local-src-path (file-local-name src-path))
-          (local-target-path (file-local-name target-path)))
-      (if my/rmsbolt--remote-path-comparison
-          (equal local-src-path local-target-path)
-        (or (equal local-src-path local-target-path)
-            (and (equal (file-remote-p src-path)
-                        (file-remote-p target-path))
-                 (file-equal-p src-path target-path))))))
-
-  (defun my/rmsbolt-process-asm-lines (original src-buffer asm-lines)
-    "Parse remote RMSBolt output without local filesystem canonicalization."
-    (let ((my/rmsbolt--remote-path-comparison
-           (file-remote-p
-            (or (buffer-file-name src-buffer)
-                (buffer-local-value 'default-directory src-buffer)))))
-      (funcall original src-buffer asm-lines)))
-
-  (advice-remove 'rmsbolt--file-equal-p #'my/rmsbolt-file-equal-p)
-  (advice-add 'rmsbolt--file-equal-p :override #'my/rmsbolt-file-equal-p)
-  (advice-remove 'rmsbolt--process-asm-lines #'my/rmsbolt-process-asm-lines)
-  (advice-add 'rmsbolt--process-asm-lines :around #'my/rmsbolt-process-asm-lines)
   (setq rmsbolt-asm-format "att")
   (setq rmsbolt-automatic-recompile nil))
