@@ -465,6 +465,7 @@
      '("p p" . consult-projectile-switch-project)
      '("p f" . consult-projectile-find-file)
      '("p b" . consult-projectile-switch-to-buffer)
+     '("p B" . projectile-ibuffer)
      '("p P" . consult-projectile)              ;; Multi-source project view
      
      ;; Core Projectile utilities
