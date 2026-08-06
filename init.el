@@ -17,6 +17,11 @@
 (setq-default indent-tabs-mode nil)
 (setq-default tab-width 2)
 
+(setq frame-title-format
+      '(buffer-file-name "%b - %f" 
+        (dired-directory dired-directory 
+         ("%b - Dir: " default-directory))))
+
 ;; TRAMP Optimization: https://coredumped.dev/2025/06/18/making-tramp-go-brrrr./
 (setq remote-file-name-inhibit-locks t
       tramp-use-scp-direct-remote-copying t
@@ -288,6 +293,7 @@
    '("w f" . delete-other-windows) ;; focus!
    '("w F" . make-frame)
    '("w r" . revert-buffer-quick)
+   '("w S F" . select-frame-by-name)
    '("w S h" . windmove-swap-states-left)
    '("w S j" . windmove-swap-states-down)
    '("w S k" . windmove-swap-states-up)
@@ -726,5 +732,12 @@ Allowed commands include status, log, diff, show, branch, and rev-parse."
 (use-package winpulse
   :vc (:url "https://github.com/xenodium/winpulse"
        :rev :newest)
+  :ensure t
   :config
   (winpulse-mode +1))
+
+(use-package rmsbolt
+  :ensure t
+  :config
+  (setq rmsbolt-asm-format "att")
+  (setq rmsbolt-automatic-recompile nil))
