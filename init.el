@@ -165,7 +165,7 @@
          (inhibit-same-window . t))
         ((major-mode . magit-status-mode)
          (display-buffer-in-side-window)
-         (side . bottom)
+         (side . left)
          (slot . 0)
          (window-height . 0.3))
         ((major-mode . dired-mode)
@@ -510,8 +510,10 @@
   :ensure t
   :config
   (setq gptel-display-buffer-action
-        '((display-buffer-reuse-window display-buffer-in-direction)
-          (direction . right)
+        '((display-buffer-in-side-window)
+          (side . right)
+          (slot . 0)
+          (window-width . 0.4)
           (inhibit-same-window . t)))
   (setq gptel-backend
         (gptel-make-openai-oauth "ChatGPT"))
@@ -522,6 +524,7 @@
       (concat
        "You are a large language model living in Emacs and a helpful assistant. "
        "Read ~/.emacs.d/init.el to understand the current configuration. "
+       "Read buffers and understand the context clearly before you answer to the user. "
        "Respond concisely."))
   :init
   (with-eval-after-load 'meow
