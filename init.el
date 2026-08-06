@@ -136,29 +136,53 @@
      '("v l" . magit-log-all)
      '("v L" . magit-log-current)
      '("v B" . magit-blame)
-     '("v a" . magit-stage)
-     '("v u" . magit-unstage)
+     '("v d" . magit-diff-buffer-file)
+     '("v a" . magit-file-stage)
+     '("v u" . magit-file-unstage)
      '("v m" . magit-dispatch)
      '("v c" . magit-commit-create)
      '("v M" . magit-file-dispatch))))
 
+(defun display-buffer-my-bottom-buffer-p (buffer-name _action)
+  "Match compilation and async-shell-command buffers."
+  (let ((name (if (bufferp buffer-name)
+                  (buffer-name buffer-name)
+                buffer-name)))
+    (or (string= name "*compilation*")
+        (string= name "*Async Shell Command*"))))
 
+(setq switch-to-buffer-obey-display-actions t)
+(setq display-buffer-alist
+      '(((minor-mode . gptel-mode)
+         (display-buffer-in-direction)
+         (direction . right)
+         (window-width . 0.35)
+         (inhibit-same-window . t))
+        ("\\*Help\\*"
+         (display-buffer-reuse-window
+          display-buffer-pop-up-window)
+         (inhibit-same-window . t))
+        ((major-mode . magit-status-mode)
+         (display-buffer-reuse-window display-buffer-below-selected)
+         (window-height . 0.3))
+        ((major-mode . dired-mode)
+         (display-buffer-reuse-window display-buffer-in-side-window)
+         (side . left)
+         (slot . 0)
+         (window-width . 0.3)
+         (inhibit-same-window . t))
+        (display-buffer-my-bottom-buffer-p
+         (display-buffer-in-side-window)
+         (side . bottom)
+         (slot . 0)
+         (window-height . 0.3))
+        ("\\*Agenda Commands\\*"
+         (display-buffer-in-side-window)
+         (side . bottom)
+         (slot . 0)
+         (window-height . 0.35))))
 
-(add-to-list 'display-buffer-alist
-             '((major-mode . magit-status-mode)
-               (display-buffer-below-selected)
-               (window-height . 0.3)))
-(add-to-list 'display-buffer-alist
-             '("\\*Async Shell Command\\*"
-               (display-buffer-below-selected)
-               (window-height . 0.3)))
-
-(setq org-agenda-window-setup 'other-window)
-(add-to-list 'display-buffer-alist
-             '("\\*Agenda Commands\\*"
-               (display-buffer-at-bottom)
-               (window-height . 0.35)))
-
+(setq org-agenda-window-setup 'other-frame)
 
 ;; Meow & Keybindings
 (defun meow-setup ()
