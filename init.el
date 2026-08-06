@@ -16,6 +16,7 @@
 (winner-mode 1)
 (setq-default indent-tabs-mode nil)
 (setq-default tab-width 2)
+(setq compilation-scroll-output t)
 
 (setq frame-title-format
       '(buffer-file-name "%b - %f" 
