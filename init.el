@@ -179,7 +179,7 @@
          (slot . 0)
          (window-height . 0.35))))
 
-(setq org-agenda-window-setup 'other-frame)
+(setq org-agenda-window-setup 'current-window)
 
 ;; Meow & Keybindings
 (defun meow-setup ()
@@ -505,7 +505,6 @@
   (setq gptel-display-buffer-action
         '((display-buffer-reuse-window display-buffer-in-direction)
           (direction . right)
-          (window-width . 0.35)
           (inhibit-same-window . t)))
   (setq gptel-backend
         (gptel-make-openai-oauth "ChatGPT"))
@@ -526,7 +525,7 @@
      '("a k" . gptel-context-remove-all)
      '("a K" . gptel-abort)
      '("a r" . gptel-rewrite)
-     '("a t" . gptel-org-set-topic))))
+     '("a t" . gptel-tools))))
 
 
 (defun my-gptel-magit-git-readonly (directory args)
