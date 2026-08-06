@@ -7,7 +7,7 @@
 (setq inhibit-startup-screen t)
 (tool-bar-mode 0)
 (scroll-bar-mode 0)
-(menu-bar-mode 0)
+(menu-bar-mode t)
 (global-display-line-numbers-mode 1)
 (global-visual-line-mode -1)
 (toggle-truncate-lines)
@@ -153,17 +153,14 @@
 
 (setq switch-to-buffer-obey-display-actions t)
 (setq display-buffer-alist
-      '(((minor-mode . gptel-mode)
-         (display-buffer-in-direction)
-         (direction . right)
-         (window-width . 0.35)
-         (inhibit-same-window . t))
-        ("\\*Help\\*"
+      '(("\\*Help\\*"
          (display-buffer-reuse-window
           display-buffer-pop-up-window)
          (inhibit-same-window . t))
         ((major-mode . magit-status-mode)
-         (display-buffer-reuse-window display-buffer-below-selected)
+         (display-buffer-in-side-window)
+         (side . bottom)
+         (slot . 0)
          (window-height . 0.3))
         ((major-mode . dired-mode)
          (display-buffer-reuse-window display-buffer-in-side-window)
@@ -505,6 +502,11 @@
 (use-package gptel
   :ensure t
   :config
+  (setq gptel-display-buffer-action
+        '((display-buffer-reuse-window display-buffer-in-direction)
+          (direction . right)
+          (window-width . 0.35)
+          (inhibit-same-window . t)))
   (setq gptel-backend
         (gptel-make-openai-oauth "ChatGPT"))
   (setq gptel-default-mode 'org-mode)
