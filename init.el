@@ -144,7 +144,11 @@
      '("v B" . magit-blame)
      '("v d" . magit-diff-buffer-file)
      '("v a" . magit-file-stage)
+     '("v h" . diff-hl-show-hunk)
+     '("v s" . diff-hl-stage-dwim)
      '("v u" . magit-file-unstage)
+     '("v ]" . diff-hl-next-hunk)
+     '("v [" . diff-hl-previous-hunk)
      '("v m" . magit-dispatch)
      '("v c" . magit-commit-create)
      '("v M" . magit-file-dispatch))))
@@ -526,7 +530,7 @@
      '("p b" . consult-projectile-switch-to-buffer)
      '("p B" . projectile-ibuffer)
      '("p P" . consult-projectile)              ;; Multi-source project view
-     
+
      ;; Core Projectile utilities
      '("p s" . projectile-ripgrep)              ;; Search project with ripgrep
      '("p d" . projectile-find-dir)
@@ -584,7 +588,7 @@
                  "\n"))))
 
 (setq gptel-tools
-      (list        
+      (list
        (gptel-make-tool
         :function (lambda (buffer)
                     (unless (buffer-live-p (get-buffer buffer))
@@ -722,8 +726,6 @@ Allowed commands include status, log, diff, show, branch, and rev-parse."
                  "Git arguments, e.g. [\"status\", \"--short\", \"--branch\"]."))
         :category "git")
 
-
-       
        (gptel-make-tool
         :function (lambda (directory)
 	                  (mapconcat #'identity
