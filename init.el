@@ -566,7 +566,7 @@
     (meow-leader-define-key
      '("a s" . gptel)
      '("a a" . gptel-menu)
-     '("a c" . gptel-context-add)
+     '("a c" . gptel-add)
      '("a k" . gptel-context-remove-all)
      '("a K" . gptel-abort)
      '("a r" . gptel-rewrite)
