@@ -129,7 +129,7 @@
   :config
   (setq magit-save-repository-buffers 'dontask)
   (setq magit-tramp-pipe-stty-settings 'pty)
-  (setq magit-refresh-status-buffer nil)
+  (setq magit-refresh-status-buffer t)
   (setq magit-commit-show-diff nil)
   (setq magit-revert-status-buffers nil)
   :init
@@ -774,11 +774,11 @@ Allowed commands include status, log, diff, show, branch, and rev-parse."
   (winpulse-mode +1))
 
 (use-package rmsbolt
-  :vc (:url "https://github.com/bongjunj/rmsbolt"
+  :vc (:url "git@github.com:bongjunj/rmsbolt.git"
        :rev :newest)
   :ensure t
   :config
-  (setq rmsbolt-asm-format "att")
+  (setq rmsbolt-asm-format "intel")
   (setq rmsbolt-automatic-recompile nil))
 
 (defun kvpn-start ()
