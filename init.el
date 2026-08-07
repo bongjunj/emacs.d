@@ -76,6 +76,11 @@
                     :height 140
                     :weight 'regular
                     :slant 'normal)
+(use-package dired
+  :ensure nil ;; built-tin
+  :hook
+  (dired-mode . dired-hide-details-mode))
+
 (use-package which-key
   :ensure nil ;; built-in
   :config
@@ -203,7 +208,7 @@
          (display-buffer-reuse-window display-buffer-in-side-window)
          (side . left)
          (slot . 0)
-         (window-width . 0.3)
+         (window-width . 0.25)
          (inhibit-same-window . t))
         (display-buffer-my-bottom-buffer-p
          (display-buffer-in-side-window)
