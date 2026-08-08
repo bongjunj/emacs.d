@@ -349,8 +349,14 @@
 (setq org-agenda-span 'week)
 (add-hook 'emacs-startup-hook (lambda () (org-agenda-list)))
 
+(add-hook 'org-mode-hook (lambda () (visual-line-mode)))
 (setq org-directory "~/Documents/orgfiles/")
 (setq org-agenda-files (list org-directory))
+(setq org-refile-targets
+      '((nil :maxlevel . 3)
+        (org-agenda-files :maxlevel . 3)))
+(setq org-outline-path-complete-in-steps nil)
+(setq org-refile-use-outline-path 'file)
 (setq org-default-notes-file (concat org-directory "/notes.org"))
 (setq org-capture-templates
       `(("t" "Todo" entry
@@ -882,3 +888,5 @@ Allowed commands include status, log, diff, show, branch, and rev-parse."
   ;; `modus-themes-load-random-light').
   (modus-themes-load-theme 'modus-operandi))
 
+(use-package alert 
+  :config (setq alert-default-style 'osx-notifier))
