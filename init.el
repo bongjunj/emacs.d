@@ -890,3 +890,7 @@ Allowed commands include status, log, diff, show, branch, and rev-parse."
 
 (use-package alert 
   :config (setq alert-default-style 'osx-notifier))
+
+(use-package autorevert
+  :init
+  (global-auto-revert-mode))
