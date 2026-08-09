@@ -558,34 +558,30 @@
   (global-treesit-fold-mode 1)
   (global-treesit-fold-indicators-mode 1))
 
-(use-package projectile
-  :ensure t
-  :init
-  (projectile-mode 1)
+(use-package project
+  :ensure nil
   :config
-  (setq projectile-completion-system 'default))
+  (setq project-switch-commands
+        '((project-dired "Dired")
+          (project-find-file "Find file")
+          (project-find-regexp "Find regexp")
+          (project-eshell "Eshell")
+          (project-any-command "Other"))))
 
-(use-package consult-projectile
-  :ensure t
-  :after (projectile consult)
-  :init
-  (with-eval-after-load 'meow
+(with-eval-after-load 'meow
     (meow-leader-define-key
      ;; Consult-powered project navigation (with Vertico previews)
-     '("p p" . consult-projectile-switch-project)
-     '("p f" . consult-projectile-find-file)
-     '("p b" . consult-projectile-switch-to-buffer)
-     '("p B" . projectile-ibuffer)
-     '("p P" . consult-projectile)              ;; Multi-source project view
+     '("p p" . project-switch-project)
+     '("p f" . project-find-file)
+     '("p b" . project-switch-to-buffer)
 
      ;; Core Projectile utilities
-     '("p s" . projectile-ripgrep)              ;; Search project with ripgrep
-     '("p d" . projectile-find-dir)
-     '("p r" . projectile-recentf)
-     '("p k" . projectile-kill-buffers)
-     '("p c" . projectile-compile-project)
-     '("p !" . projectile-run-shell-command-in-root)
-     '("p &" . projectile-run-async-shell-command-in-root))))
+     '("p s" . project-find-regexp)
+     '("p d" . project-find-dir)
+     '("p k" . project-kill-buffers)
+     '("p c" . project-compile)
+     '("p !" . project-shell-command)
+     '("p &" . project-async-shell-command)))
 
 ;; Log-in to OpenAI with (gptel-openai-oauth-login)
 (use-package gptel
