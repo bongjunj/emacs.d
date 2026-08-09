@@ -45,8 +45,6 @@
 (setopt display-fill-column-indicator-column 80)
 (add-hook 'prog-mode-hook
           (lambda () (display-fill-column-indicator-mode 1)))
-(add-hook 'org-mode-hook
-          (lambda () (display-fill-column-indicator-mode 1)))
 (add-hook 'markdown-mode-hook
           (lambda () (display-fill-column-indicator-mode 1)))
 
@@ -55,8 +53,10 @@
 (setq ibuffer-saved-filter-groups
       '(("default"
 	 ("Dired" (mode . dired-mode))
-	 ("Org" (mode . org-mode))
+   ("GPTel" (name . "^\\*ChatGPT"))
+	 ("Org" (or (mode . org-mode) (mode . org-agenda-mode)))
 	 ("magit" (name . "^magit")))))
+
 (add-hook 'ibuffer-mode-hook
 	  (lambda ()
 	    (ibuffer-switch-to-saved-filter-groups "default")))
@@ -65,10 +65,6 @@
 (add-to-list 'package-archives '("melpa" . "https://melpa.org/packages/") t)
 (package-initialize)
 
-(add-to-list 'package-selected-packages 'dash)
-(add-to-list 'package-selected-packages 'lsp-mode)
-(add-to-list 'package-selected-packages 'magit-section)
-
 (setq show-trailing-whitespace t)
 
 (set-face-attribute 'default nil
@@ -76,6 +72,7 @@
                     :height 140
                     :weight 'regular
                     :slant 'normal)
+
 (use-package dired
   :ensure nil ;; built-tin
   :hook
@@ -223,7 +220,6 @@
 
 
 
-(setq org-agenda-window-setup 'current-window)
 
 ;; Meow & Keybindings
 (defun meow-setup ()
@@ -346,62 +342,72 @@
    '("b m" . bookmark-set)
    '("b l" . bookmark-bmenu-list)))
 
-(setq org-agenda-span 'week)
 (add-hook 'emacs-startup-hook (lambda () (org-agenda-list)))
 
-(add-hook 'org-mode-hook (lambda () (visual-line-mode)))
-(setq org-directory "~/Documents/orgfiles/")
-(setq org-agenda-files (list org-directory))
-(setq org-refile-targets
-      '((nil :maxlevel . 3)
-        (org-agenda-files :maxlevel . 3)))
-(setq org-outline-path-complete-in-steps nil)
-(setq org-refile-use-outline-path 'file)
-(setq org-default-notes-file (concat org-directory "/notes.org"))
-(setq org-capture-templates
-      `(("t" "Todo" entry
-	       (file+headline "tasks.org" "Tasks")
-         "* TODO %? %^G\nSCHEDULED: %^t\n%U\n  %i\n  %a"
-	       :empty-lines 1)
-        ("j" "Journal" entry
-	       (file+olp+datetree "journal.org")
-         "* %?\nEntered on %U\n  %i"
-	       :empty-lines 1)
-	      ("n" "Note" entry
-	       (file "notes.org")
-	       "* %^{Title}\n  %U\n  %a"
-	       :empty-lines 1)
-	      ("s" "Seminar" entry
-	       (file "seminars.org")
-	       ,(concat "%[" (file-name-concat org-directory "templates" "seminars.org") "]")
-         :empty-lines 1)
-        ("w" "Weekly research note"
-         entry
-         (file "research-weekly.org")
-         ,(concat
-           "* %<%G-W%V> — %^{Topic}\n"
-           ":PROPERTIES:\n"
-           ":DATE: %u\n"
-           ":END:\n\n"
-           "** Objective\n\n%?\n\n"
-           "** Work Log\n\n"
-           "** Findings\n\n"
-           "** Problems\n\n"
-           "** Next Week\n\n"
-           "- [ ] ")
-         :empty-lines 1)))
-
-(with-eval-after-load 'org-clock
-  (setq org-clock-persist t)
-  (org-clock-persistence-insinuate)
-  (setq org-clock-auto-clock-resolution 'when-no-clock-is-running))
-
-(with-eval-after-load 'meow
-  (meow-leader-define-key
-   '("o c" . org-capture)
-   '("o a" . org-agenda)
-   '("o l" . org-store-link)
-   '("o b" . org-switchb)))
+(use-package org
+  :ensure nil ;; built-in
+  :config
+  (setq org-M-RET-may-split-line '((default . nil)))
+  (setq org-insert-heading-respect-content t)
+  (setq org-log-done 'time)
+  (setq org-log-into-drawer t)
+  (setq org-todo-keywords
+        '((sequence "TODO(t)" "INPROGRESS(i!)" "|" "DONE(d!)" "DELEGATED(D!)")))
+  (setq org-agenda-span 10)
+  (setq org-directory "~/Documents/orgfiles/")
+  (setq org-agenda-window-setup 'current-window)
+  (setq org-agenda-files (list org-directory))
+  (setq org-refile-targets
+        '((nil :maxlevel . 3)
+          (org-agenda-files :maxlevel . 3)))
+  (setq org-outline-path-complete-in-steps nil)
+  (setq org-refile-use-outline-path 'file)
+  (setq org-default-notes-file (concat org-directory "notes.org"))
+  (setq org-capture-templates
+        `(("t" "Todo" entry
+	         (file+headline "tasks.org" "Inbox")
+           "* TODO %? %^G\nSCHEDULED: %^t\n%U\n  %i\n  %a"
+	         :empty-lines 1)
+          ("j" "Journal" entry
+	         (file+olp+datetree "journal.org")
+           "* %?\nEntered on %U\n  %i"
+	         :empty-lines 1)
+	        ("n" "Note" entry
+	         (file "notes.org")
+	         "* %^{Title}\n  %U\n  %a"
+	         :empty-lines 1)
+	        ("s" "Seminar" entry
+	         (file "seminars.org")
+	         ,(concat "%[" (file-name-concat org-directory "templates" "seminars.org") "]")
+           :empty-lines 1)
+          ("w" "Weekly research note"
+           entry
+           (file "research-weekly.org")
+           ,(concat
+             "* %<%G-W%V> — %^{Topic}\n"
+             ":PROPERTIES:\n"
+             ":DATE: %u\n"
+             ":END:\n\n"
+             "** Objective\n\n%?\n\n"
+             "** Work Log\n\n"
+             "** Findings\n\n"
+             "** Problems\n\n"
+             "** Next Week\n\n"
+             "- [ ] ")
+           :empty-lines 1)))
+  (with-eval-after-load 'org-clock
+    (setq org-clock-persist t)
+    (org-clock-persistence-insinuate)
+    (setq org-clock-auto-clock-resolution 'when-no-clock-is-running))
+  (with-eval-after-load 'meow
+    (meow-leader-define-key
+     '("o c" . org-capture)
+     '("o a" . org-agenda)
+     '("o l" . org-store-link)
+     '("o b" . org-switchb)))
+  :hook
+  (org-mode . (lamebda () (display-fill-column-indicator-mode 1)))
+  (org-mode . (lambda () (visual-line-mode))))
 
 (use-package vterm
   :ensure t
@@ -492,10 +498,32 @@
 (use-package tuareg :ensure t)
 
 ;; Lean4
-(use-package lean4-mode
-  :commands lean4-mode
-  :vc (:url "https://github.com/leanprover-community/lean4-mode.git"
-       :rev :last-release))
+(defun my-nael-tab-indent ()
+  "Shift the current line, or selected lines, two spaces to the right."
+  (interactive)
+  (if (use-region-p)
+      (let ((beg (save-excursion
+                   (goto-char (region-beginning))
+                   (line-beginning-position)))
+            (end (save-excursion
+                   (goto-char (region-end))
+                   (line-beginning-position 2))))
+        (indent-rigidly beg end 2))
+    (indent-rigidly (line-beginning-position)
+                    (line-end-position)
+                    2)))
+
+
+(use-package nael
+  :vc (:url "https://codeberg.org/mekeor/nael.git"
+            :lisp-dir "nael")
+  :init
+  (setq nael-prepare-lsp nil)
+  :mode ("\\.lean\\'" . nael-mode)
+  :bind (:map nael-mode-map
+              ("TAB" . my-nael-tab-indent)
+              ("<tab>" . my-nael-tab-indent))
+  :hook (nael-mode . eglot-ensure))
 
 ;; Dafny
 (use-package boogie-friends
