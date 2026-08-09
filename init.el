@@ -2,6 +2,7 @@
 (setq custom-file "~/.emacs.d/custom.el")
 (load custom-file nil nil)
 
+(setq confirm-kill-emacs 'yes-or-no-p)
 (setq inhibit-startup-screen t)
 (tool-bar-mode 0)
 (scroll-bar-mode 0)
@@ -155,7 +156,7 @@
 
 (setq switch-to-buffer-obey-display-actions t)
 
-(defun display-buffer-my-bottom-buffer-p (buffer-name _action)
+(defun my-command-buffer-p (buffer-name _action)
   "Match compilation and async-shell-command buffers."
   (let ((name (if (bufferp buffer-name)
                   (buffer-name buffer-name)
@@ -163,30 +164,26 @@
     (or (string= name "*compilation*")
         (string= name "*Async Shell Command*"))))
 
-(defun my-magit-diff-buffer-p (buffer _action)
-  (with-current-buffer (get-buffer buffer)
-    (derived-mode-p 'magit-diff-mode
-                    'magit-revision-mode
-                    'magit-show-mode)))
-
+;;; Controls how to display buffers
 (setq display-buffer-alist
       '(("\\*Help\\*"
          (display-buffer-reuse-window
           display-buffer-pop-up-window)
          (inhibit-same-window . t))
+
         ;; Magit Status
         ((major-mode . magit-status-mode)
          (display-buffer-in-side-window)
-         (side . left)
-         (slot . 0)
-         (window-width . 0.28)
+         (side . bottom)
+         (slot . 1)
+         (window-height 0.25)
          (inhibit-same-window . t))
 
         ;; Commit message: fixed bottom panel
         ("COMMIT_EDITMSG"
          (display-buffer-reuse-window
           display-buffer-in-side-window)
-         (side . left)
+         (side . bottom)
          (slot . 1)
          (window-width . 0.28)
          (window-height . 0.35)
@@ -207,16 +204,24 @@
          (slot . 0)
          (window-width . 0.25)
          (inhibit-same-window . t))
-        (display-buffer-my-bottom-buffer-p
+
+        (my-command-buffer-p
          (display-buffer-in-side-window)
          (side . bottom)
          (slot . 0)
-         (window-height . 0.3))
+         (window-height . 0.25))
+
+        ("\\*Org Agenda\\*"
+         (display-buffer-in-side-window)
+         (side . top)
+         (slot . 0)
+         (window-height . 0.4))
+
         ("\\*Agenda Commands\\*"
          (display-buffer-in-side-window)
          (side . bottom)
          (slot . 0)
-         (window-height . 0.35))))
+         (window-height . 0.25))))
 
 
 
@@ -342,10 +347,13 @@
    '("b m" . bookmark-set)
    '("b l" . bookmark-bmenu-list)))
 
-(add-hook 'emacs-startup-hook (lambda () (org-agenda-list)))
-
 (use-package org
   :ensure nil ;; built-in
+  :init
+  (setq org-agenda-span 'week)
+  (setq org-directory "~/Documents/orgfiles/")
+  (setq org-agenda-window-setup 'other-window)
+  (setq org-agenda-files (list org-directory))  
   :config
   (setq org-M-RET-may-split-line '((default . nil)))
   (setq org-insert-heading-respect-content t)
@@ -353,10 +361,6 @@
   (setq org-log-into-drawer t)
   (setq org-todo-keywords
         '((sequence "TODO(t)" "INPROGRESS(i!)" "|" "DONE(d!)" "DELEGATED(D!)")))
-  (setq org-agenda-span 10)
-  (setq org-directory "~/Documents/orgfiles/")
-  (setq org-agenda-window-setup 'current-window)
-  (setq org-agenda-files (list org-directory))
   (setq org-refile-targets
         '((nil :maxlevel . 3)
           (org-agenda-files :maxlevel . 3)))
@@ -366,7 +370,7 @@
   (setq org-capture-templates
         `(("t" "Todo" entry
 	         (file+headline "tasks.org" "Inbox")
-           "* TODO %? %^G\nSCHEDULED: %^t\n%U\n  %i\n  %a"
+           "* TODO %? %^G\DEADLINE: %^t\n%U\n  %i\n  %a"
 	         :empty-lines 1)
           ("j" "Journal" entry
 	         (file+olp+datetree "journal.org")
@@ -406,8 +410,11 @@
      '("o l" . org-store-link)
      '("o b" . org-switchb)))
   :hook
-  (org-mode . (lamebda () (display-fill-column-indicator-mode 1)))
+  (org-mode . (lambda () (display-fill-column-indicator-mode 1)))
   (org-mode . (lambda () (visual-line-mode))))
+
+(add-hook 'emacs-startup-hook (lambda () (org-agenda-list)))
+
 
 (use-package vterm
   :ensure t
@@ -526,8 +533,10 @@
   :hook (nael-mode . eglot-ensure))
 
 ;; Dafny
+(use-package dash :ensure t)
 (use-package boogie-friends
   :ensure t
+  :after dash
   :hook
   (dafny-mode . (lambda () (prettify-symbols-mode -1))))
 
