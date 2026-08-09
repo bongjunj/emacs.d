@@ -568,6 +568,13 @@
           (project-eshell "Eshell")
           (project-any-command "Other"))))
 
+(defun my-project-consult-ripgrep ()
+  "Run `consult-ripgrep` from the current project root."
+  (interactive)
+  (if-let ((project (project-current)))
+      (consult-ripgrep (project-root project))
+    (call-interactively #'consult-ripgrep)))
+
 (with-eval-after-load 'meow
     (meow-leader-define-key
      ;; Consult-powered project navigation (with Vertico previews)
@@ -576,7 +583,7 @@
      '("p b" . project-switch-to-buffer)
 
      ;; Core Projectile utilities
-     '("p s" . project-find-regexp)
+     '("p s" . my-project-consult-ripgrep)
      '("p d" . project-find-dir)
      '("p k" . project-kill-buffers)
      '("p c" . project-compile)
