@@ -370,7 +370,7 @@
   (setq org-capture-templates
         `(("t" "Todo" entry
 	         (file+headline "tasks.org" "Inbox")
-           "* TODO %? %^G\DEADLINE: %^t\n%U\n  %i\n  %a"
+           "* TODO %? %^G\nDEADLINE: %^t\n%U\n  %i\n  %a"
 	         :empty-lines 1)
           ("j" "Journal" entry
 	         (file+olp+datetree "journal.org")
@@ -418,7 +418,8 @@
 
 (use-package vterm
   :ensure t
-  :hook (vterm-mode . meow-insert))
+  :hook
+  (vterm-mode . meow-insert))
 
 (use-package vertico
   :ensure t
