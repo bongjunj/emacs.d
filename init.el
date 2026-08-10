@@ -447,12 +447,24 @@
   (with-eval-after-load 'meow
     (meow-leader-define-key
      '("s l" . consult-line)
-     '("s r" . consult-ripgrep)
+     '("s g" . consult-ripgrep)
+     '("s r" . consult-register-load)
+     '("s c" . consult-register-store)
      '("s b" . consult-buffer)
      '("s i" . consult-imenu)
      '("s o" . consult-org-agenda)
      '("s h" . consult-org-heading)
      '("s f" . consult-fd))))
+
+(setq register-preview-delay 0.8
+      register-preview-function #'consult-register-format)
+
+(with-eval-after-load 'meow
+  (meow-leader-define-key
+   '("r r" . point-to-register)
+   '("r s" . copy-to-register)
+   '("r i" . insert-register)
+   '("r m" . bookmark-set)))
 
 (use-package eglot
   :ensure nil
