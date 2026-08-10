@@ -74,6 +74,12 @@
                     :weight 'regular
                     :slant 'normal)
 
+(set-face-attribute 'variable-pitch nil
+                    :family "Source Serif 4"
+                    :height 140
+                    :weight 'normal
+                    :slant 'normal)
+
 (use-package dired
   :ensure nil ;; built-tin
   :hook
