@@ -133,6 +133,7 @@
   (setq magit-refresh-status-buffer t)
   (setq magit-commit-show-diff nil)
   (setq magit-revert-status-buffers nil)
+  (define-key magit-status-mode-map (kbd "K") #'magit-discard)
   :init
   (with-eval-after-load 'meow
     (meow-leader-define-key
@@ -181,21 +182,17 @@
 
         ;; Commit message: fixed bottom panel
         ("COMMIT_EDITMSG"
-         (display-buffer-reuse-window
-          display-buffer-in-side-window)
+         (display-buffer-in-side-window)
          (side . bottom)
-         (slot . 1)
-         (window-width . 0.28)
-         (window-height . 0.35)
+         (slot . 2)
+         (window-height . 0.25)
          (inhibit-same-window . t))
 
         ((major-mode . magit-diff-mode)
-         (display-buffer-reuse-window
-          display-buffer-in-side-window)
+         (display-buffer-in-side-window)
          (side . left)
          (slot . 1)
          (window-width . 0.4)
-         (window-height . 0.7)
          (inhibit-same-window . t))
 
         ((major-mode . dired-mode)
@@ -213,17 +210,15 @@
 
         ("\\*Org Agenda\\*"
          (display-buffer-in-side-window)
-         (side . top)
-         (slot . 0)
-         (window-height . 0.4))
+        (side . bottom)
+        (slot . 2)
+        (window-height . 0.25))
 
         ("\\*Agenda Commands\\*"
          (display-buffer-in-side-window)
          (side . bottom)
          (slot . 0)
          (window-height . 0.25))))
-
-
 
 
 ;; Meow & Keybindings
@@ -929,9 +924,50 @@ Allowed commands include status, log, diff, show, branch, and rev-parse."
   ;; `modus-themes-load-random-light').
   (modus-themes-load-theme 'modus-operandi))
 
-(use-package alert 
-  :config (setq alert-default-style 'osx-notifier))
+(use-package alert
+  :ensure t
+  :config
+  (setq alert-default-style 'osx-notifier))
 
 (use-package autorevert
   :init
   (global-auto-revert-mode))
+
+(use-package embark
+  :ensure t
+
+  :bind
+  (("C-." . embark-act)         ;; pick some comfortable binding
+   ("C-;" . embark-dwim)        ;; good alternative: M-.
+   ("C-h B" . embark-bindings)) ;; alternative for `describe-bindings'
+
+  :init
+
+  ;; Optionally replace the key help with a completing-read interface
+  (setq prefix-help-command #'embark-prefix-help-command)
+
+  ;; Show the Embark target at point via Eldoc. You may adjust the
+  ;; Eldoc strategy, if you want to see the documentation from
+  ;; multiple providers. Beware that using this can be a little
+  ;; jarring since the message shown in the minibuffer can be more
+  ;; than one line, causing the modeline to move up and down:
+
+  ;; (add-hook 'eldoc-documentation-functions #'embark-eldoc-first-target)
+  ;; (setq eldoc-documentation-strategy #'eldoc-documentation-compose-eagerly)
+
+  ;; Add Embark to the mouse context menu. Also enable `context-menu-mode'.
+  ;; (context-menu-mode 1)
+  ;; (add-hook 'context-menu-functions #'embark-context-menu 100)
+
+  :config
+
+  ;; Hide the mode line of the Embark live/completions buffers
+  (add-to-list 'display-buffer-alist
+               '("\\`\\*Embark Collect \\(Live\\|Completions\\)\\*"
+                 nil
+                 (window-parameters (mode-line-format . none)))))
+
+;; Consult users will also want the embark-consult package.
+(use-package embark-consult
+  :ensure t) ; only need to install it, embark loads it after consult if found
+
