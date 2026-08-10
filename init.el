@@ -307,10 +307,6 @@
 
 (with-eval-after-load 'meow
   (meow-leader-define-key
-   '("w h" . windmove-left)
-   '("w j" . windmove-down)
-   '("w k" . windmove-up)
-   '("w l" . windmove-right)
    '("w d" . toggle-window-dedicated)
    '("w q" . delete-window)
    '("w v" . split-window-right)
@@ -320,11 +316,7 @@
    '("w f" . delete-other-windows) ;; focus!
    '("w F" . make-frame)
    '("w r" . revert-buffer-quick)
-   '("w S F" . select-frame-by-name)
-   '("w S h" . windmove-swap-states-left)
-   '("w S j" . windmove-swap-states-down)
-   '("w S k" . windmove-swap-states-up)
-   '("w S l" . windmove-swap-states-right)))
+   '("w S F" . select-frame-by-name)))
 
 (global-set-key (kbd "C-x C-d") #'dired)
 
@@ -963,3 +955,8 @@ Allowed commands include status, log, diff, show, branch, and rev-parse."
 (use-package embark-consult
   :ensure t) ; only need to install it, embark loads it after consult if found
 
+
+(use-package ace-window
+  :ensure t
+  :config
+  (global-set-key (kbd "M-o") 'ace-window))
