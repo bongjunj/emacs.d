@@ -155,8 +155,11 @@
      '("v c" . magit-commit-create)
      '("v M" . magit-file-dispatch))))
 
-(setq switch-to-buffer-obey-display-actions t)
 
+
+;;; Controls how to display buffers
+(setq switch-to-buffer-obey-display-actions nil)
+(setq switch-to-buffer-in-dedicated-window 'pop)
 (defun my-command-buffer-p (buffer-name _action)
   "Match compilation and async-shell-command buffers."
   (let ((name (if (bufferp buffer-name)
@@ -165,7 +168,6 @@
     (or (string= name "*compilation*")
         (string= name "*Async Shell Command*"))))
 
-;;; Controls how to display buffers
 (setq display-buffer-alist
       '(("\\*Help\\*"
          (display-buffer-reuse-window
@@ -177,7 +179,7 @@
          (display-buffer-in-side-window)
          (side . bottom)
          (slot . 1)
-         (window-height 0.25)
+         (window-height 0.2)
          (inhibit-same-window . t))
 
         ;; Commit message: fixed bottom panel
@@ -185,21 +187,7 @@
          (display-buffer-in-side-window)
          (side . bottom)
          (slot . 2)
-         (window-height . 0.25)
-         (inhibit-same-window . t))
-
-        ((major-mode . magit-diff-mode)
-         (display-buffer-in-side-window)
-         (side . left)
-         (slot . 1)
-         (window-width . 0.4)
-         (inhibit-same-window . t))
-
-        ((major-mode . dired-mode)
-         (display-buffer-reuse-window display-buffer-in-side-window)
-         (side . left)
-         (slot . 0)
-         (window-width . 0.25)
+         (window-height . 0.2)
          (inhibit-same-window . t))
 
         (my-command-buffer-p
@@ -213,6 +201,10 @@
         (side . bottom)
         (slot . 2)
         (window-height . 0.25))
+        ("\\*Org todo\\*"
+         (display-buffer-below-selected)
+         (side . bottom)
+         (slot . 2))
 
         ("\\*Agenda Commands\\*"
          (display-buffer-in-side-window)
@@ -381,7 +373,7 @@
            :empty-lines 1)
           ("w" "Weekly research note"
            entry
-           (file "research-weekly.org")
+           (file "research.org")
            ,(concat
              "* %<%G-W%V> — %^{Topic}\n"
              ":PROPERTIES:\n"
