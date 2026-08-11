@@ -138,7 +138,8 @@
   :config
   (setq magit-save-repository-buffers 'dontask)
   (setq magit-tramp-pipe-stty-settings 'pty)
-  (setq magit-refresh-status-buffer t)
+  (setq magit-branch-direct-configure nil)
+  (setq magit-refresh-status-buffer nil)
   (setq magit-commit-show-diff nil)
   (setq magit-revert-status-buffers nil)
   (define-key magit-status-mode-map (kbd "K") #'magit-discard)
