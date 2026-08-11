@@ -71,13 +71,13 @@
 
 (set-face-attribute 'default nil
                     :family "Menlo"
-                    :height 140
+                    :height 150
                     :weight 'regular
                     :slant 'normal)
 
 (set-face-attribute 'variable-pitch nil
                     :family "Source Serif 4"
-                    :height 140
+                    :height 150
                     :weight 'normal
                     :slant 'normal)
 
@@ -314,6 +314,7 @@
 
 (with-eval-after-load 'meow
   (meow-leader-define-key
+   '("w w" . other-window)
    '("w h" . windmove-left)
    '("w j" . windmove-down)
    '("w k" . windmove-up)
@@ -324,10 +325,9 @@
    '("w s" . split-window-below)
    '("w K" . kill-current-buffer)
    '("w Q" . delete-frame)
-   '("w f" . delete-other-windows) ;; focus!
+   '("w f" . select-frame-by-name)
    '("w F" . make-frame)
-   '("w r" . revert-buffer-quick)
-   '("w S F" . select-frame-by-name)))
+   '("w r" . revert-buffer-quick)))
 
 (global-set-key (kbd "C-x C-d") #'dired)
 
@@ -480,7 +480,8 @@
 (use-package eglot
   :ensure nil
   :config
-  (setq eglot-prefer-plaintext t)
+  (setq eglot-prefer-plaintext t
+        eglot-send-changes-idle-time 1.0)
   (setq eglot-events-buffer-config '(:size 0 :format full))
   (setq treesit-font-lock-level 4)
   (add-to-list 'eglot-server-programs
@@ -493,7 +494,15 @@
      '("e r" . xref-find-references)
      '("e o" . xref-go-back)
      '("e a" . eglot-code-actions)
-     '("e R" . eglot-rename))))
+     '("e R" . eglot-rename)
+     '("e f" . (lambda ()
+                 (interactive)
+                 (flymake-start))))))
+
+(use-package flymake
+  :ensure nil
+  :config
+  (setq flymake-no-changes-timeout 1.0))
 
 (setq major-mode-remap-alist
       '((python-mode . python-ts-mode)
