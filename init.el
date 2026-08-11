@@ -2,6 +2,7 @@
 (setq custom-file "~/.emacs.d/custom.el")
 (load custom-file nil nil)
 
+(setq vc-handled-backends '(Git))
 (setq confirm-kill-emacs 'yes-or-no-p)
 (setq auto-save-default nil)
 (setq inhibit-startup-screen t)
