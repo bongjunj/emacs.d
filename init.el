@@ -477,20 +477,25 @@
    '("r i" . insert-register)
    '("r m" . bookmark-set)))
 
+(setq m/pyright-uvx-command
+      '("uv" "--from" "pyright==1.1.403" "pyright-langserver" "--" "--stdio"))
+
 (use-package eglot
   :ensure nil
   :config
   (setq eglot-prefer-plaintext t
         eglot-send-changes-idle-time 1.0)
-  (setq eglot-events-buffer-config '(:size 0 :format full))
+  (setq eglot-events-buffer-config '(:size 10000 :format full))
   (setq treesit-font-lock-level 4)
   (add-to-list 'eglot-server-programs
-               '(python-ts-mode . ("uv" "tool" "run" "ty" "server")))
+               '(python-ts-mode . ("uv" "tool" "run" "--from=pyright" "pyright-langserver" "--" "--stdio")))
   (with-eval-after-load 'meow
     (meow-leader-define-key
      '("e e" . eglot)
+     '("e q" . eglot-shutdown)
      '("e I" . eglot-inlay-hints-mode)
      '("e d" . xref-find-definitions)
+     '("e D" . xref-find-definitions-other-window)
      '("e r" . xref-find-references)
      '("e o" . xref-go-back)
      '("e a" . eglot-code-actions)
@@ -573,6 +578,7 @@
 (use-package project
   :ensure nil
   :config
+  (setq project-vc-merge-submodules nil)
   (setq project-switch-commands
         '((project-dired "Dired")
           (project-find-file "Find file")
