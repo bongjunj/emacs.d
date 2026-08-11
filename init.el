@@ -202,10 +202,9 @@
          (inhibit-same-window . t))
 
         (my-command-buffer-p
-         (display-buffer-in-side-window)
-         (side . bottom)
-         (slot . 0)
-         (window-height . 0.25))
+         (display-buffer-reuse-window
+          display-buffer-below-selected)
+         (window-min-height . 0.25))
 
         ("\\*Org todo\\*"
          (display-buffer-below-selected)
@@ -472,9 +471,6 @@
    '("r i" . insert-register)
    '("r m" . bookmark-set)))
 
-(setq m/pyright-uvx-command
-      '("uv" "--from" "pyright==1.1.403" "pyright-langserver" "--" "--stdio"))
-
 (use-package eglot
   :ensure nil
   :config
@@ -482,8 +478,9 @@
         eglot-send-changes-idle-time 1.0)
   (setq eglot-events-buffer-config '(:size 10000 :format full))
   (setq treesit-font-lock-level 4)
-  (add-to-list 'eglot-server-programs
-               '(python-ts-mode . ("uv" "tool" "run" "--from=pyright" "pyright-langserver" "--" "--stdio")))
+  (add-to-list
+   'eglot-server-programs
+   '(python-ts-mode . ("uv" "tool" "run" "ty" "server")))
   (with-eval-after-load 'meow
     (meow-leader-define-key
      '("e e" . eglot)
@@ -515,8 +512,13 @@
   :config
   (setq rust-format-on-save t))
 
-;; ml
+;; OCaml
 (use-package tuareg :ensure t)
+(use-package ocaml-eglot
+  :ensure t
+  :after tuareg
+  :hook
+  (tuareg-mode . ocaml-eglot))
 
 ;; Lean4
 (defun my-nael-tab-indent ()
@@ -607,18 +609,12 @@
 (use-package gptel
   :ensure t
   :config
-  (setq gptel-display-buffer-action
-        '((display-buffer-in-side-window)
-          (side . right)
-          (slot . 0)
-          (window-width . 0.4)
-          (inhibit-same-window . t)))
   (setq gptel-backend
         (gptel-make-openai-oauth "ChatGPT"))
   (setq gptel-default-mode 'org-mode)
   (setq gptel-model "gpt-5.6-luna")
   (setq gptel-use-tools t)
-(setq gptel-system-prompt
+  (setq gptel-system-prompt
       (concat
        "You are a large language model living in Emacs and a helpful assistant. "
        "Read ~/.emacs.d/init.el to understand the current configuration. "
