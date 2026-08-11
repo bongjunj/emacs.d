@@ -40,6 +40,8 @@
  '(:application tramp :protocol "scp")
  'remote-direct-async-process)
 
+(setq tramp-default-method "ssh")
+
 (with-eval-after-load 'tramp
   (with-eval-after-load 'compile
     (remove-hook 'compilation-mode-hook #'tramp-compile-disable-ssh-controlmaster-options)))
@@ -205,21 +207,12 @@
          (slot . 0)
          (window-height . 0.25))
 
-        ("\\*Org Agenda\\*"
-         (display-buffer-in-side-window)
-        (side . bottom)
-        (slot . 2)
-        (window-height . 0.25))
         ("\\*Org todo\\*"
          (display-buffer-below-selected)
          (side . bottom)
          (slot . 2))
-
-        ("\\*Agenda Commands\\*"
-         (display-buffer-in-side-window)
-         (side . bottom)
-         (slot . 0)
-         (window-height . 0.25))))
+        )
+      )
 
 
 ;; Meow & Keybindings
