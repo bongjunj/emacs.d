@@ -336,7 +336,7 @@
   :init
   (setq org-agenda-span 'week)
   (setq org-directory "~/Documents/orgfiles/")
-  (setq org-agenda-window-setup 'other-window)
+  (setq org-agenda-window-setup 'current-window)
   (setq org-agenda-files (list org-directory))  
   :config
   (setq org-M-RET-may-split-line '((default . nil)))
