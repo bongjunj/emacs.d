@@ -3,6 +3,7 @@
 (load custom-file nil nil)
 
 (setq confirm-kill-emacs 'yes-or-no-p)
+(setq auto-save-default nil)
 (setq inhibit-startup-screen t)
 (tool-bar-mode 0)
 (scroll-bar-mode 0)
@@ -313,6 +314,10 @@
 
 (with-eval-after-load 'meow
   (meow-leader-define-key
+   '("w h" . windmove-left)
+   '("w j" . windmove-down)
+   '("w k" . windmove-up)
+   '("w l" . windmove-right)
    '("w d" . toggle-window-dedicated)
    '("w q" . delete-window)
    '("w v" . split-window-right)
@@ -474,14 +479,16 @@
 
 (use-package eglot
   :ensure nil
-  :hook ((python-ts-mode rust-ts-mode tuareg-mode nael-mode) . eglot-ensure)
   :config
-  (eglot-inlay-hints-mode -1)
+  (setq eglot-prefer-plaintext t)
+  (setq eglot-events-buffer-config '(:size 0 :format full))
   (setq treesit-font-lock-level 4)
   (add-to-list 'eglot-server-programs
                '(python-ts-mode . ("uv" "tool" "run" "ty" "server")))
   (with-eval-after-load 'meow
     (meow-leader-define-key
+     '("e e" . eglot)
+     '("e I" . eglot-inlay-hints-mode)
      '("e d" . xref-find-definitions)
      '("e r" . xref-find-references)
      '("e o" . xref-go-back)
@@ -527,8 +534,7 @@
   :mode ("\\.lean\\'" . nael-mode)
   :bind (:map nael-mode-map
               ("TAB" . my-nael-tab-indent)
-              ("<tab>" . my-nael-tab-indent))
-  :hook (nael-mode . eglot-ensure))
+              ("<tab>" . my-nael-tab-indent)))
 
 ;; Dafny
 (use-package dash :ensure t)
@@ -808,10 +814,7 @@ Allowed commands include status, log, diff, show, branch, and rev-parse."
 (use-package diff-hl
   :ensure t
   :init
-  (global-diff-hl-mode)
-  :config
-  ;; Update indicators dynamically as you type (instead of only on save)
-  (diff-hl-flydiff-mode 1))
+  (global-diff-hl-mode))
 
 (use-package winpulse
   :vc (:url "https://github.com/xenodium/winpulse"
@@ -978,3 +981,4 @@ Allowed commands include status, log, diff, show, branch, and rev-parse."
   :ensure t
   :config
   (global-set-key (kbd "M-o") 'ace-window))
+
