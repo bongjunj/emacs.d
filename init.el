@@ -1,10 +1,12 @@
 (require 'cl-lib)
 (setq custom-file "~/.emacs.d/custom.el")
 (load custom-file nil nil)
+(add-to-list 'load-path user-emacs-directory)
+(require 'tools)
 
 (setq default-frame-alist
-      '((width . 240)
-        (height . 80)))
+      '((width . 180)
+        (height . 60)))
 
 (setq vc-handled-backends '(Git))
 (setq confirm-kill-emacs 'yes-or-no-p)
@@ -193,10 +195,9 @@
 
         ;; Magit Status
         ((major-mode . magit-status-mode)
-         (display-buffer-in-side-window)
-         (side . bottom)
-         (slot . 1)
-         (window-height 0.2)
+         (display-buffer-reuse-window
+          display-buffer-below-selected)
+         (window-height 0.25)
          (inhibit-same-window . t))
 
         ;; ("COMMIT_EDITMSG"
@@ -640,252 +641,117 @@
           (meow-leader-define-key
            '("a A" . gptel-agent))))
 
-(defun my-gptel-create-file (filepath content)
-  "Create FILEPATH with CONTENT, refusing to overwrite an existing file."
-  (let ((filepath (expand-file-name filepath)))
-    (when (file-exists-p filepath)
-      (error "File already exists: %s" filepath))
-    (with-temp-file filepath
-      (insert content))
-    (format "Created %s." filepath)))
-
-(defun my-gptel-edit-file (filepath content start-line end-line)
-  "Replace lines [START-LINE, END-LINE) in an existing FILEPATH.
-
-Line numbers are 1-based and END-LINE is exclusive."
-  (let ((filepath (expand-file-name filepath)))
-    (unless (file-exists-p filepath)
-      (error "File does not exist; use create_file: %s" filepath))
-    (unless (and (integerp start-line)
-                 (integerp end-line)
-                 (>= start-line 1)
-                 (>= end-line start-line))
-      (error "Valid 1-based start_line and end_line are required"))
-    (with-current-buffer (find-file-noselect filepath)
-      (save-restriction
-        (widen)
-        (save-excursion
-          (goto-char (point-min))
-          (unless (zerop (forward-line (1- start-line)))
-            (error "start_line %d is beyond end of %s"
-                   start-line filepath))
-          (let ((beg (point)))
-            (unless (zerop (forward-line (- end-line start-line)))
-              (error "end_line %d is beyond end of %s"
-                     end-line filepath))
-            (delete-region beg (point))
-            (goto-char beg)
-            (insert content)))
-        (save-buffer)
-        (format "Updated %s." filepath)))))
-
-(defun my-gptel-magit-git-readonly (directory args)
-  "Run a read-only Git command through Magit in DIRECTORY."
-  (require 'magit)
-  (let ((args (append args nil))
-        (allowed-commands
-         '("status" "log" "diff" "show" "branch" "rev-parse")))
-    (unless (and args (member (car args) allowed-commands))
-      (error "Git command not allowed: %s" (car args)))
-    (let ((default-directory
-           (file-name-as-directory (expand-file-name directory))))
-      (mapconcat #'identity
-                 (apply #'magit-git-lines args)
-                 "\n"))))
-
-(defun my-gptel-ripgrep (pattern directory)
-  "Search DIRECTORY recursively for PATTERN with rg, falling back to grep."
-  (let ((default-directory
-         (file-name-as-directory (expand-file-name directory))))
-    (unless (file-directory-p default-directory)
-      (error "Not a directory: %s" directory))
-    (let* ((program (or (executable-find "rg")
-                        (executable-find "grep")))
-           (rg-p (and program
-                      (string= (file-name-nondirectory program) "rg")))
-           (stderr-file (make-temp-file "gptel-search-stderr-"))
-           status)
-      (unwind-protect
-          (with-temp-buffer
-            (unless program
-              (error "Neither rg nor grep was found in PATH"))
-            (setq status
-                  (if rg-p
-                      (process-file program nil
-                                    (list t stderr-file) nil
-                                    "--line-number" "--column" "--no-heading"
-                                    "--color" "never" "--"
-                                    pattern ".")
-                    (process-file program nil
-                                  (list t stderr-file) nil
-                                  "-RInH" "--" pattern ".")))
-            (cond
-             ((= status 0) (string-trim-right (buffer-string)))
-             ((= status 1) "")       ; no matches
-             (t
-              (error "Search failed: %s"
-                     (string-trim
-                      (with-temp-buffer
-                        (insert-file-contents stderr-file)
-                        (buffer-string)))))))
-        (delete-file stderr-file)))))
-
-(defun my-insert-file-contents-lines (filename &optional start-line end-line)
-  "Insert lines START-LINE through END-LINE from FILENAME.
-
-Line numbers are 1-based.  START-LINE defaults to 1; END-LINE is
-exclusive and defaults to the end of the file."
-  (let ((start-line (or start-line 1)))
-    (insert-file-contents (expand-file-name filename))
-    (forward-line (1- start-line))
-    (let ((beg (point)))
-      (when end-line
-        (forward-line (- end-line start-line))
-        (delete-region (point) (point-max)))
-      (delete-region (point-min) beg))))
-
-(defun codel-bash (command &optional _timeout)
-  "Execute bash COMMAND with optional TIMEOUT."
-  (let ((result (shell-command-to-string command)))
-    (if (string-empty-p result)
-        "Command executed successfully (no output)"
-      result)))
-
 (setq gptel-tools
       (list
-       (gptel-make-tool :name "bash" :function #'codel-bash :description "Run a bash command" :confirm t
-                        :args (list '(:name "command" :type "string" :description "a bash command")
-                                    '(:name "timeout" :type "integer" :description "an optional timeout in ms")))
        (gptel-make-tool
-        :name "search_files"
-        :function #'my-gptel-ripgrep
+        :name "project_async_shell_command"
+        :function #'my-gptel-project-async-shell-command
         :description
-        "Recursively search files for a regular expression.
-Prefer ripgrep (`rg`) and fall back to the system `grep`.
-Returns matching file names, line numbers, and matching lines.
-The directory may be absolute, relative, or remote via TRAMP."
+        "Run a shell command asynchronously in the root of the current Emacs project.
+The output is placed in *Async Shell Command*. Use read_buffer to inspect it.
+This tool requires an active project."
         :args
         (list
-         '(:name "pattern"
+         '(:name "command"
                  :type "string"
-                 :description "Regular expression or search pattern.")
-         '(:name "directory"
-                 :type "string"
-                 :description
-                 "Directory to search, such as \".\" or \"/path/to/project\"."))
-        :category "filesystem")
-
+                 :description "The shell command to run."))
+        :category "project"
+        :confirm t)
        (gptel-make-tool
-        :name "read_buffer"
-        :function (lambda (buffer)
-                    (unless (buffer-live-p (get-buffer buffer))
-                      (error "Error: buffer %s is not live." buffer))
-                    (with-current-buffer  buffer
-                      (buffer-substring-no-properties (point-min) (point-max))))
-        :description "Return the contents of an Emacs buffer"
-        :args (list '(:name "buffer"
-                            :type "string"
-                            :description
-                            "The name of the buffer whose contents are to be retrieved"))
+        :name "find_file"
+        :function #'my-gptel-find-file
+        :description "open a file in an Emacs buffer using find-file.
+Returns the buffer name and file information.
+Use read_buffer afterward to inspect its contents."
+        :args
+        (list
+         '(:name "filepath"
+                 :type "string"
+                 :description "Path to the file to open. Supports ~ and TRAMP paths."))
         :category "emacs")
        (gptel-make-tool
+        :name "read_buffer"
+        :function #'my-gptel-read-buffer
+        :description "Return the contents of an Emacs buffer"
+        :args (list
+               '(:name "buffer"
+                       :type "string"
+                       :description
+                       "The name of the buffer whose contents are to be retrieved"))
+        :category "emacs")
+       (gptel-make-tool
+        :name "edit_buffer"
+        :function #'my-gptel-replace-buffer-lines
+        :description "Replace a line range in an existing Emacs buffer. This edits the buffer only and does not save the file."
+        :args
+        (list
+         '(:name "buffer"
+                 :type "string"
+                 :description "Name of the buffer to edit.")
+         '(:name "start_line"
+                 :type "integer"
+                 :description "First line to replace, 1-based.")
+         '(:name "end_line"
+                 :type "integer"
+                 :description "First line not to replace, exclusive.")
+         '(:name "text"
+                 :type "string"
+                 :description "Replacement text."))
+        :category "emacs"
+        :confirm t)
+       (gptel-make-tool
+        :name "save_buffer"
+        :function #'my-gptel-save-buffer
+        :description
+        "Save an Emacs buffer to the file it is visiting."
+        :args
+        (list
+         '(:name "buffer"
+                 :type "string"
+                 :description "Name of the buffer to save."))
+        :category "emacs"
+        :confirm t)
+       (gptel-make-tool
+        :name "project_find_regexp"
+        :function #'my-gptel-project-find-regexp
+        :description
+        "Search the current Emacs project for a regular expression using
+project-find-regexp. Results are displayed in an *xref* buffer. Use
+read_buffer to inspect the results. This requires an active project."
+        :args
+        (list
+         '(:name "regexp"
+                 :type "string"
+                 :description "Regular expression to search for."))
+        :category "project")
+       (gptel-make-tool
         :name "list_buffers"
-        :function (lambda ()
-                    (mapconcat #'buffer-name (buffer-list) "\n"))
+        :function #'my-gptel-list-buffer
         :description "List the names of all existing Emacs buffers."
         :args nil
         :category "emacs")
        (gptel-make-tool
         :name "list_windows"
-        :function
-        (lambda ()
-          (mapconcat
-           (lambda (window)
-             (format "frame=%s window=%s buffer=%s %dx%d+%d+%d%s"
-                     (frame-parameter (window-frame window) 'name)
-                     window
-                     (buffer-name (window-buffer window))
-                     (window-pixel-width window)
-                     (window-pixel-height window)
-                     (window-pixel-left window)
-                     (window-pixel-top window)
-                     (if (eq window (selected-window)) " [selected]" "")))
-           (cl-loop for frame in (frame-list)
-                    append (window-list frame))
-           "\n"))
+        :function #'my-gptel-list-windows
         :description "List all Emacs windows, their frames, buffers, sizes, and positions."
         :args nil
         :category "emacs")
        (gptel-make-tool
         :name "list_frames"
-        :function
-        (lambda ()
-          (mapconcat
-           (lambda (frame)
-             (format "frame=%s name=%s terminal=%s %dx%d%s"
-                     frame
-                     (or (frame-parameter frame 'name) "")
-                     (frame-terminal frame)
-                     (frame-pixel-width frame)
-                     (frame-pixel-height frame)
-                     (if (eq frame (selected-frame)) " [selected]" "")))
-           (frame-list)
-           "\n"))
+        :function #'my-gptel-list-frames
         :description "List all existing Emacs frames and their dimensions."
         :args nil
         :category "emacs")
        (gptel-make-tool
         :name "get_current_context"
-        :function
-        (lambda ()
-          (with-current-buffer (window-buffer (selected-window))
-            (format
-             (concat "buffer: %s\n"
-                     "file: %s\n"
-                     "major-mode: %s\n"
-                     "point: %d\n"
-                     "line: %d\n"
-                     "column: %d\n"
-                     "region: %s\n"
-                     " narrowed: %s\n\n"
-                     "context:\n%s")
-             (buffer-name)
-             (or buffer-file-name "")
-             major-mode
-             (point)
-             (line-number-at-pos)
-             (current-column)
-             (if (use-region-p)
-                 (format "%d-%d" (region-beginning) (region-end))
-               "none")
-             (if (buffer-narrowed-p) "yes" "no")
-             (buffer-substring-no-properties
-              (max (point-min) (- (point) 1000))
-              (min (point-max) (+ (point) 1000))))))
+        :function #'my-gptel-get-current-context
         :description
         "Return the current buffer, file, mode, cursor position, region, and nearby text."
         :args nil
         :category "emacs")
        (gptel-make-tool
         :name "describe_symbol"
-        :function
-        (lambda (symbol)
-          (let* ((sym (intern symbol))
-                 (function-doc (when (fboundp sym)
-                                 (documentation sym t)))
-                 (variable-doc (when (boundp sym)
-                                 (documentation-property
-                                  sym 'variable-documentation t)))
-                 (value (when (boundp sym)
-                          (format "%S" (symbol-value sym)))))
-            (unless (or (fboundp sym) (boundp sym))
-              (error "Unknown symbol: %s" symbol))
-            (format
-             "symbol: %s\nfunction: %s\n\nvariable value: %s\nvariable documentation: %s"
-             sym
-             (or function-doc "Not a function")
-             (or value "Not a bound variable")
-             (or variable-doc "No variable documentation"))))
+        :function #'my-gptel-describe-symbol
         :description
         "Describe an Emacs Lisp function, variable, or both."
         :args
@@ -914,76 +780,53 @@ Allowed commands include status, log, diff, show, branch, and rev-parse."
         :category "git")
 
        (gptel-make-tool
-        :function (lambda (directory)
-	                  (mapconcat #'identity
-                               (directory-files directory)
-                               "\n"))
-        :name "list_directory"
-        :description "List the contents of a given directory"
-        :args (list '(:name "directory"
-	                          :type "string"
-	                          :description "The path to the directory to list"))
+        :name "project_dired"
+        :function #'my-gptel-project-dired
+        :description "Open the root of the current project in a Dired buffer.
+Use read_buffer with the returned buffer name to inspect the directory.
+This requires an active project."
+        :args nil
         :category "filesystem")
-
-       (gptel-make-tool
-        :name "read_file"
-        :function (lambda (filepath start-line end-line)
-	                  (with-temp-buffer
-	                    (my-insert-file-contents-lines filepath start-line end-line)
-	                    (buffer-string)))
-        :description
-        "Read a file, optionally restricted to a line range.
-Line numbers are 1-based. start_line is inclusive and end_line is
-exclusive: start_line=10, end_line=20 returns lines 10 through 19.
-Omit both to read the whole file. Supports relative paths, ~, and TRAMP paths."
-        :args (list '(:name "filepath"
-	                          :type "string"
-	                          :description "Path to the file to read.  Supports relative paths and ~.")
-                    '(:name "start_line"
-                            :type "integer"
-                            :optional t
-                            :description "First line to read, inclusive and 1-based.")
-                    '(:name "end_line"
-                            :type "integer"
-                            :optional t
-                            :description "First line not to read, exclusive."))
-        :category "filesystem")
-       (gptel-make-tool
-        :name "create_file"
-        :function #'my-gptel-create-file
-        :description
-        "Create a new file with CONTENT. Fails if FILEPATH already exists."
-        :args
-        (list
-         '(:name "filepath"
-                 :type "string"
-                 :description "Path of the new file to create.")
-         '(:name "content"
-                 :type "string"
-                 :description "Complete contents of the new file."))
-        :category "filesystem"
-        :confirm t)
-       (gptel-make-tool
-        :name "edit_file"
-        :function #'my-gptel-edit-file
-        :description
-        "Edit an existing file."
-        :args
-        (list
-         '(:name "filepath"
-                 :type "string"
-                 :description "Path to the existing file to edit.")
-         '(:name "content"
-                 :type "string"
-                 :description "Text to insert in place of the specified line range.")
-         '(:name "start_line"
-                 :type "integer"
-                 :description "First line to replace, inclusive and 1-based.")
-         '(:name "end_line"
-                 :type "integer"
-                 :description "First line not to replace, exclusive."))
-        :category "filesystem"
-        :confirm t)))
+      (gptel-make-tool
+       :name "switch_to_buffer"
+       :function #'my-gptel-switch-to-buffer
+       :description
+       "Display an existing Emacs buffer in another window and select that
+window. Use this to show a buffer to the user without replacing the
+gptel chat buffer."
+       :args
+       (list
+        '(:name "buffer"
+                :type "string"
+                :description "Name of an existing Emacs buffer."))
+       :category "emacs")
+      (gptel-make-tool
+       :name "project_magit_status"
+       :function #'my-gptel-project-magit-status
+       :description
+       "Open a Magit status buffer for the current Emacs project. The buffer
+is displayed to the user. Use read_buffer to inspect its text. This
+requires the current project to be a Git repository."
+       :args nil
+       :category "project")
+      (gptel-make-tool
+       :name "project_magit_log"
+       :function #'my-gptel-project-magit-log
+       :description
+       "Open a Magit log buffer for the current Emacs project. The buffer is
+displayed to the user. Use read_buffer on the returned buffer to inspect
+the commit history. This requires the current project to be a Git repository."
+       :args nil
+       :category "project")
+      (gptel-make-tool
+       :name "project_magit_diff"
+       :function #'my-gptel-project-magit-diff
+       :description
+       "Open a Magit diff buffer for the current Emacs project. The buffer is
+displayed to the user. Use read_buffer on the returned buffer to inspect
+the commit history. This requires the current project to be a Git repository."
+       :args nil
+       :category "project"))
 
 
 (use-package rotate
