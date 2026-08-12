@@ -1110,7 +1110,7 @@ Omit both to read the whole file. Supports relative paths, ~, and TRAMP paths."
   ;; Finally, load your theme of choice (or a random one with
   ;; `modus-themes-load-random', `modus-themes-load-random-dark',
   ;; `modus-themes-load-random-light').
-  (modus-themes-load-theme 'modus-operandi))
+  (modus-themes-load-theme 'modus-vivendi-tinted))
 
 (use-package alert
   :ensure t
