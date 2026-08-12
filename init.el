@@ -32,15 +32,17 @@
 (setq tramp-copy-size-limit (* 1024 1024) ;; 1MB
       tramp-verbose 2)
 
+(setq tramp-default-method "ssh")
+
 (connection-local-set-profile-variables
  'remote-direct-async-process
  '((tramp-direct-async-process . t)))
 
 (connection-local-set-profiles
- '(:application tramp :protocol "scp")
+ '(:application tramp :protocol "ssh")
  'remote-direct-async-process)
 
-(setq tramp-default-method "ssh")
+(setq magit-tramp-pipe-stty-settings 'pty)
 
 (with-eval-after-load 'tramp
   (with-eval-after-load 'compile
@@ -74,13 +76,13 @@
 
 (set-face-attribute 'default nil
                     :family "Menlo"
-                    :height 150
+                    :height 160
                     :weight 'regular
                     :slant 'normal)
 
 (set-face-attribute 'variable-pitch nil
                     :family "Source Serif 4"
-                    :height 150
+                    :height 160
                     :weight 'normal
                     :slant 'normal)
 
@@ -193,13 +195,8 @@
          (window-height 0.2)
          (inhibit-same-window . t))
 
-        ;; Commit message: fixed bottom panel
-        ("COMMIT_EDITMSG"
-         (display-buffer-in-side-window)
-         (side . bottom)
-         (slot . 2)
-         (window-height . 0.2)
-         (inhibit-same-window . t))
+        ;; ("COMMIT_EDITMSG"
+        ;;  (display-buffer-same-window))
 
         (my-command-buffer-p
          (display-buffer-reuse-window
@@ -403,7 +400,7 @@
 (use-package vterm
   :ensure t
   :hook
-  (vterm-mode . meow-insert))
+  (vterm-mode . (lambda () (display-line-numbers-mode -1))))
 
 (use-package vertico
   :ensure t
@@ -612,7 +609,8 @@
   (setq gptel-backend
         (gptel-make-openai-oauth "ChatGPT"))
   (setq gptel-default-mode 'org-mode)
-  (setq gptel-model "gpt-5.6-luna")
+  (setq gptel-model 'gpt-5.6-luna)
+  (setq gptel-max-tokens nil)
   (setq gptel-use-tools t)
   (setq gptel-system-prompt
       (concat
@@ -623,7 +621,6 @@
   :init
   (with-eval-after-load 'meow
     (meow-leader-define-key
-     '("a s" . gptel)
      '("a a" . gptel-menu)
      '("a c" . gptel-add)
      '("a k" . gptel-context-remove-all)
@@ -631,6 +628,13 @@
      '("a r" . gptel-rewrite)
      '("a t" . gptel-tools))))
 
+(use-package gptel-agent
+  :vc ( :url "https://github.com/karthink/gptel-agent"
+        :rev :newest)
+  :config (gptel-agent-update)
+  :init (with-eval-after-load 'meow
+          (meow-leader-define-key
+           '("a s" . gptel-agent))))
 
 (defun my-gptel-magit-git-readonly (directory args)
   "Run a read-only Git command through Magit in DIRECTORY."
