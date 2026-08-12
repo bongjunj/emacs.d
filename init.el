@@ -206,9 +206,7 @@
         ("\\*Org todo\\*"
          (display-buffer-below-selected)
          (side . bottom)
-         (slot . 2))
-        )
-      )
+         (slot . 2))))
 
 
 ;; Meow & Keybindings
@@ -609,18 +607,19 @@
   (setq gptel-backend
         (gptel-make-openai-oauth "ChatGPT"))
   (setq gptel-default-mode 'org-mode)
-  (setq gptel-model 'gpt-5.6-luna)
-  (setq gptel-max-tokens nil)
+  (setq gptel-model 'gpt-5.6-terra)
+  (setq-default gptel-max-tokens nil)
   (setq gptel-use-tools t)
   (setq gptel-system-prompt
       (concat
        "You are a large language model living in Emacs and a helpful assistant. "
-       "Read ~/.emacs.d/init.el to understand the current configuration. "
-       "Read buffers and understand the context clearly before you answer to the user. "
+       "If asked about the emacs settings, read ~/.emacs.d/init.el to understand the current configuration. "
+       "Read existing relevant buffers to understand the context clearly before you answer to the user. "
        "Respond concisely."))
   :init
   (with-eval-after-load 'meow
     (meow-leader-define-key
+     '("a s" . gptel)
      '("a a" . gptel-menu)
      '("a c" . gptel-add)
      '("a k" . gptel-context-remove-all)
@@ -631,10 +630,50 @@
 (use-package gptel-agent
   :vc ( :url "https://github.com/karthink/gptel-agent"
         :rev :newest)
+  :after gptel
   :config (gptel-agent-update)
   :init (with-eval-after-load 'meow
           (meow-leader-define-key
-           '("a s" . gptel-agent))))
+           '("a A" . gptel-agent))))
+
+(defun my-gptel-create-file (filepath content)
+  "Create FILEPATH with CONTENT, refusing to overwrite an existing file."
+  (let ((filepath (expand-file-name filepath)))
+    (when (file-exists-p filepath)
+      (error "File already exists: %s" filepath))
+    (with-temp-file filepath
+      (insert content))
+    (format "Created %s." filepath)))
+
+(defun my-gptel-edit-file (filepath content start-line end-line)
+  "Replace lines [START-LINE, END-LINE) in an existing FILEPATH.
+
+Line numbers are 1-based and END-LINE is exclusive."
+  (let ((filepath (expand-file-name filepath)))
+    (unless (file-exists-p filepath)
+      (error "File does not exist; use create_file: %s" filepath))
+    (unless (and (integerp start-line)
+                 (integerp end-line)
+                 (>= start-line 1)
+                 (>= end-line start-line))
+      (error "Valid 1-based start_line and end_line are required"))
+    (with-current-buffer (find-file-noselect filepath)
+      (save-restriction
+        (widen)
+        (save-excursion
+          (goto-char (point-min))
+          (unless (zerop (forward-line (1- start-line)))
+            (error "start_line %d is beyond end of %s"
+                   start-line filepath))
+          (let ((beg (point)))
+            (unless (zerop (forward-line (- end-line start-line)))
+              (error "end_line %d is beyond end of %s"
+                     end-line filepath))
+            (delete-region beg (point))
+            (goto-char beg)
+            (insert content)))
+        (save-buffer)
+        (format "Updated %s." filepath)))))
 
 (defun my-gptel-magit-git-readonly (directory args)
   "Run a read-only Git command through Magit in DIRECTORY."
@@ -650,19 +689,100 @@
                  (apply #'magit-git-lines args)
                  "\n"))))
 
+(defun my-gptel-ripgrep (pattern directory)
+  "Search DIRECTORY recursively for PATTERN with rg, falling back to grep."
+  (let ((default-directory
+         (file-name-as-directory (expand-file-name directory))))
+    (unless (file-directory-p default-directory)
+      (error "Not a directory: %s" directory))
+    (let* ((program (or (executable-find "rg")
+                        (executable-find "grep")))
+           (rg-p (and program
+                      (string= (file-name-nondirectory program) "rg")))
+           (stderr-file (make-temp-file "gptel-search-stderr-"))
+           status)
+      (unwind-protect
+          (with-temp-buffer
+            (unless program
+              (error "Neither rg nor grep was found in PATH"))
+            (setq status
+                  (if rg-p
+                      (process-file program nil
+                                    (list t stderr-file) nil
+                                    "--line-number" "--column" "--no-heading"
+                                    "--color" "never" "--"
+                                    pattern ".")
+                    (process-file program nil
+                                  (list t stderr-file) nil
+                                  "-RInH" "--" pattern ".")))
+            (cond
+             ((= status 0) (string-trim-right (buffer-string)))
+             ((= status 1) "")       ; no matches
+             (t
+              (error "Search failed: %s"
+                     (string-trim
+                      (with-temp-buffer
+                        (insert-file-contents stderr-file)
+                        (buffer-string)))))))
+        (delete-file stderr-file)))))
+
+(defun my-insert-file-contents-lines (filename &optional start-line end-line)
+  "Insert lines START-LINE through END-LINE from FILENAME.
+
+Line numbers are 1-based.  START-LINE defaults to 1; END-LINE is
+exclusive and defaults to the end of the file."
+  (let ((start-line (or start-line 1)))
+    (insert-file-contents (expand-file-name filename))
+    (forward-line (1- start-line))
+    (let ((beg (point)))
+      (when end-line
+        (forward-line (- end-line start-line))
+        (delete-region (point) (point-max)))
+      (delete-region (point-min) beg))))
+
+(defun codel-bash (command &optional _timeout)
+  "Execute bash COMMAND with optional TIMEOUT."
+  (let ((result (shell-command-to-string command)))
+    (if (string-empty-p result)
+        "Command executed successfully (no output)"
+      result)))
+
 (setq gptel-tools
       (list
+       (gptel-make-tool :name "bash" :function #'codel-bash :description "Run a bash command" :confirm t
+                        :args (list '(:name "command" :type "string" :description "a bash command")
+                                    '(:name "timeout" :type "integer" :description "an optional timeout in ms")))
        (gptel-make-tool
+        :name "search_files"
+        :function #'my-gptel-ripgrep
+        :description
+        "Recursively search files for a regular expression.
+Prefer ripgrep (`rg`) and fall back to the system `grep`.
+Returns matching file names, line numbers, and matching lines.
+The directory may be absolute, relative, or remote via TRAMP."
+        :args
+        (list
+         '(:name "pattern"
+                 :type "string"
+                 :description "Regular expression or search pattern.")
+         '(:name "directory"
+                 :type "string"
+                 :description
+                 "Directory to search, such as \".\" or \"/path/to/project\"."))
+        :category "filesystem")
+
+       (gptel-make-tool
+        :name "read_buffer"
         :function (lambda (buffer)
                     (unless (buffer-live-p (get-buffer buffer))
                       (error "Error: buffer %s is not live." buffer))
                     (with-current-buffer  buffer
                       (buffer-substring-no-properties (point-min) (point-max))))
-        :name "read_buffer"
         :description "Return the contents of an Emacs buffer"
         :args (list '(:name "buffer"
                             :type "string"
-                            :description "The name of the buffer whose contents are to be retrieved"))
+                            :description
+                            "The name of the buffer whose contents are to be retrieved"))
         :category "emacs")
        (gptel-make-tool
         :name "list_buffers"
@@ -800,17 +920,66 @@ Allowed commands include status, log, diff, show, branch, and rev-parse."
 	                          :type "string"
 	                          :description "The path to the directory to list"))
         :category "filesystem")
+
        (gptel-make-tool
-        :function (lambda (filepath)
-	                  (with-temp-buffer
-	                    (insert-file-contents (expand-file-name filepath))
-	                    (buffer-string)))
         :name "read_file"
-        :description "Read and display the contents of a file"
+        :function (lambda (filepath start-line end-line)
+	                  (with-temp-buffer
+	                    (my-insert-file-contents-lines filepath start-line end-line)
+	                    (buffer-string)))
+        :description
+        "Read a file, optionally restricted to a line range.
+Line numbers are 1-based. start_line is inclusive and end_line is
+exclusive: start_line=10, end_line=20 returns lines 10 through 19.
+Omit both to read the whole file. Supports relative paths, ~, and TRAMP paths."
         :args (list '(:name "filepath"
 	                          :type "string"
-	                          :description "Path to the file to read.  Supports relative paths and ~."))
-        :category "filesystem")))
+	                          :description "Path to the file to read.  Supports relative paths and ~.")
+                    '(:name "start_line"
+                            :type "integer"
+                            :optional t
+                            :description "First line to read, inclusive and 1-based.")
+                    '(:name "end_line"
+                            :type "integer"
+                            :optional t
+                            :description "First line not to read, exclusive."))
+        :category "filesystem")
+       (gptel-make-tool
+        :name "create_file"
+        :function #'my-gptel-create-file
+        :description
+        "Create a new file with CONTENT. Fails if FILEPATH already exists."
+        :args
+        (list
+         '(:name "filepath"
+                 :type "string"
+                 :description "Path of the new file to create.")
+         '(:name "content"
+                 :type "string"
+                 :description "Complete contents of the new file."))
+        :category "filesystem"
+        :confirm t)
+       (gptel-make-tool
+        :name "edit_file"
+        :function #'my-gptel-edit-file
+        :description
+        "Edit an existing file."
+        :args
+        (list
+         '(:name "filepath"
+                 :type "string"
+                 :description "Path to the existing file to edit.")
+         '(:name "content"
+                 :type "string"
+                 :description "Text to insert in place of the specified line range.")
+         '(:name "start_line"
+                 :type "integer"
+                 :description "First line to replace, inclusive and 1-based.")
+         '(:name "end_line"
+                 :type "integer"
+                 :description "First line not to replace, exclusive."))
+        :category "filesystem"
+        :confirm t)))
 
 
 (use-package rotate
