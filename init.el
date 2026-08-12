@@ -1,12 +1,9 @@
 (require 'cl-lib)
 (setq custom-file "~/.emacs.d/custom.el")
-(load custom-file nil nil)
-(add-to-list 'load-path user-emacs-directory)
-(require 'tools)
+; (load custom-file nil nil)
 
-(setq default-frame-alist
-      '((width . 180)
-        (height . 60)))
+(add-to-list 'load-path (file-name-concat user-emacs-directory "lisp"))
+(require 'tools)
 
 (setq vc-handled-backends '(Git))
 (setq confirm-kill-emacs 'yes-or-no-p)
@@ -26,8 +23,8 @@
 (setq compilation-scroll-output t)
 
 (setq frame-title-format
-      '(buffer-file-name "%b - %f" 
-        (dired-directory dired-directory 
+      '(buffer-file-name "%b - %f"
+        (dired-directory dired-directory
          ("%b - Dir: " default-directory))))
 
 ;; TRAMP Optimization: https://coredumped.dev/2025/06/18/making-tramp-go-brrrr./
@@ -337,7 +334,7 @@
   (setq org-agenda-span 'week)
   (setq org-directory "~/Documents/orgfiles/")
   (setq org-agenda-window-setup 'current-window)
-  (setq org-agenda-files (list org-directory))  
+  (setq org-agenda-files (list org-directory))
   :config
   (setq org-M-RET-may-split-line '((default . nil)))
   (setq org-insert-heading-respect-content t)
@@ -572,9 +569,19 @@
   (global-treesit-fold-mode 1)
   (global-treesit-fold-indicators-mode 1))
 
+(cl-defmethod project-root ((project (head local)))
+  (cdr project))
+
+(defun project-try-local (dir)
+  "Determine if DIR is a non-Git project.
+DIR must include a .project file to be considered a project."
+  (let ((root (locate-dominating-file dir ".project")))
+    (and root (cons 'local root))))
+
 (use-package project
   :ensure nil
   :config
+  (add-to-list 'project-find-functions #'project-try-local)
   (setq project-vc-merge-submodules nil)
   (setq project-switch-commands
         '((project-dired "Dired")
@@ -598,7 +605,7 @@
      '("p b" . project-switch-to-buffer)
 
      ;; Core Projectile utilities
-     '("p s" . my-project-consult-ripgrep)
+     '("p g" . my-project-consult-ripgrep)
      '("p d" . project-find-dir)
      '("p k" . project-kill-buffers)
      '("p c" . project-compile)
@@ -631,15 +638,6 @@
      '("a K" . gptel-abort)
      '("a r" . gptel-rewrite)
      '("a t" . gptel-tools))))
-
-(use-package gptel-agent
-  :vc ( :url "https://github.com/karthink/gptel-agent"
-        :rev :newest)
-  :after gptel
-  :config (gptel-agent-update)
-  :init (with-eval-after-load 'meow
-          (meow-leader-define-key
-           '("a A" . gptel-agent))))
 
 (setq gptel-tools
       (list
@@ -826,7 +824,7 @@ the commit history. This requires the current project to be a Git repository."
 displayed to the user. Use read_buffer on the returned buffer to inspect
 the commit history. This requires the current project to be a Git repository."
        :args nil
-       :category "project"))
+       :category "project")))
 
 
 (use-package rotate
@@ -953,7 +951,7 @@ the commit history. This requires the current project to be a Git repository."
   ;; Finally, load your theme of choice (or a random one with
   ;; `modus-themes-load-random', `modus-themes-load-random-dark',
   ;; `modus-themes-load-random-light').
-  (modus-themes-load-theme 'modus-vivendi-tinted))
+  (modus-themes-load-theme 'modus-operandi))
 
 (use-package alert
   :ensure t
