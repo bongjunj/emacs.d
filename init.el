@@ -611,13 +611,13 @@
   (setq gptel-backend
         (gptel-make-openai-oauth "ChatGPT"))
   (setq gptel-default-mode 'org-mode)
-  (setq gptel-model 'gpt-5.6-terra)
+  (setq gptel-model 'gpt-5.6-luna)
   (setq-default gptel-max-tokens nil)
-  (setq gptel-use-tools t)
   (setq gptel-system-prompt
       (concat
        "You are a large language model living in Emacs and a helpful assistant. "
-       "If asked about the emacs settings, read ~/.emacs.d/init.el to understand the current configuration. "
+       "If asked about the emacs settings, "
+       "read ~/.emacs.d/init.el to understand the current configuration. "
        "Read existing relevant buffers to understand the context clearly before you answer to the user. "
        "Respond concisely."))
   :init
