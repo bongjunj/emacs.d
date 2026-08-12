@@ -2,6 +2,10 @@
 (setq custom-file "~/.emacs.d/custom.el")
 (load custom-file nil nil)
 
+(setq default-frame-alist
+      '((width . 240)
+        (height . 80)))
+
 (setq vc-handled-backends '(Git))
 (setq confirm-kill-emacs 'yes-or-no-p)
 (setq auto-save-default nil)
