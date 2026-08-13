@@ -343,7 +343,7 @@
   (setq org-log-done 'time)
   (setq org-log-into-drawer t)
   (setq org-todo-keywords
-        '((sequence "TODO(t)" "INPROGRESS(i!)" "|" "DONE(d!)" "DELEGATED(D!)" "WON'TDO(w!)")))
+        '((sequence "TODO(t)" "INPROGRESS(i!)" "|" "DONE(d!)" "DELEGATED(D!)" "CANCELLED(c!)")))
   (setq org-refile-targets
         '((nil :maxlevel . 3)
           (org-agenda-files :maxlevel . 3)))
