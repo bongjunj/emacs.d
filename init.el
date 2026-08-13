@@ -683,22 +683,31 @@ Use read_buffer afterward to inspect its contents."
         :category "emacs")
        (gptel-make-tool
         :name "edit_buffer"
-        :function #'my-gptel-replace-buffer-lines
-        :description "Replace a line range in an existing Emacs buffer. This edits the buffer only and does not save the file."
+        :function #'codel-edit-buffer
+        :description
+        "Replace OLD-STRING to NEW-STRING.
+This fails when no match or multiple matches of OLD-STRING found.
+This edits the buffer only and does not save the file."
         :args
         (list
          '(:name "buffer"
                  :type "string"
                  :description "Name of the buffer to edit.")
-         '(:name "start_line"
+         '(:name "old_string"
                  :type "integer"
-                 :description "First line to replace, 1-based.")
-         '(:name "end_line"
+                 :description "The old string to match against.")
+         '(:name "new_string"
                  :type "integer"
-                 :description "First line not to replace, exclusive.")
-         '(:name "text"
-                 :type "string"
-                 :description "Replacement text."))
+                 :description "The new string to replace the old string."))
+        :category "emacs"
+        :confirm t)
+       (gptel-make-tool
+        :name "replace_buffer"
+        :function #'codel-replace-buffer
+        :description "Completely replace contents of BUFFER-NAME with CONTENT."
+        :args
+        (list '(:name "buffer" :type "string" :description "Name of the buffer to replace the content")
+              '(:name "content" :type "string" :description "Content to write to the buffer."))
         :category "emacs"
         :confirm t)
        (gptel-make-tool

@@ -32,37 +32,30 @@ the buffer contents."
               (setq line-number (1+ line-number)))
             (apply #'concat (nreverse lines))))))))
 
-(defun my-gptel-replace-buffer-lines
-    (buffer start-line end-line text)
-  "Replace lines START-LINE through END-LINE in BUFFER with TEXT.
-
-Line numbers are 1-based. END-LINE is exclusive."
-  (let ((buf (get-buffer buffer)))
-    (unless (buffer-live-p buf)
-      (error "Buffer does not exist: %s" buffer))
-    (with-current-buffer buf
-      (save-restriction
-        (widen)
+(defun codel-edit-buffer (buffer-name old-string new-string)
+  "In BUFFER-NAME, replace OLD-STRING with NEW-STRING."
+  (with-current-buffer buffer-name
+    (let ((case-fold-search nil))
+      (save-excursion
         (goto-char (point-min))
-        (forward-line (1- start-line))
-        (let ((beg (point)))
-          (goto-char (point-min))
-          (forward-line (1- end-line))
-          (delete-region beg (point))
-          (goto-char beg)
-          (insert text)))
-      (format "Edited buffer %s; modified: %s"
-              (buffer-name)
-              (if (buffer-modified-p) "yes" "no")))))
-(defun my-gptel-insert-at-point (buffer text)
-  "Insert TEXT at point in BUFFER."
-  (let ((buf (get-buffer buffer)))
-    (unless (buffer-live-p buf)
-      (error "Buffer does not exist: %s" buffer))
-    (with-current-buffer buf
-      (insert text)
-      (format "Inserted text into %s; modified: yes"
-              (buffer-name)))))
+        (let ((count 0))
+          (while (search-forward old-string nil t)
+            (setq count (1+ count)))
+          (if (= count 0)
+              (format "Error: Could not find text to replace in buffer %s" buffer-name)
+            (if (> count 1)
+                (format "Error: Found %d matches for the text to replace in buffer %s" count buffer-name)
+              (goto-char (point-min))
+              (search-forward old-string)
+              (replace-match new-string t t)
+              (format "Successfully edited buffer %s" buffer-name))))))))
+
+(defun codel-replace-buffer (buffer-name content)
+  "Completely replace contents of BUFFER-NAME with CONTENT."
+  (with-current-buffer buffer-name
+    (erase-buffer)
+    (insert content)
+    (format "Buffer replaced: %s" buffer-name)))
 
 (defun my-gptel-save-buffer (buffer)
   "Save BUFFER."
