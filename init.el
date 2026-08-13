@@ -192,10 +192,12 @@
 
         ;; Magit Status
         ((major-mode . magit-status-mode)
-         (display-buffer-reuse-window
-          display-buffer-below-selected)
+         (display-buffer-in-side-window
+          display-buffer-reuse-window)
+         (side . bottom)
+         (slot . 1)
          (window-height 0.25)
-         (inhibit-same-window . t))
+         (window-min-width 0.4))
 
         ;; ("COMMIT_EDITMSG"
         ;;  (display-buffer-same-window))
