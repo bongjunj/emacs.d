@@ -2,6 +2,8 @@
 (setq custom-file "~/.emacs.d/custom.el")
 ; (load custom-file nil nil)
 
+(setq default-frame-alist '((width . 100) (height . 35)))
+
 (add-to-list 'load-path (file-name-concat user-emacs-directory "lisp"))
 (require 'tools)
 
