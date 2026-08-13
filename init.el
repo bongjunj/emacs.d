@@ -201,8 +201,10 @@
         ;;  (display-buffer-same-window))
 
         (my-command-buffer-p
-         (display-buffer-reuse-window
-          display-buffer-below-selected)
+         (display-buffer-in-side-window
+          display-buffer-reuse-window)
+         (side . bottom)
+         (slot . -1)
          (window-min-height . 0.25))
 
         ("\\*Org todo\\*"
