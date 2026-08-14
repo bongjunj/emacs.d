@@ -2,6 +2,10 @@
 (setq custom-file "~/.emacs.d/custom.el")
 ; (load custom-file nil nil)
 
+(global-set-key (kbd "<C-pinch>") #'ignore)
+(global-set-key (kbd "<C-wheel-up>") #'ignore)
+(global-set-key (kbd "<C-wheel-down>") #'ignore)
+
 (setq default-frame-alist '((width . 100) (height . 35)))
 
 (add-to-list 'load-path (file-name-concat user-emacs-directory "lisp"))
@@ -138,8 +142,15 @@
 
   (add-hook 'LaTeX-mode-hook
 	    (lambda ()
-	      (add-hook 'after-save-hook #'TeX-command-run-all nil t))))
+	      (add-hook 'after-save-hook (lambda () (TeX-command-run-all nil)) nil t))))
 
+(use-package pdf-tools
+  :ensure t
+  :config
+  (pdf-tools-install)
+  :hook
+  (pdf-view-mode . (lambda ()
+                     (display-line-numbers-mode -1))))
 (use-package magit
   :ensure t
   :bind
