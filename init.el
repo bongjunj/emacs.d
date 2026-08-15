@@ -486,6 +486,9 @@
      '("s d" . consult-flymake)
      '("s B" . consult-bookmark)
      '("s s" . consult-recent-file)
+     '("s y" . consult-yank-pop)
+     '("s k" . consult-yank-from-kill-ring)
+     '("s K" . consult-yank-replace)
      '("s g" . consult-ripgrep)
      '("s r" . consult-register-store)
      '("s R" . consult-register)
@@ -649,6 +652,14 @@ DIR must include a .project file to be considered a project."
      '("p !" . project-shell-command)
      '("p &" . project-async-shell-command)))
 
+(defun my-gptel-project ()
+  (interactive)
+  (let ((default-directory
+         (if-let ((project (project-current)))
+             (project-root project)
+           default-directory)))
+    (call-interactively #'gptel)))
+
 ;; Log-in to OpenAI with (gptel-openai-oauth-login)
 (use-package gptel
   :ensure t
@@ -668,13 +679,14 @@ DIR must include a .project file to be considered a project."
   :init
   (with-eval-after-load 'meow
     (meow-leader-define-key
-     '("a s" . gptel)
+     '("a s" . my-gptel-project)
      '("a a" . gptel-menu)
      '("a c" . gptel-add)
      '("a k" . gptel-context-remove-all)
      '("a K" . gptel-abort)
      '("a r" . gptel-rewrite)
      '("a t" . gptel-tools))))
+
 
 (setq gptel-tools
       (list
@@ -695,7 +707,7 @@ This tool requires an active project."
        (gptel-make-tool
         :name "find_file"
         :function #'my-gptel-find-file
-        :description "open a file in an Emacs buffer using find-file.
+        :description "Open a file in an Emacs buffer using find-file.
 Returns the buffer name and file information.
 Use read_buffer afterward to inspect its contents."
         :args
@@ -704,6 +716,28 @@ Use read_buffer afterward to inspect its contents."
                  :type "string"
                  :description "Path to the file to open. Supports ~ and TRAMP paths."))
         :category "emacs")
+       (gptel-make-tool
+        :name "read_file"
+        :function #'my-gptel-read-file
+        :description
+        "Return a selected inclusive line range from a file without visiting it.
+Line numbers are 1-based and optional. Relative paths are resolved against
+the current GPTel buffer's default-directory. If start_line is omitted,
+read from the beginning. If end_line is omitted, read to the end."
+        :args
+        (list
+         '(:name "filepath"
+                 :type "string"
+                 :description "Path to the file to read.")
+         '(:name "start_line"
+                 :type "integer"
+                 :optional t
+                 :description "First line to return, starting at 1.")
+         '(:name "end_line"
+                 :type "integer"
+                 :optional t
+                 :description "Last line to return, inclusive."))
+        :category "filesystem")
        (gptel-make-tool
         :name "read_buffer"
         :function #'my-gptel-read-buffer
@@ -727,10 +761,10 @@ This edits the buffer only and does not save the file."
                  :type "string"
                  :description "Name of the buffer to edit.")
          '(:name "old_string"
-                 :type "integer"
+                 :type "string"
                  :description "The old string to match against.")
          '(:name "new_string"
-                 :type "integer"
+                 :type "string"
                  :description "The new string to replace the old string."))
         :category "emacs"
         :confirm t)

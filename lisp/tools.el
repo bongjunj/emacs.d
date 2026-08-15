@@ -1,10 +1,83 @@
 (defun my-gptel-find-file (filepath)
-  "Open FILEPATH in an Emacs buffer and return buffer information."
-  (let ((buffer (find-file-other-window (expand-file-name filepath))))
-    (format "buffer: %s\nfile: %s\nmodified: %s"
-            (buffer-name buffer)
-            (or (buffer-file-name buffer) "")
-            (if (buffer-modified-p buffer) "yes" "no"))))
+  "Open existing FILEPATH in another window and return buffer information.
+The currently selected window, including a GPTel chat window, is not
+replaced."
+  (let* ((path (expand-file-name filepath default-directory))
+         (working-window (selected-window)))
+    (condition-case err
+        (progn
+          (unless (file-exists-p path)
+            (error "File does not exist: %s" path))
+
+          (let* ((buffer (get-file-buffer path))
+                 (window
+                  (or
+                   ;; Reuse a window already showing the file.
+                   (and buffer
+                        (get-buffer-window buffer (selected-frame)))
+
+                   ;; Otherwise reuse another existing window.
+                   (get-window-with-predicate
+                    (lambda (candidate)
+                      (and (window-live-p candidate)
+                           (not (eq candidate working-window))
+                           (not (window-minibuffer-p candidate))
+                           (not (window-dedicated-p candidate))))
+                    'nomini
+                    (selected-frame))
+
+                   ;; Only split GPTel as a last resort.
+                   (split-window-sensibly working-window))))
+
+            (unless window
+              (error "Could not find or create another window"))
+
+            (select-window window)
+            (unless buffer
+              (setq buffer (find-file-existing path)))
+
+            (set-window-buffer window buffer)
+
+            (format "buffer: %s\nfile: %s\nmodified: %s"
+                    (buffer-name buffer)
+                    (or (buffer-file-name buffer) "")
+                    (if (buffer-modified-p buffer) "yes" "no"))))
+
+      (error
+       (when (window-live-p working-window)
+         (select-window working-window))
+       (format "Could not open %s: %s"
+               path
+               (error-message-string err))))))
+
+
+(defun my-gptel-read-file (filepath &optional start-line end-line)
+  "Return a line range from FILEPATH without visiting it.
+
+START-LINE and END-LINE are 1-based and inclusive.  If START-LINE is
+nil, read from the beginning.  If END-LINE is nil, read to the end."
+  (let* ((path (expand-file-name filepath default-directory))
+         (start (or start-line 1)))
+    (cond
+     ((or (< start 1)
+          (and end-line (< end-line start)))
+      "Line numbers must be positive, with END-LINE >= START-LINE.")
+     ((not (file-readable-p path))
+      (format "File does not exist or is not readable: %s" path))
+     (t
+      (condition-case err
+          (with-temp-buffer
+            (insert-file-contents path)
+            (goto-char (point-min))
+            (forward-line (1- start))
+            (let ((beg (point)))
+              (if end-line
+                  (forward-line (1+ (- end-line start)))
+                (goto-char (point-max)))
+              (buffer-substring-no-properties beg (point))))
+        (error
+         (format "Could not read %s: %s"
+                 path (error-message-string err))))))))
 
 (defun my-gptel-read-buffer (buffer)
   "Return BUFFER contents."
