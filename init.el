@@ -1,12 +1,12 @@
 (require 'cl-lib)
 (setq custom-file "~/.emacs.d/custom.el")
-; (load custom-file nil nil)
-
+;; (load custom-file nil nil)
 (global-set-key (kbd "<C-pinch>") #'ignore)
 (global-set-key (kbd "<C-wheel-up>") #'ignore)
 (global-set-key (kbd "<C-wheel-down>") #'ignore)
 
-(setq default-frame-alist '((width . 100) (height . 35)))
+(setq browse-url-browser-function 'eww-browse-url)
+(setq default-frame-alist '((width . 170) (height . 45)))
 
 (add-to-list 'load-path (file-name-concat user-emacs-directory "lisp"))
 (require 'tools)
@@ -85,13 +85,13 @@
 
 (set-face-attribute 'default nil
                     :family "Menlo"
-                    :height 160
+                    :height 140
                     :weight 'regular
                     :slant 'normal)
 
 (set-face-attribute 'variable-pitch nil
                     :family "Source Serif 4"
-                    :height 160
+                    :height 140
                     :weight 'normal
                     :slant 'normal)
 
