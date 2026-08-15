@@ -427,11 +427,40 @@
 
 (add-hook 'emacs-startup-hook (lambda () (org-agenda-list)))
 
+(defvar-local my-vterm-meow-sync-in-progress nil)
+
+(defun my-vterm-sync-meow ()
+  (unless my-vterm-meow-sync-in-progress
+    (let ((my-vterm-meow-sync-in-progress t))
+      (if vterm-copy-mode
+          (meow-normal-mode)
+        (meow-insert-mode)))))
+
+(defun my-meow-normal-sync-vterm ()
+  (when (and (derived-mode-p 'vterm-mode)
+             (not vterm-copy-mode)
+             (not my-vterm-meow-sync-in-progress))
+    (let ((my-vterm-meow-sync-in-progress t))
+      (vterm-copy-mode 1))))
+
+(defun my-meow-insert-sync-vterm ()
+  (when (and (derived-mode-p 'vterm-mode)
+             vterm-copy-mode
+             (not my-vterm-meow-sync-in-progress))
+    (let ((my-vterm-meow-sync-in-progress t))
+      (vterm-copy-mode -1))))
 
 (use-package vterm
   :ensure t
   :hook
-  (vterm-mode . (lambda () (display-line-numbers-mode -1))))
+  ((vterm-mode . (lambda ()
+                   (display-line-numbers-mode -1)))
+   (vterm-mode . my-vterm-sync-meow)
+   (vterm-copy-mode . my-vterm-sync-meow)))
+
+(with-eval-after-load 'meow
+  (add-hook 'meow-normal-mode-hook #'my-meow-normal-sync-vterm)
+  (add-hook 'meow-insert-mode-hook #'my-meow-insert-sync-vterm))
 
 (use-package vertico
   :ensure t
