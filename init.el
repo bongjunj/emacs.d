@@ -464,13 +464,19 @@
 
 (use-package consult
   :ensure t
+  :config
+  (setq recentf-max-saved-items 200)
   :init
+  (recentf-mode 1)
   (with-eval-after-load 'meow
     (meow-leader-define-key
      '("s l" . consult-line)
+     '("s d" . consult-flymake)
+     '("s B" . consult-bookmark)
+     '("s s" . consult-recent-file)
      '("s g" . consult-ripgrep)
-     '("s r" . consult-register-load)
-     '("s c" . consult-register-store)
+     '("s r" . consult-register-store)
+     '("s R" . consult-register)
      '("s b" . consult-buffer)
      '("s i" . consult-imenu)
      '("s o" . consult-org-agenda)

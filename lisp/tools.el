@@ -7,30 +7,14 @@
             (if (buffer-modified-p buffer) "yes" "no"))))
 
 (defun my-gptel-read-buffer (buffer)
-  "Return BUFFER contents with 1-based line numbers.
-
-The displayed line-number prefixes are metadata and are not part of
-the buffer contents."
+  "Return BUFFER contents."
   (let ((buf (get-buffer buffer)))
     (unless (buffer-live-p buf)
       (error "Buffer does not exist: %s" buffer))
     (with-current-buffer buf
       (save-restriction
         (widen)
-        (save-excursion
-          (goto-char (point-min))
-          (let ((line-number 1)
-                lines)
-            (while (not (eobp))
-              (let ((line-start (point)))
-                (forward-line 1)
-                (push (format "%6d\t%s"
-                              line-number
-                              (buffer-substring-no-properties
-                               line-start (point)))
-                      lines))
-              (setq line-number (1+ line-number)))
-            (apply #'concat (nreverse lines))))))))
+        (buffer-substring-no-properties (point-min) (point-max))))))
 
 (defun codel-edit-buffer (buffer-name old-string new-string)
   "In BUFFER-NAME, replace OLD-STRING with NEW-STRING."
