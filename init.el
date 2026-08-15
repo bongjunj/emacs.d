@@ -142,7 +142,19 @@
 
   (add-hook 'LaTeX-mode-hook
 	    (lambda ()
-	      (add-hook 'after-save-hook (lambda () (TeX-command-run-all nil)) nil t))))
+	      (add-hook 'after-save-hook
+                  (lambda ()
+                    (TeX-command-run-all nil))
+                  nil t))))
+
+(use-package pdf-tools
+  :ensure t
+  :mode ("\\.pdf\\'" . pdf-view-mode)
+  :hook
+  (pdf-view-mode . (lambda () (display-line-numbers-mode -1)))
+  :config
+  (pdf-tools-install)
+  (setq-default pdf-view-display-size 'fit-page))
 
 (use-package pdf-tools
   :ensure t
