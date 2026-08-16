@@ -1,3 +1,5 @@
+;; -*- lexical-binding: t; -*-
+
 (require 'cl-lib)
 (setq custom-file "~/.emacs.d/custom.el")
 ;; (load custom-file nil nil)
