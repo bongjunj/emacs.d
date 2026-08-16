@@ -1,3 +1,5 @@
+;; -*- lexical-binding: t; -*-
+
 (defun my-gptel-find-file (filepath)
   "Open existing FILEPATH in another window and return buffer information.
 The currently selected window, including a GPTel chat window, is not
