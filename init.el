@@ -223,8 +223,7 @@
           display-buffer-reuse-window)
          (side . bottom)
          (slot . 1)
-         (window-height 0.25)
-         (window-min-width 0.4))
+         (window-height 0.25))
 
         ;; ("COMMIT_EDITMSG"
         ;;  (display-buffer-same-window))
@@ -234,13 +233,16 @@
           display-buffer-reuse-window)
          (side . bottom)
          (slot . -1)
-         (window-min-height . 0.25))
+         (window-min-height . 0.35))
 
         ("\\*Org todo\\*"
          (display-buffer-below-selected)
          (side . bottom)
          (slot . 2))))
 
+(with-eval-after-load 'dired
+  (with-eval-after-load 'meow
+    (define-key dired-mode-map (kbd "K") #'dired-kill-subdir)))
 
 ;; Meow & Keybindings
 (defun meow-setup ()
@@ -422,6 +424,8 @@
      '("o c" . org-capture)
      '("o a" . org-agenda)
      '("o l" . org-store-link)
+     '("o s" . consult-org-agenda)
+     '("o h" . consult-org-heading)
      '("o b" . org-switchb)))
   :hook
   (org-mode . (lambda () (display-fill-column-indicator-mode 1)))
@@ -484,18 +488,19 @@
   :init
   (marginalia-mode 1))
 
-(use-package corfu
-  :ensure t
-  :custom
-  (corfu-auto t)                 ;; Enable auto completion
-  (corfu-auto-delay 0.2)         ;; Delay in seconds before popup appears
-  (corfu-auto-prefix 2)          ;; Minimum length of prefix to trigger popup
-  (corfu-cycle t)                ;; Enable cycling through candidates
-  (corfu-preselect 'prompt)      ;; Always preselect the prompt by default
-  :config
-  (corfu-popupinfo-mode 1)
-  :init
-  (global-corfu-mode 1))
+;; Let's try the built-in completeion-at-point
+;; (use-package corfu
+;;   :ensure t
+;;   :custom
+;;   (corfu-auto t)                 ;; Enable auto completion
+;;   (corfu-auto-delay 0.2)         ;; Delay in seconds before popup appears
+;;   (corfu-auto-prefix 2)          ;; Minimum length of prefix to trigger popup
+;;   (corfu-cycle t)                ;; Enable cycling through candidates
+;;   (corfu-preselect 'prompt)      ;; Always preselect the prompt by default
+;;   :config
+;;   (corfu-popupinfo-mode 1)
+;;   :init
+;;   (global-corfu-mode 1))
 
 (setq tab-always-indent 'complete)
 
@@ -525,8 +530,6 @@
      '("s R" . consult-register)
      '("s b" . consult-buffer)
      '("s i" . consult-imenu)
-     '("s o" . consult-org-agenda)
-     '("s h" . consult-org-heading)
      '("s f" . consult-fd))))
 
 (setq register-preview-delay 0.8
@@ -557,12 +560,11 @@
      '("e d" . xref-find-definitions)
      '("e D" . xref-find-definitions-other-window)
      '("e r" . xref-find-references)
-     '("e o" . xref-go-back)
+     '("e b" . xref-go-back)
+     '("e f" . xref-go-forward)
      '("e a" . eglot-code-actions)
      '("e R" . eglot-rename)
-     '("e f" . (lambda ()
-                 (interactive)
-                 (flymake-start))))))
+     '("e g" . flymake-show-buffer-diagnostics))))
 
 (use-package flymake
   :ensure nil
@@ -705,6 +707,7 @@ DIR must include a .project file to be considered a project."
        "You are a large language model living in Emacs and a helpful assistant. "
        "If asked about the emacs settings, "
        "read ~/.emacs.d/init.el to understand the current configuration. "
+       "Read AGENTS.md if the project has the document. "
        "Read existing relevant buffers to understand the context clearly before you answer to the user. "
        "Respond concisely."))
   :init
@@ -722,11 +725,10 @@ DIR must include a .project file to be considered a project."
 (setq gptel-tools
       (list
        (gptel-make-tool
-        :name "project_async_shell_command"
-        :function #'my-gptel-project-async-shell-command
+        :name "project_shell_command"
+        :function #'my-gptel-project-shell-command
         :description
-        "Run a shell command asynchronously in the root of the current Emacs project.
-The output is placed in *Async Shell Command*. Use read_buffer to inspect it.
+        "Run a shell command in the root of the current Emacs project.
 This tool requires an active project."
         :args
         (list
@@ -738,14 +740,17 @@ This tool requires an active project."
        (gptel-make-tool
         :name "find_file"
         :function #'my-gptel-find-file
-        :description "Open a file in an Emacs buffer using find-file.
+        :description "Open a file in an Emacs buffer using find-file-noselect.
+First inspect the currently opened buffers before finding a file with this tool.
+Use resolved paths against the current default-directory. Only using the basename
+will generally result in `File does not found` error.
 Returns the buffer name and file information.
 Use read_buffer afterward to inspect its contents."
         :args
         (list
          '(:name "filepath"
                  :type "string"
-                 :description "Path to the file to open. Supports ~ and TRAMP paths."))
+                 :description "Path to the file to open."))
         :category "emacs")
        (gptel-make-tool
         :name "read_file"
@@ -821,41 +826,9 @@ This edits the buffer only and does not save the file."
         :category "emacs"
         :confirm t)
        (gptel-make-tool
-        :name "project_find_regexp"
-        :function #'my-gptel-project-find-regexp
-        :description
-        "Search the current Emacs project for a regular expression using
-project-find-regexp. Results are displayed in an *xref* buffer. Use
-read_buffer to inspect the results. This requires an active project."
-        :args
-        (list
-         '(:name "regexp"
-                 :type "string"
-                 :description "Regular expression to search for."))
-        :category "project")
-       (gptel-make-tool
         :name "list_buffers"
         :function #'my-gptel-list-buffer
         :description "List the names of all existing Emacs buffers."
-        :args nil
-        :category "emacs")
-       (gptel-make-tool
-        :name "list_windows"
-        :function #'my-gptel-list-windows
-        :description "List all Emacs windows, their frames, buffers, sizes, and positions."
-        :args nil
-        :category "emacs")
-       (gptel-make-tool
-        :name "list_frames"
-        :function #'my-gptel-list-frames
-        :description "List all existing Emacs frames and their dimensions."
-        :args nil
-        :category "emacs")
-       (gptel-make-tool
-        :name "get_current_context"
-        :function #'my-gptel-get-current-context
-        :description
-        "Return the current buffer, file, mode, cursor position, region, and nearby text."
         :args nil
         :category "emacs")
        (gptel-make-tool
@@ -886,56 +859,7 @@ Allowed commands include status, log, diff, show, branch, and rev-parse."
                  :items (:type "string")
                  :description
                  "Git arguments, e.g. [\"status\", \"--short\", \"--branch\"]."))
-        :category "git")
-
-       (gptel-make-tool
-        :name "project_dired"
-        :function #'my-gptel-project-dired
-        :description "Open the root of the current project in a Dired buffer.
-Use read_buffer with the returned buffer name to inspect the directory.
-This requires an active project."
-        :args nil
-        :category "filesystem")
-      (gptel-make-tool
-       :name "switch_to_buffer"
-       :function #'my-gptel-switch-to-buffer
-       :description
-       "Display an existing Emacs buffer in another window and select that
-window. Use this to show a buffer to the user without replacing the
-gptel chat buffer."
-       :args
-       (list
-        '(:name "buffer"
-                :type "string"
-                :description "Name of an existing Emacs buffer."))
-       :category "emacs")
-      (gptel-make-tool
-       :name "project_magit_status"
-       :function #'my-gptel-project-magit-status
-       :description
-       "Open a Magit status buffer for the current Emacs project. The buffer
-is displayed to the user. Use read_buffer to inspect its text. This
-requires the current project to be a Git repository."
-       :args nil
-       :category "project")
-      (gptel-make-tool
-       :name "project_magit_log"
-       :function #'my-gptel-project-magit-log
-       :description
-       "Open a Magit log buffer for the current Emacs project. The buffer is
-displayed to the user. Use read_buffer on the returned buffer to inspect
-the commit history. This requires the current project to be a Git repository."
-       :args nil
-       :category "project")
-      (gptel-make-tool
-       :name "project_magit_diff"
-       :function #'my-gptel-project-magit-diff
-       :description
-       "Open a Magit diff buffer for the current Emacs project. The buffer is
-displayed to the user. Use read_buffer on the returned buffer to inspect
-the commit history. This requires the current project to be a Git repository."
-       :args nil
-       :category "project")))
+        :category "git")))
 
 
 (use-package rotate
@@ -1116,4 +1040,9 @@ the commit history. This requires the current project to be a Git repository."
   :ensure t
   :config
   (global-set-key (kbd "M-o") 'ace-window))
+
+(require 'ansi-color)
+(defun colorize-compilation-buffer ()
+  (ansi-color-apply-on-region compilation-filter-start (point)))
+(add-hook 'compilation-filter-hook 'colorize-compilation-buffer)
 

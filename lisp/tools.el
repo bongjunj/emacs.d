@@ -1,57 +1,24 @@
 ;; -*- lexical-binding: t; -*-
 
 (defun my-gptel-find-file (filepath)
-  "Open existing FILEPATH in another window and return buffer information.
-The currently selected window, including a GPTel chat window, is not
-replaced."
-  (let* ((path (expand-file-name filepath default-directory))
-         (working-window (selected-window)))
+  "Visit FILEPATH without displaying it or changing the selected window."
+  (let ((path (expand-file-name filepath default-directory)))
     (condition-case err
         (progn
           (unless (file-exists-p path)
-            (error "File does not exist: %s" path))
+            (error "File does not exist: %s. Check if the path is correct."
+                   path))
 
-          (let* ((buffer (get-file-buffer path))
-                 (window
-                  (or
-                   ;; Reuse a window already showing the file.
-                   (and buffer
-                        (get-buffer-window buffer (selected-frame)))
-
-                   ;; Otherwise reuse another existing window.
-                   (get-window-with-predicate
-                    (lambda (candidate)
-                      (and (window-live-p candidate)
-                           (not (eq candidate working-window))
-                           (not (window-minibuffer-p candidate))
-                           (not (window-dedicated-p candidate))))
-                    'nomini
-                    (selected-frame))
-
-                   ;; Only split GPTel as a last resort.
-                   (split-window-sensibly working-window))))
-
-            (unless window
-              (error "Could not find or create another window"))
-
-            (select-window window)
-            (unless buffer
-              (setq buffer (find-file-existing path)))
-
-            (set-window-buffer window buffer)
-
+          (let ((buffer (find-file-noselect path)))
             (format "buffer: %s\nfile: %s\nmodified: %s"
                     (buffer-name buffer)
                     (or (buffer-file-name buffer) "")
                     (if (buffer-modified-p buffer) "yes" "no"))))
 
       (error
-       (when (window-live-p working-window)
-         (select-window working-window))
        (format "Could not open %s: %s"
                path
                (error-message-string err))))))
-
 
 (defun my-gptel-read-file (filepath &optional start-line end-line)
   "Return a line range from FILEPATH without visiting it.
@@ -239,16 +206,13 @@ returned buffer to inspect them."
             root
             (buffer-name buffer))))
 
-(defun my-gptel-project-async-shell-command (command)
-  "Run COMMAND asynchronously in the current project's root directory."
+(defun my-gptel-project-shell-command (command)
+  "Run COMMAND in the current project's root and return its output."
   (require 'project)
   (let ((default-directory
          (file-name-as-directory
           (project-root (project-current t)))))
-    (async-shell-command command)
-    (format "Started command in %s\nOutput buffer: %s"
-            default-directory
-            "*Async Shell Command*")))
+    (shell-command-to-string command)))
 
 (defun my-gptel-switch-to-buffer (buffer)
   "Display BUFFER in another window and select that window."
