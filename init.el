@@ -87,14 +87,14 @@
 
 (set-face-attribute 'default nil
                     :family "Iosevka"
-                    :height 140
+                    :height 160
                     :weight 'regular
                     :slant 'normal)
 
 (set-face-attribute 'variable-pitch nil
                     :family "Iosevka"
-                    :height 140
-                    :weight 'normal
+                    :height 160
+                    :weight 'regular
                     :slant 'normal)
 
 (use-package dired
@@ -1046,3 +1046,8 @@ Allowed commands include status, log, diff, show, branch, and rev-parse."
   (ansi-color-apply-on-region compilation-filter-start (point)))
 (add-hook 'compilation-filter-hook 'colorize-compilation-buffer)
 
+(use-package tramp-rpc
+  :after tramp
+  :vc (:url "https://github.com/ArthurHeymans/emacs-tramp-rpc"
+       :rev :newest
+       :lisp-dir "lisp"))
