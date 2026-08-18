@@ -86,13 +86,13 @@
 (setq show-trailing-whitespace t)
 
 (set-face-attribute 'default nil
-                    :family "Menlo"
+                    :family "Iosevka"
                     :height 140
                     :weight 'regular
                     :slant 'normal)
 
 (set-face-attribute 'variable-pitch nil
-                    :family "Source Serif 4"
+                    :family "Iosevka"
                     :height 140
                     :weight 'normal
                     :slant 'normal)
