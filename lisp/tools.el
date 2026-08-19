@@ -206,13 +206,32 @@ returned buffer to inspect them."
             root
             (buffer-name buffer))))
 
-(defun my-gptel-project-shell-command (command)
-  "Run COMMAND in the current project's root and return its output."
+(defun my-gptel-project-shell-command (callback command)
+  "Run COMMAND asynchronously in the current project's root for gptel.
+CALLBACK is supplied first by gptel and invoked with the output string."
   (require 'project)
-  (let ((default-directory
-         (file-name-as-directory
-          (project-root (project-current t)))))
-    (shell-command-to-string command)))
+  (let* ((default-directory
+          (file-name-as-directory
+           (project-root (project-current t))))
+         (buffer (generate-new-buffer " *my-gptel-project-shell-command*"))
+         (process (start-file-process-shell-command
+                   "my-gptel-project-shell-command"
+                   buffer
+                   command)))
+    (set-process-query-on-exit-flag process nil)
+    (set-process-sentinel
+     process
+     (lambda (proc _event)
+       (when (memq (process-status proc) '(exit signal))
+         (let ((output
+                (when (buffer-live-p (process-buffer proc))
+                  (with-current-buffer (process-buffer proc)
+                    (buffer-substring-no-properties (point-min) (point-max))))))
+           (when (buffer-live-p (process-buffer proc))
+             (kill-buffer (process-buffer proc)))
+           (when (functionp callback)
+             (funcall callback (or output "")))))))
+    process))
 
 (defun my-gptel-switch-to-buffer (buffer)
   "Display BUFFER in another window and select that window."

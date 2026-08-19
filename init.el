@@ -218,12 +218,12 @@
          (inhibit-same-window . t))
 
         ;; Magit Status
-        ((major-mode . magit-status-mode)
-         (display-buffer-in-side-window
-          display-buffer-reuse-window)
-         (side . bottom)
-         (slot . 1)
-         (window-height 0.25))
+        ;; ((major-mode . magit-status-mode)
+        ;;  (display-buffer-in-side-window
+        ;;   display-buffer-reuse-window)
+        ;;  (side . bottom)
+        ;;  (slot . 1)
+        ;;  (window-height 0.25))
 
         ;; ("COMMIT_EDITMSG"
         ;;  (display-buffer-same-window))
@@ -371,6 +371,9 @@
   (setq org-agenda-window-setup 'current-window)
   (setq org-agenda-files (list org-directory))
   :config
+  (setq org-blank-before-new-entry
+        '((heading . t)
+          (plain-list-item . nil)))
   (setq org-M-RET-may-split-line '((default . nil)))
   (setq org-insert-heading-respect-content t)
   (setq org-log-done 'time)
@@ -488,7 +491,56 @@
   :init
   (marginalia-mode 1))
 
-;; Let's try the built-in completeion-at-point
+(use-package corfu
+  :ensure t
+  :init
+  (setq tab-always-indent 'complete)
+  :config
+  (setq corfu-preview-current nil)
+  (setq corfu-min-width 20)
+
+  (setq corfu-popupinfo-delay '(1.25 . 0.5))
+  (corfu-popupinfo-mode 1) ; shows documentation after `corfu-popupinfo-delay'
+
+  (global-corfu-mode 1)
+
+  ;; I also have (setq tab-always-indent 'complete) for TAB to complete
+  ;; when it does not need to perform an indentation change.
+  (define-key corfu-map (kbd "<tab>") #'corfu-complete)
+
+  ;; Sort by input history (no need to modify `corfu-sort-function').
+  (with-eval-after-load 'savehist
+    (corfu-history-mode 1)
+    (add-to-list 'savehist-additional-variables 'corfu-history)))
+
+(use-package cape
+  :ensure t
+  :after corfu
+  :config
+  ;; This is for the global value.
+  (setq completion-at-point-functions '(cape-dabbrev cape-file))
+
+  (defun prot/cape-super-set-local (capfs &optional individual-capfs)
+    "Set `completion-at-point-functions' to current value plus CAPFS.
+Treat CAPFS and the default value as a super CAPF.  Then append the
+INDIVIDUAL-CAPFS to the list."
+    (let* ((all-for-super (append completion-at-point-functions capfs))
+           (all-minus-global (delq t all-for-super))
+           (cape-super (apply #'cape-capf-super all-minus-global)))
+      (setq-local completion-at-point-functions (append (list cape-super) individual-capfs (list t)))))
+
+  (defun prot/cape-prog-setup ()
+    "Set up Cape for programming."
+    (prot/cape-super-set-local '(cape-dabbrev) '(cape-file)))
+
+  (add-hook 'prog-mode-hook #'prot/cape-prog-setup)
+
+  (defun prot/cape-text-setup ()
+    "Set up Cape for prose."
+    (prot/cape-super-set-local '(cape-dict cape-dabbrev cape-emoji) '(cape-file)))
+
+  (add-hook 'text-mode-hook #'prot/cape-text-setup))
+
 ;; (use-package corfu
 ;;   :ensure t
 ;;   :custom
@@ -501,14 +553,13 @@
 ;;   (corfu-popupinfo-mode 1)
 ;;   :init
 ;;   (global-corfu-mode 1))
+;; (setq tab-always-indent 'complete)
 
-(setq tab-always-indent 'complete)
-
-(use-package cape
-  :defer 1
-  :config
-  (add-hook 'completion-at-point-functions #'cape-dabbrev 20) ; words from buffer
-  (add-hook 'completion-at-point-functions #'cape-file 20))
+;; (use-package cape
+;;   :defer 1
+;;   :config
+;;   (add-hook 'completion-at-point-functions #'cape-dabbrev 20) ; words from buffer
+;;   (add-hook 'completion-at-point-functions #'cape-file 20))
 
 (use-package consult
   :ensure t
@@ -736,6 +787,7 @@ This tool requires an active project."
                  :type "string"
                  :description "The shell command to run."))
         :category "project"
+        :async t
         :confirm t)
        (gptel-make-tool
         :name "find_file"
