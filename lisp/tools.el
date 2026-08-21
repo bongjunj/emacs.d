@@ -153,6 +153,34 @@ nil, read from the beginning.  If END-LINE is nil, read to the end."
       (max (point-min) (- (point) 1000))
       (min (point-max) (+ (point) 1000))))))
 
+(defun my-gptel-apropos (regexp &optional max-results)
+  "Return Elisp functions whose names match REGEXP.
+
+REGEXP is an Emacs regular expression.  MAX-RESULTS limits the number of
+returned matches; it defaults to 50."
+  (let* ((limit (or max-results 50))
+         (symbols (sort (apropos-internal regexp #'fboundp)
+                        (lambda (a b)
+                          (string< (symbol-name a) (symbol-name b)))))
+         (truncated (> (length symbols) limit)))
+    (when (< limit 1)
+      (error "MAX-RESULTS must be positive"))
+    (setq symbols (cl-subseq symbols 0 (min limit (length symbols))))
+    (if (null symbols)
+        "No matching functions."
+      (concat
+       (when truncated
+         (format "Showing the first %d matches.\n\n" limit))
+       (mapconcat
+        (lambda (symbol)
+          (format "%s\n  %s"
+                  symbol
+                  (replace-regexp-in-string
+                   "[ \t\n]+" " "
+                   (or (documentation symbol t) "No documentation"))))
+        symbols
+        "\n")))))
+
 (defun my-gptel-describe-symbol (symbol)
   (let* ((sym (intern symbol))
          (function-doc (when (fboundp sym)

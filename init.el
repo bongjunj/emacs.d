@@ -622,7 +622,7 @@ DIR must include a .project file to be considered a project."
            default-directory)))
     (call-interactively #'gptel)))
 
-;; Log-in to OpenAI with (gptel-openai-oauth-login)
+;; Log-in to OpenAI with M-x gptel-openai-oauth-login
 (use-package gptel
   :ensure t
   :config
@@ -647,6 +647,11 @@ DIR must include a .project file to be considered a project."
      '("a k" . gptel-context-remove-all)
      '("a K" . gptel-abort)
      '("a r" . gptel-rewrite)))
+
+;; (use-package gptel-annotate
+;;   :vc (:url "https://github.com/karthink/gptel-annotate"
+;;        :rev :newest)
+;;   :after gptel)
 
 (use-package macher
   :ensure t
@@ -683,14 +688,17 @@ DIR must include a .project file to be considered a project."
   ;;    (side . right)))
   )
 
-(require 'macher)
+(require 'gptel-annotate)
+(require 'gptel-preset-collection)
+(require 'gptel-inline)
+
 (setq gptel-tools
       (list
        (gptel-make-tool
         :name "project_shell_command"
         :function #'my-gptel-project-shell-command
         :description
-        "Run a shell command in the root of the current Emacs project."
+        "Run a shell command from the root of the current Emacs project."
         :args
         (list
          '(:name "command"
@@ -699,85 +707,6 @@ DIR must include a .project file to be considered a project."
         :category "project"
         :async t
         :confirm t)
-       ;; (gptel-make-tool
-;;         :name "read_file"
-;;         :function #'my-gptel-read-file
-;;         :description
-;;         "Return a selected inclusive line range from a file without visiting it.
-;; Line numbers are 1-based and optional. Relative paths are resolved against
-;; the current GPTel buffer's default-directory. If start_line is omitted,
-;; read from the beginning. If end_line is omitted, read to the end."
-;;         :args
-;;         (list
-;;          '(:name "filepath"
-;;                  :type "string"
-;;                  :description "Path to the file to read.")
-;;          '(:name "start_line"
-;;                  :type "integer"
-;;                  :optional t
-;;                  :description "First line to return, starting at 1.")
-;;          '(:name "end_line"
-;;                  :type "integer"
-;;                  :optional t
-;;                  :description "Last line to return, inclusive."))
-;;         :category "filesystem")
-       ;; (gptel-make-tool
-       ;;  :name "read_buffer"
-       ;;  :function #'my-gptel-read-buffer
-       ;;  :description "Return the contents of an Emacs buffer"
-       ;;  :args (list
-       ;;         '(:name "buffer"
-       ;;                 :type "string"
-       ;;                 :description
-       ;;                 "The name of the buffer whose contents are to be retrieved"))
-       ;;  :category "emacs")
-       ;; (gptel-make-tool
-;;         :name "edit_buffer"
-;;         :function #'codel-edit-buffer
-;;         :description
-;;         "Replace OLD-STRING to NEW-STRING.
-;; This fails when no match or multiple matches of OLD-STRING found.
-;; This edits the buffer only and does not save the file."
-;;         :args
-;;         (list
-;;          '(:name "buffer"
-;;                  :type "string"
-;;                  :description "Name of the buffer to edit.")
-;;          '(:name "old_string"
-;;                  :type "string"
-;;                  :description "The old string to match against.")
-;;          '(:name "new_string"
-;;                  :type "string"
-;;                  :description "The new string to replace the old string."))
-;;         :category "emacs"
-;;         :confirm t)
-       ;; (gptel-make-tool
-       ;;  :name "replace_buffer"
-       ;;  :function #'codel-replace-buffer
-       ;;  :description "Completely replace contents of BUFFER-NAME with CONTENT."
-       ;;  :args
-       ;;  (list '(:name "buffer" :type "string" :description "Name of the buffer to replace the content")
-       ;;        '(:name "content" :type "string" :description "Content to write to the buffer."))
-       ;;  :category "emacs"
-       ;;  :confirm t)
-       ;; (gptel-make-tool
-       ;;  :name "save_buffer"
-       ;;  :function #'my-gptel-save-buffer
-       ;;  :description
-       ;;  "Save an Emacs buffer to the file it is visiting."
-       ;;  :args
-       ;;  (list
-       ;;   '(:name "buffer"
-       ;;           :type "string"
-       ;;           :description "Name of the buffer to save."))
-       ;;  :category "emacs"
-       ;;  :confirm t)
-       ;; (gptel-make-tool
-       ;;  :name "list_buffers"
-       ;;  :function #'my-gptel-list-buffer
-       ;;  :description "List the names of all existing Emacs buffers."
-       ;;  :args nil
-       ;;  :category "emacs")
        (gptel-make-tool
         :name "describe_symbol"
         :function #'my-gptel-describe-symbol
@@ -787,6 +716,21 @@ DIR must include a .project file to be considered a project."
         (list '(:name "symbol"
                       :type "string"
                       :description "The name of the function or variable to describe."))
+        :category "emacs")
+       (gptel-make-tool
+        :name "apropos_elisp"
+        :function #'my-gptel-apropos
+        :description
+        "Find Emacs Lisp functions whose names match a regular expression and return their documentation."
+        :args
+        (list
+         '(:name "regexp"
+                 :type "string"
+                 :description "Emacs regular expression to match against function names.")
+         '(:name "max_results"
+                 :type "integer"
+                 :optional t
+                 :description "Maximum number of matching functions to return; defaults to 50."))
         :category "emacs")))
 
 

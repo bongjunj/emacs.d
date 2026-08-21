@@ -26,3 +26,10 @@ custom.el
 *.ttf
 /README.txt
 /OFL.txt
+/recentf
+/org-clock-save.el
+/.org-generic-id-locations
+/.org-id-locations
+/.lsp-session-v1
+/persist/
+/tramp-rpc/
