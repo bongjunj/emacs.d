@@ -12,6 +12,7 @@
 
 (add-to-list 'load-path (file-name-concat user-emacs-directory "lisp"))
 (require 'tools)
+(require 'util)
 
 (setq vc-handled-backends '(Git))
 (setq confirm-kill-emacs 'yes-or-no-p)
@@ -24,7 +25,7 @@
 (global-visual-line-mode -1)
 (toggle-truncate-lines)
 (blink-cursor-mode -1)
-(pixel-scroll-precision-mode 1)
+(global-auto-revert-mode)
 (winner-mode 1)
 (setq-default indent-tabs-mode nil)
 (setq-default tab-width 2)
@@ -69,181 +70,6 @@
 (require 'package)
 (add-to-list 'package-archives '("melpa" . "https://melpa.org/packages/") t)
 (package-initialize)
-
-(defalias 'list-buffers 'ibuffer)
-(use-package ibuffer-project
-  :ensure t
-  :after ibuffer
-  :config
-  ;; Cache project detection when possible.
-  (setq ibuffer-project-use-cache t)
-
-  ;; Generate groups whenever Ibuffer is opened.
-  (add-hook 'ibuffer-mode-hook
-            (lambda ()
-              (setq-local ibuffer-filter-groups
-                          (ibuffer-project-generate-filter-groups)))))
-
-(setq show-trailing-whitespace t)
-
-(set-face-attribute 'default nil
-                    :family "Iosevka"
-                    :height 160
-                    :weight 'regular
-                    :slant 'normal)
-
-(set-face-attribute 'variable-pitch nil
-                    :family "Iosevka"
-                    :height 160
-                    :weight 'regular
-                    :slant 'normal)
-
-(use-package dired
-  :ensure nil ;; built-tin
-  :hook
-  (dired-mode . dired-hide-details-mode))
-
-(use-package which-key
-  :ensure nil ;; built-in
-  :config
-  (which-key-mode))
-
-(use-package exec-path-from-shell
-  :ensure t
-  :init
-  (when (memq window-system '(mac ns x pgtk))
-    (exec-path-from-shell-initialize)))
-
-
-(use-package tramp
-  :ensure t
-  :config
-  (add-to-list 'tramp-remote-path 'tramp-own-remote-path))
-
-;; TODO: resetup with text/synctex
-(use-package tex
-  :ensure auctex
-  :config
-  ;; Parse file on load/save for macro completion
-  (setq TeX-auto-save t)
-  (setq TeX-parse-self t)
-  ;; Default to PDF output instead of DVI
-  (setq-default TeX-PDF-mode t)
-
-  ;; --- 2. SyncTeX Configuration ---
-  ;; Enable SyncTeX for cross-navigation between .tex and .pdf
-  (setq TeX-source-correlate-mode t)
-  (setq TeX-source-correlate-method 'synctex)
-  (setq TeX-source-correlate-start-server t)
-
-  ;; Set PDF Tools as the default viewer for AUCTeX
-  (setq TeX-view-program-selection '((output-pdf "PDF Tools")))
-
-  ;; Auto-refresh the PDF buffer after compilation finishes
-  (add-hook 'TeX-after-compilation-finished-functions
-	    #'TeX-revert-document-buffer)
-
-  (add-hook 'LaTeX-mode-hook
-	    (lambda ()
-	      (add-hook 'after-save-hook
-                  (lambda ()
-                    (TeX-command-run-all nil))
-                  nil t))))
-
-(use-package pdf-tools
-  :ensure t
-  :mode ("\\.pdf\\'" . pdf-view-mode)
-  :hook
-  (pdf-view-mode . (lambda () (display-line-numbers-mode -1)))
-  :config
-  (pdf-tools-install)
-  (setq-default pdf-view-display-size 'fit-page))
-
-(use-package pdf-tools
-  :ensure t
-  :config
-  (pdf-tools-install)
-  :hook
-  (pdf-view-mode . (lambda ()
-                     (display-line-numbers-mode -1))))
-(use-package magit
-  :ensure t
-  :bind
-  ("C-x g" . magit-status)
-  :config
-  (setq magit-save-repository-buffers 'dontask)
-  (setq magit-tramp-pipe-stty-settings 'pty)
-  (setq magit-branch-direct-configure nil)
-  (setq magit-refresh-status-buffer nil)
-  (setq magit-commit-show-diff nil)
-  (setq magit-revert-status-buffers nil)
-  (define-key magit-status-mode-map (kbd "K") #'magit-discard)
-  :init
-  (with-eval-after-load 'meow
-    (meow-leader-define-key
-     '("v v" . magit-status)
-     '("v C" . magit-clone)
-     '("v P" . magit-push)
-     '("v F" . magit-pull-from-upstream)
-     '("v l" . magit-log-all)
-     '("v L" . magit-log-current)
-     '("v B" . magit-blame)
-     '("v d" . magit-diff-buffer-file)
-     '("v a" . magit-file-stage)
-     '("v h" . diff-hl-show-hunk)
-     '("v s" . diff-hl-stage-dwim)
-     '("v u" . magit-file-unstage)
-     '("v ]" . diff-hl-next-hunk)
-     '("v [" . diff-hl-previous-hunk)
-     '("v m" . magit-dispatch)
-     '("v c" . magit-commit-create)
-     '("v M" . magit-file-dispatch))))
-
-
-
-;;; Controls how to display buffers
-(setq switch-to-buffer-obey-display-actions nil)
-(setq switch-to-buffer-in-dedicated-window 'pop)
-(defun my-command-buffer-p (buffer-name _action)
-  "Match compilation and async-shell-command buffers."
-  (let ((name (if (bufferp buffer-name)
-                  (buffer-name buffer-name)
-                buffer-name)))
-    (or (string= name "*compilation*")
-        (string= name "*Async Shell Command*"))))
-
-(setq display-buffer-alist
-      '(("\\*Help\\*"
-         (display-buffer-reuse-window
-          display-buffer-pop-up-window)
-         (inhibit-same-window . t))
-
-        ;; Magit Status
-        ;; ((major-mode . magit-status-mode)
-        ;;  (display-buffer-in-side-window
-        ;;   display-buffer-reuse-window)
-        ;;  (side . bottom)
-        ;;  (slot . 1)
-        ;;  (window-height 0.25))
-
-        ;; ("COMMIT_EDITMSG"
-        ;;  (display-buffer-same-window))
-
-        (my-command-buffer-p
-         (display-buffer-in-side-window
-          display-buffer-reuse-window)
-         (side . bottom)
-         (slot . -1)
-         (window-min-height . 0.35))
-
-        ("\\*Org todo\\*"
-         (display-buffer-below-selected)
-         (side . bottom)
-         (slot . 2))))
-
-(with-eval-after-load 'dired
-  (with-eval-after-load 'meow
-    (define-key dired-mode-map (kbd "K") #'dired-kill-subdir)))
 
 ;; Meow & Keybindings
 (defun meow-setup ()
@@ -339,30 +165,165 @@
     (meow-global-mode 1)
     (meow-setup))
 
-(with-eval-after-load 'meow
-  (meow-leader-define-key
-   '("w w" . other-window)
-   '("w h" . windmove-left)
-   '("w j" . windmove-down)
-   '("w k" . windmove-up)
-   '("w l" . windmove-right)
-   '("w d" . toggle-window-dedicated)
-   '("w q" . delete-window)
-   '("w v" . split-window-right)
-   '("w s" . split-window-below)
-   '("w K" . kill-current-buffer)
-   '("w Q" . delete-frame)
-   '("w f" . select-frame-by-name)
-   '("w F" . make-frame)
-   '("w r" . revert-buffer-quick)))
+(defalias 'list-buffers 'ibuffer)
+(use-package ibuffer-project
+  :ensure t
+  :after ibuffer
+  :config
+  ;; Cache project detection when possible.
+  (setq ibuffer-project-use-cache t)
 
-(global-set-key (kbd "C-x C-d") #'dired)
+  ;; Generate groups whenever Ibuffer is opened.
+  (add-hook 'ibuffer-mode-hook
+            (lambda ()
+              (setq-local ibuffer-filter-groups
+                          (ibuffer-project-generate-filter-groups)))))
 
-(with-eval-after-load 'meow
-  (meow-leader-define-key
-   '("b j" . bookmark-jump)
-   '("b m" . bookmark-set)
-   '("b l" . bookmark-bmenu-list)))
+(setq show-trailing-whitespace t)
+
+(set-face-attribute 'default nil
+                    :family "Iosevka"
+                    :height 160
+                    :weight 'regular
+                    :slant 'normal)
+
+(use-package dired
+  :ensure nil ;; built-tin
+  :hook
+  (dired-mode . dired-hide-details-mode))
+
+(use-package which-key
+  :ensure nil ;; built-in
+  :config
+  (which-key-mode))
+
+(use-package exec-path-from-shell
+  :ensure t
+  :init
+  (when (memq window-system '(mac ns x pgtk))
+    (exec-path-from-shell-initialize)))
+
+(use-package tramp
+  :ensure t
+  :config
+  (add-to-list 'tramp-remote-path 'tramp-own-remote-path))
+
+(use-package tex
+  :ensure auctex
+  :config
+  ;; Parse file on load/save for macro completion
+  (setq TeX-auto-save t)
+  (setq TeX-parse-self t)
+  ;; Default to PDF output instead of DVI
+  (setq-default TeX-PDF-mode t)
+
+  ;; --- 2. SyncTeX Configuration ---
+  ;; Enable SyncTeX for cross-navigation between .tex and .pdf
+  (setq TeX-source-correlate-mode t)
+  (setq TeX-source-correlate-method 'synctex)
+  (setq TeX-source-correlate-start-server t)
+
+  ;; Set PDF Tools as the default viewer for AUCTeX
+  (setq TeX-view-program-selection '((output-pdf "PDF Tools")))
+
+  ;; Auto-refresh the PDF buffer after compilation finishes
+  (add-hook 'TeX-after-compilation-finished-functions
+	    #'TeX-revert-document-buffer)
+
+  (add-hook 'LaTeX-mode-hook
+	    (lambda ()
+	      (add-hook 'after-save-hook
+                  (lambda ()
+                    (TeX-command-run-all nil))
+                  nil t))))
+
+(use-package pdf-tools
+  :ensure t
+  :mode ("\\.pdf\\'" . pdf-view-mode)
+  :hook
+  (pdf-view-mode . (lambda () (display-line-numbers-mode -1)))
+  :config
+  (pdf-tools-install)
+  (setq-default pdf-view-display-size 'fit-page))
+
+(defun bongjun/meow-leader-define-key (&rest bindings)
+  "Define Meow leader BINDINGS after Meow has loaded."
+  (with-eval-after-load 'meow
+    (apply #'meow-leader-define-key bindings)))
+
+(use-package magit
+  :ensure t
+  :bind
+  ("C-x g" . magit-status)
+  :config
+  (setq magit-save-repository-buffers 'dontask)
+  (setq magit-tramp-pipe-stty-settings 'pty)
+  (setq magit-branch-direct-configure nil)
+  (setq magit-refresh-status-buffer nil)
+  (setq magit-commit-show-diff nil)
+  (setq magit-revert-status-buffers nil)
+  (define-key magit-status-mode-map (kbd "K") #'magit-discard)
+  :init
+  (bongjun/meow-leader-define-key
+   '("v v" . magit-status)
+   '("v C" . magit-clone)
+   '("v P" . magit-push)
+   '("v F" . magit-pull-from-upstream)
+   '("v l" . magit-log-all)
+   '("v L" . magit-log-current)
+   '("v B" . magit-blame)
+   '("v d" . magit-diff-buffer-file)
+   '("v a" . magit-file-stage)
+   '("v h" . diff-hl-show-hunk)
+   '("v s" . diff-hl-stage-dwim)
+   '("v u" . magit-file-unstage)
+   '("v ]" . diff-hl-next-hunk)
+   '("v [" . diff-hl-previous-hunk)
+   '("v m" . magit-dispatch)
+   '("v c" . magit-commit-create)
+   '("v M" . magit-file-dispatch)))
+
+
+;;; Controls how to display buffers
+(setq switch-to-buffer-obey-display-actions nil)
+(setq switch-to-buffer-in-dedicated-window 'pop)
+(setq display-buffer-alist
+      '(("\\*Help\\*"
+         (display-buffer-reuse-window
+          display-buffer-pop-up-window)
+         (inhibit-same-window . t))
+
+        ("\\*\\(?:compilation\\|Async Shell Command\\)\\*"
+         (display-buffer-in-side-window
+          display-buffer-reuse-window)
+         (side . bottom)
+         (slot . -1)
+         (window-min-height . 0.35))
+
+        ("\\*Org todo\\*"
+         (display-buffer-below-selected)
+         (side . bottom)
+         (slot . 2))))
+
+(with-eval-after-load 'dired
+  (with-eval-after-load 'meow
+    (define-key dired-mode-map (kbd "K") #'dired-kill-subdir)))
+
+(bongjun/meow-leader-define-key
+ '("w w" . other-window)
+ '("w h" . windmove-left)
+ '("w j" . windmove-down)
+ '("w k" . windmove-up)
+ '("w l" . windmove-right)
+ '("w d" . toggle-window-dedicated)
+ '("w q" . delete-window)
+ '("w v" . split-window-right)
+ '("w s" . split-window-below)
+ '("w K" . kill-current-buffer)
+ '("w Q" . delete-frame)
+ '("w f" . select-frame-by-name)
+ '("w F" . make-frame)
+ '("w r" . revert-buffer-quick))
 
 (use-package org
   :ensure nil ;; built-in
@@ -380,7 +341,7 @@
   (setq org-log-done 'time)
   (setq org-log-into-drawer t)
   (setq org-todo-keywords
-        '((sequence "TODO(t)" "INPROGRESS(i!)" "|" "DONE(d!)" "DELEGATED(D!)" "CANCELLED(c!)")))
+        '((sequence "TODO(t)" "|" "DONE(d!)" "CANCELLED(c!)")))
   (setq org-refile-targets
         '((nil :maxlevel . 3)
           (org-agenda-files :maxlevel . 3)))
@@ -423,42 +384,15 @@
     (setq org-clock-persist t)
     (org-clock-persistence-insinuate)
     (setq org-clock-auto-clock-resolution 'when-no-clock-is-running))
-  (with-eval-after-load 'meow
-    (meow-leader-define-key
+    (bongjun/meow-leader-define-key
      '("o c" . org-capture)
      '("o a" . org-agenda)
      '("o l" . org-store-link)
      '("o s" . consult-org-agenda)
      '("o h" . consult-org-heading)
-     '("o b" . org-switchb)))
+     '("o b" . org-switchb))
   :hook
-  (org-mode . (lambda () (display-fill-column-indicator-mode 1)))
-  (org-mode . (lambda () (visual-line-mode))))
-
-(add-hook 'emacs-startup-hook (lambda () (org-agenda-list)))
-
-(defvar-local my-vterm-meow-sync-in-progress nil)
-
-(defun my-vterm-sync-meow ()
-  (unless my-vterm-meow-sync-in-progress
-    (let ((my-vterm-meow-sync-in-progress t))
-      (if vterm-copy-mode
-          (meow-normal-mode)
-        (meow-insert-mode)))))
-
-(defun my-meow-normal-sync-vterm ()
-  (when (and (derived-mode-p 'vterm-mode)
-             (not vterm-copy-mode)
-             (not my-vterm-meow-sync-in-progress))
-    (let ((my-vterm-meow-sync-in-progress t))
-      (vterm-copy-mode 1))))
-
-(defun my-meow-insert-sync-vterm ()
-  (when (and (derived-mode-p 'vterm-mode)
-             vterm-copy-mode
-             (not my-vterm-meow-sync-in-progress))
-    (let ((my-vterm-meow-sync-in-progress t))
-      (vterm-copy-mode -1))))
+  (emacs-startup . org-agenda-list))
 
 (use-package vterm
   :ensure t
@@ -468,8 +402,6 @@
   ((vterm-mode . (lambda ()
                    (display-line-numbers-mode -1)))
    (vterm-mode . (lambda () (meow-mode -1)))))
-   ;; (vterm-mode . my-vterm-sync-meow)
-   ;; (vterm-copy-mode . my-vterm-sync-meow)))
 
 (with-eval-after-load 'meow
   (add-hook 'meow-mode-state-list '(vterm-mode . ignore)))
@@ -479,15 +411,16 @@
   :init
   (vertico-mode 1)
   :config
-  (setq vertico-cycle t))
+  (setq vertico-cycle t)
+  (setq vertico-count 6))
 
 (use-package orderless
   :ensure t
   :config
   (setq orderless-matching-styles '(orderless-prefixes))
-  (setq completion-ignore-case t)
-  (setq completion-styles '(basic substring initials orderless))
-  (setq completion-category-overrides '((file (styles basic partial-completion)))))
+  (setq completion-ignore-case t
+        completion-styles '(basic substring initials orderless))
+        completion-category-overrides '((file (styles basic partial-completion))))
 
 (use-package marginalia
   :ensure t
@@ -544,34 +477,13 @@ INDIVIDUAL-CAPFS to the list."
 
   (add-hook 'text-mode-hook #'prot/cape-text-setup))
 
-;; (use-package corfu
-;;   :ensure t
-;;   :custom
-;;   (corfu-auto t)                 ;; Enable auto completion
-;;   (corfu-auto-delay 0.2)         ;; Delay in seconds before popup appears
-;;   (corfu-auto-prefix 2)          ;; Minimum length of prefix to trigger popup
-;;   (corfu-cycle t)                ;; Enable cycling through candidates
-;;   (corfu-preselect 'prompt)      ;; Always preselect the prompt by default
-;;   :config
-;;   (corfu-popupinfo-mode 1)
-;;   :init
-;;   (global-corfu-mode 1))
-;; (setq tab-always-indent 'complete)
-
-;; (use-package cape
-;;   :defer 1
-;;   :config
-;;   (add-hook 'completion-at-point-functions #'cape-dabbrev 20) ; words from buffer
-;;   (add-hook 'completion-at-point-functions #'cape-file 20))
-
 (use-package consult
   :ensure t
   :config
   (setq recentf-max-saved-items 200)
   :init
   (recentf-mode 1)
-  (with-eval-after-load 'meow
-    (meow-leader-define-key
+  (bongjun/meow-leader-define-key
      '("s l" . consult-line)
      '("s d" . consult-flymake)
      '("s B" . consult-bookmark)
@@ -584,17 +496,16 @@ INDIVIDUAL-CAPFS to the list."
      '("s R" . consult-register)
      '("s b" . consult-buffer)
      '("s i" . consult-imenu)
-     '("s f" . consult-fd))))
+     '("s f" . consult-fd)))
 
 (setq register-preview-delay 0.8
       register-preview-function #'consult-register-format)
 
-(with-eval-after-load 'meow
-  (meow-leader-define-key
+(bongjun/meow-leader-define-key
    '("r r" . point-to-register)
    '("r s" . copy-to-register)
    '("r i" . insert-register)
-   '("r m" . bookmark-set)))
+   '("r m" . bookmark-set))
 
 (use-package eglot
   :ensure nil
@@ -606,8 +517,7 @@ INDIVIDUAL-CAPFS to the list."
   (add-to-list
    'eglot-server-programs
    '(python-ts-mode . ("uv" "tool" "run" "ty" "server")))
-  (with-eval-after-load 'meow
-    (meow-leader-define-key
+  (bongjun/meow-leader-define-key
      '("e e" . eglot)
      '("e q" . eglot-shutdown)
      '("e I" . eglot-inlay-hints-mode)
@@ -618,26 +528,28 @@ INDIVIDUAL-CAPFS to the list."
      '("e f" . xref-go-forward)
      '("e a" . eglot-code-actions)
      '("e R" . eglot-rename)
-     '("e g" . flymake-show-buffer-diagnostics))))
+     '("e g" . flymake-show-buffer-diagnostics)))
 
 (use-package flymake
   :ensure nil
   :config
   (setq flymake-no-changes-timeout 1.0))
 
+;; use treesitters as default
 (setq major-mode-remap-alist
       '((python-mode . python-ts-mode)
-	(c-mode . c-ts-mode)
-	(rust-mode . rust-ts-mode))) ;; Use treesitter modes as default
+	      (c-mode . c-ts-mode)
+	      (rust-mode . rust-ts-mode)))
 
-;; Rust
-(use-package rust-mode
+(use-package rust-ts-mode
   :ensure t
   :config
   (setq rust-format-on-save t))
 
 ;; OCaml
-(use-package tuareg :ensure t)
+(use-package tuareg
+  :ensure t)
+
 (use-package ocaml-eglot
   :ensure t
   :after tuareg
@@ -645,31 +557,12 @@ INDIVIDUAL-CAPFS to the list."
   (tuareg-mode . ocaml-eglot))
 
 ;; Lean4
-(defun my-nael-tab-indent ()
-  "Shift the current line, or selected lines, two spaces to the right."
-  (interactive)
-  (if (use-region-p)
-      (let ((beg (save-excursion
-                   (goto-char (region-beginning))
-                   (line-beginning-position)))
-            (end (save-excursion
-                   (goto-char (region-end))
-                   (line-beginning-position 2))))
-        (indent-rigidly beg end 2))
-    (indent-rigidly (line-beginning-position)
-                    (line-end-position)
-                    2)))
-
-
 (use-package nael
   :vc (:url "https://codeberg.org/mekeor/nael.git"
             :lisp-dir "nael")
   :init
   (setq nael-prepare-lsp nil)
-  :mode ("\\.lean\\'" . nael-mode)
-  :bind (:map nael-mode-map
-              ("TAB" . my-nael-tab-indent)
-              ("<tab>" . my-nael-tab-indent)))
+  :mode ("\\.lean\\'" . nael-mode))
 
 ;; Dafny
 (use-package dash :ensure t)
@@ -683,14 +576,8 @@ INDIVIDUAL-CAPFS to the list."
   :ensure t
   :init
   ;; Bind fold commands under Meow's leader key (SPC z ...)
-  (with-eval-after-load 'meow
-    (meow-leader-define-key
-     '("z z" . treesit-fold-toggle)
-     '("z o" . treesit-fold-open)
-     '("z c" . treesit-fold-close)
-     '("z m" . treesit-fold-close-all)
-     '("z r" . treesit-fold-open-all)
-     '("z R" . treesit-fold-open-recursively)))
+  (bongjun/meow-leader-define-key
+   '("z z" . treesit-fold-toggle))
   :config
   (setq treesit-fold-line-count-show t)
   (global-treesit-fold-mode 1)
@@ -709,6 +596,7 @@ DIR must include a .project file to be considered a project."
   :ensure nil
   :config
   (add-to-list 'project-find-functions #'project-try-local)
+  ;; Treat each submodule as a separate project.
   (setq project-vc-merge-submodules nil)
   (setq project-switch-commands
         '((project-dired "Dired")
@@ -717,27 +605,14 @@ DIR must include a .project file to be considered a project."
           (project-eshell "Eshell")
           (project-any-command "Other"))))
 
-(defun my-project-consult-ripgrep ()
-  "Run `consult-ripgrep` from the current project root."
-  (interactive)
-  (if-let ((project (project-current)))
-      (consult-ripgrep (project-root project))
-    (call-interactively #'consult-ripgrep)))
+(bongjun/meow-leader-define-key
+ '("p p" . project-switch-project)
+ '("p d" . project-find-dir)
+ '("p k" . project-kill-buffers)
+ '("p c" . project-compile)
+ '("p !" . project-shell-command)
+ '("p &" . project-async-shell-command))
 
-(with-eval-after-load 'meow
-    (meow-leader-define-key
-     ;; Consult-powered project navigation (with Vertico previews)
-     '("p p" . project-switch-project)
-     '("p f" . project-find-file)
-     '("p b" . project-switch-to-buffer)
-
-     ;; Core Projectile utilities
-     '("p g" . my-project-consult-ripgrep)
-     '("p d" . project-find-dir)
-     '("p k" . project-kill-buffers)
-     '("p c" . project-compile)
-     '("p !" . project-shell-command)
-     '("p &" . project-async-shell-command)))
 
 (defun my-gptel-project ()
   (interactive)
@@ -765,17 +640,50 @@ DIR must include a .project file to be considered a project."
        "Read existing relevant buffers to understand the context clearly before you answer to the user. "
        "Respond concisely."))
   :init
-  (with-eval-after-load 'meow
-    (meow-leader-define-key
+  (bongjun/meow-leader-define-key
      '("a s" . my-gptel-project)
      '("a a" . gptel-menu)
      '("a c" . gptel-add)
      '("a k" . gptel-context-remove-all)
      '("a K" . gptel-abort)
-     '("a r" . gptel-rewrite)
-     '("a t" . gptel-tools))))
+     '("a r" . gptel-rewrite)))
 
+(use-package macher
+  :ensure t
+  :custom
+  ;; The org UI has structured conversations and nice content folding.
+  (macher-action-buffer-ui 'org)
 
+  :hook
+  ;; Set up action buffer behavior to your liking.  Alternately, do
+  ;; this more generally in your `gptel-mode-hook'.
+  (macher-action-buffer-setup
+   . (lambda ()
+      ;; Auto-scroll responses.
+      (setq-local window-point-insertion-type t)))
+
+  :config
+  ;; Recommended - register macher tools and presets with gptel.
+  (macher-install)
+
+  ;; Recommended - enable macher infrastructure for tools/prompts in
+  ;; any buffer.  (Actions and presets will still work without this.)
+  (macher-enable)
+
+  ;; Adjust buffer positioning to taste.
+  ;; (add-to-list
+  ;;  'display-buffer-alist
+  ;;  '("\\*macher:.*\\*"
+  ;;    (display-buffer-in-side-window)
+  ;;    (side . bottom)))
+  ;; (add-to-list
+  ;;  'display-buffer-alist
+  ;;  '("\\*macher-patch:.*\\*"
+  ;;    (display-buffer-in-side-window)
+  ;;    (side . right)))
+  )
+
+(require 'macher)
 (setq gptel-tools
       (list
        (gptel-make-tool
@@ -792,99 +700,84 @@ DIR must include a .project file to be considered a project."
         :async t
         :confirm t)
        ;; (gptel-make-tool
-;;         :name "find_file"
-;;         :function #'my-gptel-find-file
-;;         :description "Open a file in an Emacs buffer using find-file-noselect.
-;; First inspect the currently opened buffers before finding a file with this tool.
-;; Use resolved paths against the current default-directory. Only using the basename
-;; will generally result in `File does not found` error.
-;; Returns the buffer name and file information.
-;; Use read_buffer afterward to inspect its contents."
+;;         :name "read_file"
+;;         :function #'my-gptel-read-file
+;;         :description
+;;         "Return a selected inclusive line range from a file without visiting it.
+;; Line numbers are 1-based and optional. Relative paths are resolved against
+;; the current GPTel buffer's default-directory. If start_line is omitted,
+;; read from the beginning. If end_line is omitted, read to the end."
 ;;         :args
 ;;         (list
 ;;          '(:name "filepath"
 ;;                  :type "string"
-;;                  :description "Path to the file to open."))
-;;         :category "emacs")
-       (gptel-make-tool
-        :name "read_file"
-        :function #'my-gptel-read-file
-        :description
-        "Return a selected inclusive line range from a file without visiting it.
-Line numbers are 1-based and optional. Relative paths are resolved against
-the current GPTel buffer's default-directory. If start_line is omitted,
-read from the beginning. If end_line is omitted, read to the end."
-        :args
-        (list
-         '(:name "filepath"
-                 :type "string"
-                 :description "Path to the file to read.")
-         '(:name "start_line"
-                 :type "integer"
-                 :optional t
-                 :description "First line to return, starting at 1.")
-         '(:name "end_line"
-                 :type "integer"
-                 :optional t
-                 :description "Last line to return, inclusive."))
-        :category "filesystem")
-       (gptel-make-tool
-        :name "read_buffer"
-        :function #'my-gptel-read-buffer
-        :description "Return the contents of an Emacs buffer"
-        :args (list
-               '(:name "buffer"
-                       :type "string"
-                       :description
-                       "The name of the buffer whose contents are to be retrieved"))
-        :category "emacs")
-       (gptel-make-tool
-        :name "edit_buffer"
-        :function #'codel-edit-buffer
-        :description
-        "Replace OLD-STRING to NEW-STRING.
-This fails when no match or multiple matches of OLD-STRING found.
-This edits the buffer only and does not save the file."
-        :args
-        (list
-         '(:name "buffer"
-                 :type "string"
-                 :description "Name of the buffer to edit.")
-         '(:name "old_string"
-                 :type "string"
-                 :description "The old string to match against.")
-         '(:name "new_string"
-                 :type "string"
-                 :description "The new string to replace the old string."))
-        :category "emacs"
-        :confirm t)
-       (gptel-make-tool
-        :name "replace_buffer"
-        :function #'codel-replace-buffer
-        :description "Completely replace contents of BUFFER-NAME with CONTENT."
-        :args
-        (list '(:name "buffer" :type "string" :description "Name of the buffer to replace the content")
-              '(:name "content" :type "string" :description "Content to write to the buffer."))
-        :category "emacs"
-        :confirm t)
-       (gptel-make-tool
-        :name "save_buffer"
-        :function #'my-gptel-save-buffer
-        :description
-        "Save an Emacs buffer to the file it is visiting."
-        :args
-        (list
-         '(:name "buffer"
-                 :type "string"
-                 :description "Name of the buffer to save."))
-        :category "emacs"
-        :confirm t)
-       (gptel-make-tool
-        :name "list_buffers"
-        :function #'my-gptel-list-buffer
-        :description "List the names of all existing Emacs buffers."
-        :args nil
-        :category "emacs")
+;;                  :description "Path to the file to read.")
+;;          '(:name "start_line"
+;;                  :type "integer"
+;;                  :optional t
+;;                  :description "First line to return, starting at 1.")
+;;          '(:name "end_line"
+;;                  :type "integer"
+;;                  :optional t
+;;                  :description "Last line to return, inclusive."))
+;;         :category "filesystem")
+       ;; (gptel-make-tool
+       ;;  :name "read_buffer"
+       ;;  :function #'my-gptel-read-buffer
+       ;;  :description "Return the contents of an Emacs buffer"
+       ;;  :args (list
+       ;;         '(:name "buffer"
+       ;;                 :type "string"
+       ;;                 :description
+       ;;                 "The name of the buffer whose contents are to be retrieved"))
+       ;;  :category "emacs")
+       ;; (gptel-make-tool
+;;         :name "edit_buffer"
+;;         :function #'codel-edit-buffer
+;;         :description
+;;         "Replace OLD-STRING to NEW-STRING.
+;; This fails when no match or multiple matches of OLD-STRING found.
+;; This edits the buffer only and does not save the file."
+;;         :args
+;;         (list
+;;          '(:name "buffer"
+;;                  :type "string"
+;;                  :description "Name of the buffer to edit.")
+;;          '(:name "old_string"
+;;                  :type "string"
+;;                  :description "The old string to match against.")
+;;          '(:name "new_string"
+;;                  :type "string"
+;;                  :description "The new string to replace the old string."))
+;;         :category "emacs"
+;;         :confirm t)
+       ;; (gptel-make-tool
+       ;;  :name "replace_buffer"
+       ;;  :function #'codel-replace-buffer
+       ;;  :description "Completely replace contents of BUFFER-NAME with CONTENT."
+       ;;  :args
+       ;;  (list '(:name "buffer" :type "string" :description "Name of the buffer to replace the content")
+       ;;        '(:name "content" :type "string" :description "Content to write to the buffer."))
+       ;;  :category "emacs"
+       ;;  :confirm t)
+       ;; (gptel-make-tool
+       ;;  :name "save_buffer"
+       ;;  :function #'my-gptel-save-buffer
+       ;;  :description
+       ;;  "Save an Emacs buffer to the file it is visiting."
+       ;;  :args
+       ;;  (list
+       ;;   '(:name "buffer"
+       ;;           :type "string"
+       ;;           :description "Name of the buffer to save."))
+       ;;  :category "emacs"
+       ;;  :confirm t)
+       ;; (gptel-make-tool
+       ;;  :name "list_buffers"
+       ;;  :function #'my-gptel-list-buffer
+       ;;  :description "List the names of all existing Emacs buffers."
+       ;;  :args nil
+       ;;  :category "emacs")
        (gptel-make-tool
         :name "describe_symbol"
         :function #'my-gptel-describe-symbol
@@ -894,26 +787,7 @@ This edits the buffer only and does not save the file."
         (list '(:name "symbol"
                       :type "string"
                       :description "The name of the function or variable to describe."))
-        :category "emacs")
-
-       ;; Magit Tools
-       (gptel-make-tool
-        :name "magit_git_readonly"
-        :function #'my-gptel-magit-git-readonly
-        :description
-        "Run a read-only Git command through Magit in a local or TRAMP repository.
-Allowed commands include status, log, diff, show, branch, and rev-parse."
-        :args
-        (list
-         '(:name "directory"
-                 :type "string"
-                 :description "Repository directory.")
-         '(:name "args"
-                 :type "array"
-                 :items (:type "string")
-                 :description
-                 "Git arguments, e.g. [\"status\", \"--short\", \"--branch\"]."))
-        :category "git")))
+        :category "emacs")))
 
 
 (use-package rotate
@@ -928,13 +802,6 @@ Allowed commands include status, log, diff, show, branch, and rev-parse."
   :init
   (global-diff-hl-mode))
 
-(use-package winpulse
-  :vc (:url "https://github.com/xenodium/winpulse"
-       :rev :newest)
-  :ensure t
-  :config
-  (winpulse-mode +1))
-
 (use-package rmsbolt
   :vc (:url "git@github.com:bongjunj/rmsbolt.git"
        :rev :newest)
@@ -942,56 +809,6 @@ Allowed commands include status, log, diff, show, branch, and rev-parse."
   :config
   (setq rmsbolt-asm-format "intel")
   (setq rmsbolt-automatic-recompile nil))
-
-(defun kvpn-start ()
-    "Start KVPN and handle SMS and sudo password prompts."
-    (interactive)
-    (when-let ((old (get-process "kvpn-process")))
-      (delete-process old))
-    (let ((proc
-           (make-process
-            :name "kvpn-process"
-            :buffer "*KVPN Log*"
-            :command '("kvpn")
-            ;; Required so sudo can read the Mac password interactively.
-            :connection-type 'pty
-            :noquery t
-            :filter
-            (lambda (proc output)
-              (with-current-buffer (process-buffer proc)
-                (goto-char (point-max))
-                (insert output))
-              (let ((text (downcase output)))
-                (cond
-                 ;; Choose the default delivery method: SMS.
-                 ((string-match-p "choice \\[1\\]:" text)
-                  (process-send-string proc "\n"))
-
-                 ;; Enter the verification code received by SMS.
-                 ((string-match-p "enter the code:" text)
-                  (process-send-string
-                   proc
-                   (concat (read-string "KAIST VPN SMS code: ") "\n")))
-
-                 ;; Enter the local Mac account password for sudo.
-                 ((string-match-p
-                   "\\(\\[sudo\\] password\\|password:\\)" text)
-                  (process-send-string
-                   proc
-                   (concat (read-passwd "Mac password for sudo: ") "\n"))))))
-            :sentinel
-            (lambda (_proc event)
-              (message "KVPN process state: %s" (string-trim event))))))
-      (pop-to-buffer "*KVPN Log*")
-      proc))
-
-(defun kvpn-stop ()
-  "Stop the running VPN process."
-  (interactive)
-  (when-let ((proc (get-process "kvpn-process")))
-    (delete-process proc)
-    (message "VPN disconnected.")))
-
 
 (use-package modus-themes
   :ensure t
@@ -1046,18 +863,13 @@ Allowed commands include status, log, diff, show, branch, and rev-parse."
   :config
   (setq alert-default-style 'osx-notifier))
 
-(use-package autorevert
-  :init
-  (global-auto-revert-mode))
 
 (use-package embark
   :ensure t
-
   :bind
   (("C-." . embark-act)         ;; pick some comfortable binding
    ("C-;" . embark-dwim)        ;; good alternative: M-.
    ("C-h B" . embark-bindings)) ;; alternative for `describe-bindings'
-
   :init
 
   ;; Optionally replace the key help with a completing-read interface
@@ -1084,10 +896,8 @@ Allowed commands include status, log, diff, show, branch, and rev-parse."
                  nil
                  (window-parameters (mode-line-format . none)))))
 
-;; Consult users will also want the embark-consult package.
 (use-package embark-consult
-  :ensure t) ; only need to install it, embark loads it after consult if found
-
+  :ensure t)
 
 (use-package ace-window
   :ensure t
