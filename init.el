@@ -66,22 +66,23 @@
 (add-hook 'markdown-mode-hook
           (lambda () (display-fill-column-indicator-mode 1)))
 
-
-(defalias 'list-buffers 'ibuffer)
-(setq ibuffer-saved-filter-groups
-      '(("default"
-	 ("Dired" (mode . dired-mode))
-   ("GPTel" (name . "^\\*ChatGPT"))
-	 ("Org" (or (mode . org-mode) (mode . org-agenda-mode)))
-	 ("magit" (name . "^magit")))))
-
-(add-hook 'ibuffer-mode-hook
-	  (lambda ()
-	    (ibuffer-switch-to-saved-filter-groups "default")))
-
 (require 'package)
 (add-to-list 'package-archives '("melpa" . "https://melpa.org/packages/") t)
 (package-initialize)
+
+(defalias 'list-buffers 'ibuffer)
+(use-package ibuffer-project
+  :ensure t
+  :after ibuffer
+  :config
+  ;; Cache project detection when possible.
+  (setq ibuffer-project-use-cache t)
+
+  ;; Generate groups whenever Ibuffer is opened.
+  (add-hook 'ibuffer-mode-hook
+            (lambda ()
+              (setq-local ibuffer-filter-groups
+                          (ibuffer-project-generate-filter-groups)))))
 
 (setq show-trailing-whitespace t)
 
@@ -920,8 +921,7 @@ Allowed commands include status, log, diff, show, branch, and rev-parse."
   :init
   (with-eval-after-load 'meow
     (meow-leader-define-key
-     '("w t" . rotate-layout) ;; transpose
-     )))
+     '("w t" . rotate-layout))))
 
 (use-package diff-hl
   :ensure t
