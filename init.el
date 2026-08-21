@@ -19,7 +19,7 @@
 (setq inhibit-startup-screen t)
 (tool-bar-mode 0)
 (scroll-bar-mode 0)
-(menu-bar-mode t)
+(menu-bar-mode -1)
 (global-display-line-numbers-mode 1)
 (global-visual-line-mode -1)
 (toggle-truncate-lines)
@@ -781,8 +781,7 @@ DIR must include a .project file to be considered a project."
         :name "project_shell_command"
         :function #'my-gptel-project-shell-command
         :description
-        "Run a shell command in the root of the current Emacs project.
-This tool requires an active project."
+        "Run a shell command in the root of the current Emacs project."
         :args
         (list
          '(:name "command"
@@ -791,21 +790,21 @@ This tool requires an active project."
         :category "project"
         :async t
         :confirm t)
-       (gptel-make-tool
-        :name "find_file"
-        :function #'my-gptel-find-file
-        :description "Open a file in an Emacs buffer using find-file-noselect.
-First inspect the currently opened buffers before finding a file with this tool.
-Use resolved paths against the current default-directory. Only using the basename
-will generally result in `File does not found` error.
-Returns the buffer name and file information.
-Use read_buffer afterward to inspect its contents."
-        :args
-        (list
-         '(:name "filepath"
-                 :type "string"
-                 :description "Path to the file to open."))
-        :category "emacs")
+       ;; (gptel-make-tool
+;;         :name "find_file"
+;;         :function #'my-gptel-find-file
+;;         :description "Open a file in an Emacs buffer using find-file-noselect.
+;; First inspect the currently opened buffers before finding a file with this tool.
+;; Use resolved paths against the current default-directory. Only using the basename
+;; will generally result in `File does not found` error.
+;; Returns the buffer name and file information.
+;; Use read_buffer afterward to inspect its contents."
+;;         :args
+;;         (list
+;;          '(:name "filepath"
+;;                  :type "string"
+;;                  :description "Path to the file to open."))
+;;         :category "emacs")
        (gptel-make-tool
         :name "read_file"
         :function #'my-gptel-read-file
