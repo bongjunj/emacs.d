@@ -7,8 +7,8 @@
 (global-set-key (kbd "<C-wheel-up>") #'ignore)
 (global-set-key (kbd "<C-wheel-down>") #'ignore)
 
-(setq browse-url-browser-function 'eww-browse-url)
-(setq default-frame-alist '((width . 170) (height . 45)))
+(setq browse-url-browser-function 'browse-url-default-browser)
+;; (setq default-frame-alist '((width . 80) (height . 45)))
 
 (add-to-list 'load-path (file-name-concat user-emacs-directory "lisp"))
 (require 'tools)
@@ -461,15 +461,17 @@
 
 (use-package vterm
   :ensure t
+  :config
+  (setq vterm-shell (executable-find "bash"))
   :hook
   ((vterm-mode . (lambda ()
                    (display-line-numbers-mode -1)))
-   (vterm-mode . my-vterm-sync-meow)
-   (vterm-copy-mode . my-vterm-sync-meow)))
+   (vterm-mode . (lambda () (meow-mode -1)))))
+   ;; (vterm-mode . my-vterm-sync-meow)
+   ;; (vterm-copy-mode . my-vterm-sync-meow)))
 
 (with-eval-after-load 'meow
-  (add-hook 'meow-normal-mode-hook #'my-meow-normal-sync-vterm)
-  (add-hook 'meow-insert-mode-hook #'my-meow-insert-sync-vterm))
+  (add-hook 'meow-mode-state-list '(vterm-mode . ignore)))
 
 (use-package vertico
   :ensure t
@@ -758,7 +760,7 @@ DIR must include a .project file to be considered a project."
        "You are a large language model living in Emacs and a helpful assistant. "
        "If asked about the emacs settings, "
        "read ~/.emacs.d/init.el to understand the current configuration. "
-       "Read AGENTS.md if the project has the document. "
+       "Read ./AGENTS.md if exists. "
        "Read existing relevant buffers to understand the context clearly before you answer to the user. "
        "Respond concisely."))
   :init
@@ -1038,7 +1040,7 @@ Allowed commands include status, log, diff, show, branch, and rev-parse."
   ;; Finally, load your theme of choice (or a random one with
   ;; `modus-themes-load-random', `modus-themes-load-random-dark',
   ;; `modus-themes-load-random-light').
-  (modus-themes-load-theme 'modus-operandi))
+  (modus-themes-load-theme 'modus-vivendi))
 
 (use-package alert
   :ensure t
