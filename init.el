@@ -30,6 +30,8 @@
 (setq-default indent-tabs-mode nil)
 (setq-default tab-width 2)
 (setq compilation-scroll-output t)
+(setq split-height-threshold 120)
+(setq split-width-threshold 140)
 
 (setq frame-title-format
       '(buffer-file-name "%b - %f"
@@ -183,6 +185,12 @@
 
 (set-face-attribute 'default nil
                     :family "Iosevka"
+                    :height 160
+                    :weight 'regular
+                    :slant 'normal)
+
+(set-face-attribute 'variable-pitch nil
+                    :family "Source Serif 4"
                     :height 160
                     :weight 'regular
                     :slant 'normal)
@@ -411,8 +419,7 @@
   :init
   (vertico-mode 1)
   :config
-  (setq vertico-cycle t)
-  (setq vertico-count 6))
+  (setq vertico-cycle t))
 
 (use-package orderless
   :ensure t
@@ -510,8 +517,7 @@ INDIVIDUAL-CAPFS to the list."
 (use-package eglot
   :ensure nil
   :config
-  (setq eglot-prefer-plaintext t
-        eglot-send-changes-idle-time 1.0)
+  (setq eglot-prefer-plaintext t)
   (setq eglot-events-buffer-config '(:size 10000 :format full))
   (setq treesit-font-lock-level 4)
   (add-to-list
@@ -560,6 +566,9 @@ INDIVIDUAL-CAPFS to the list."
 (use-package nael
   :vc (:url "https://codeberg.org/mekeor/nael.git"
             :lisp-dir "nael")
+  :custom
+  (eldoc-idle-delay 0.1)
+  (eglot-send-changes-idle-time 0.1)
   :init
   (setq nael-prepare-lsp nil)
   :mode ("\\.lean\\'" . nael-mode))
@@ -800,13 +809,12 @@ DIR must include a .project file to be considered a project."
   ;; Finally, load your theme of choice (or a random one with
   ;; `modus-themes-load-random', `modus-themes-load-random-dark',
   ;; `modus-themes-load-random-light').
-  (modus-themes-load-theme 'modus-vivendi))
+  (modus-themes-load-theme 'modus-operandi-tinted))
 
 (use-package alert
   :ensure t
   :config
   (setq alert-default-style 'osx-notifier))
-
 
 (use-package embark
   :ensure t
