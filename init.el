@@ -185,13 +185,13 @@
 
 (set-face-attribute 'default nil
                     :family "Iosevka"
-                    :height 180
+                    :height 160
                     :weight 'regular
                     :slant 'normal)
 
 (set-face-attribute 'variable-pitch nil
                     :family "Source Serif 4"
-                    :height 180
+                    :height 160
                     :weight 'regular
                     :slant 'normal)
 

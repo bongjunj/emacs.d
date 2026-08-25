@@ -1,3 +1,5 @@
+;; -*- lexical-binding: t; -*-
+
 (defun kvpn-start ()
     "Start KVPN and handle SMS and sudo password prompts."
     (interactive)
