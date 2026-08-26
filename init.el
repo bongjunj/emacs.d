@@ -501,6 +501,7 @@ INDIVIDUAL-CAPFS to the list."
      '("s g" . consult-ripgrep)
      '("s r" . consult-register-store)
      '("s R" . consult-register)
+     '("s o" . consult-org-agenda)
      '("s b" . consult-buffer)
      '("s i" . consult-imenu)
      '("s f" . consult-fd)))
