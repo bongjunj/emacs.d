@@ -600,10 +600,6 @@ INDIVIDUAL-CAPFS to the list."
 
 (use-package treesit-fold
   :ensure t
-  :init
-  ;; Bind fold commands under Meow's leader key (SPC z ...)
-  (bongjun/meow-leader-define-key
-   '("z z" . treesit-fold-toggle))
   :config
   (setq treesit-fold-line-count-show t)
   (global-treesit-fold-mode 1)
@@ -630,15 +626,6 @@ DIR must include a .project file to be considered a project."
           (project-find-regexp "Find regexp")
           (project-eshell "Eshell")
           (project-any-command "Other"))))
-
-(bongjun/meow-leader-define-key
- '("p p" . project-switch-project)
- '("p d" . project-find-dir)
- '("p k" . project-kill-buffers)
- '("p c" . project-compile)
- '("p !" . project-shell-command)
- '("p &" . project-async-shell-command))
-
 
 (defun my-gptel-project ()
   (interactive)
