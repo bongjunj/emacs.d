@@ -199,41 +199,6 @@ returned matches; it defaults to 50."
      (or value "Not a bound variable")
      (or variable-doc "No variable documentation"))))
 
-(defun my-gptel-magit-git-readonly (directory args)
-  "Run a read-only Git command through Magit in DIRECTORY."
-  (require 'magit)
-  (let ((args (append args nil))
-        (allowed-commands
-         '("status" "log" "diff" "show" "branch" "rev-parse")))
-    (unless (and args (member (car args) allowed-commands))
-      (error "Git command not allowed: %s" (car args)))
-    (let ((default-directory
-           (file-name-as-directory (expand-file-name directory))))
-      (mapconcat #'identity
-                 (apply #'magit-git-lines args)
-                 "\n"))))
-
-(defun my-gptel-project-find-regexp (regexp)
-  "Search the current project for REGEXP using Emacs project facilities.
-
-Results are displayed in an xref buffer.  Use `read_buffer` on the
-returned buffer to inspect them."
-  (require 'project)
-  (require 'xref)
-  (project-current t)
-  (project-find-regexp regexp)
-  "Search results are displayed in *xref*.")
-
-(defun my-gptel-project-dired ()
-  "Open the current project root in a Dired buffer."
-  (require 'project)
-  (let* ((project (project-current t))
-         (root (project-root project))
-         (buffer (dired-noselect root)))
-    (format "Project root: %s\nDired buffer: %s"
-            root
-            (buffer-name buffer))))
-
 (defun my-gptel-project-shell-command (callback command)
   "Run COMMAND asynchronously in the current project's root for gptel.
 CALLBACK is supplied first by gptel and invoked with the output string."
@@ -260,46 +225,5 @@ CALLBACK is supplied first by gptel and invoked with the output string."
            (when (functionp callback)
              (funcall callback (or output "")))))))
     process))
-
-(defun my-gptel-switch-to-buffer (buffer)
-  "Display BUFFER in another window and select that window."
-  (let ((buf (get-buffer buffer)))
-    (unless (buffer-live-p buf)
-      (error "Buffer does not exist: %s" buffer))
-    (switch-to-buffer-other-window buf)
-    (format "Displayed and selected buffer in another window: %s"
-            (buffer-name buf))))
-
-(defun my-gptel-project-magit-status ()
-  "Open a Magit status buffer for the current project."
-  (require 'project)
-  (require 'magit)
-  (let* ((root (project-root (project-current t)))
-         (buffer (magit-status root)))
-    (format "Project root: %s\nMagit buffer: %s"
-            root
-            (buffer-name buffer))))
-
-(defun my-gptel-project-magit-diff ()
-  "Open a Magit diff buffer for the current project."
-  (require 'project)
-  (require 'magit)
-  (let ((default-directory
-         (project-root (project-current t))))
-    (magit-diff-unstaged)
-    (format "Project root: %s\nMagit diff buffer: %s"
-            default-directory
-            (buffer-name (current-buffer)))))
-
-(defun my-gptel-project-magit-log ()
-  "Open a Magit log buffer for the current project."
-  (require 'project)
-  (require 'magit)
-  (let ((default-directory
-         (project-root (project-current t))))
-    (magit-log-all)
-    (format "Project root: %s\nMagit log buffer: %s"
-            default-directory
-            (buffer-name (current-buffer)))))
 
 (provide 'tools)

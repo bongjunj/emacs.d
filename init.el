@@ -20,7 +20,6 @@
 (setq inhibit-startup-screen t)
 (tool-bar-mode 0)
 (scroll-bar-mode 0)
-(menu-bar-mode -1)
 (global-display-line-numbers-mode 1)
 (global-visual-line-mode -1)
 (toggle-truncate-lines)
@@ -35,8 +34,8 @@
 
 (setq frame-title-format
       '(buffer-file-name "%b - %f"
-        (dired-directory dired-directory
-         ("%b - Dir: " default-directory))))
+                         (dired-directory dired-directory
+                                          ("%b - Dir: " default-directory))))
 
 ;; TRAMP Optimization: https://coredumped.dev/2025/06/18/making-tramp-go-brrrr./
 (setq remote-file-name-inhibit-locks t
@@ -73,99 +72,117 @@
 (add-to-list 'package-archives '("melpa" . "https://melpa.org/packages/") t)
 (package-initialize)
 
-;; Meow & Keybindings
-(defun meow-setup ()
-  (setq meow-cheatsheet-layout meow-cheatsheet-layout-qwerty)
-  (meow-motion-define-key
-   '("h" . meow-left)
-   '("j" . meow-next)
-   '("k" . meow-prev)
-   '("l" . meow-right)
-   '("<escape>" . ignore))
-  (meow-leader-define-key
-   ;; Use SPC (0-9) for digit arguments.
-   '("1" . meow-digit-argument)
-   '("2" . meow-digit-argument)
-   '("3" . meow-digit-argument)
-   '("4" . meow-digit-argument)
-   '("5" . meow-digit-argument)
-   '("6" . meow-digit-argument)
-   '("7" . meow-digit-argument)
-   '("8" . meow-digit-argument)
-   '("9" . meow-digit-argument)
-   '("0" . meow-digit-argument)
-   '("/" . meow-keypad-describe-key)
-   '("?" . meow-cheatsheet))
-  (meow-normal-define-key
-   '("0" . meow-expand-0)
-   '("9" . meow-expand-9)
-   '("8" . meow-expand-8)
-   '("7" . meow-expand-7)
-   '("6" . meow-expand-6)
-   '("5" . meow-expand-5)
-   '("4" . meow-expand-4)
-   '("3" . meow-expand-3)
-   '("2" . meow-expand-2)
-   '("1" . meow-expand-1)
-   '("-" . negative-argument)
-   '(";" . meow-reverse)
-   '("," . meow-inner-of-thing)
-   '("." . meow-bounds-of-thing)
-   '("[" . meow-beginning-of-thing)
-   '("]" . meow-end-of-thing)
-   '("a" . meow-append)
-   '("A" . meow-open-below)
-   '("b" . meow-back-word)
-   '("B" . meow-back-symbol)
-   '("c" . meow-change)
-   '("d" . meow-delete)
-   '("D" . meow-backward-delete)
-   '("e" . meow-next-word)
-   '("E" . meow-next-symbol)
-   '("f" . meow-find)
-   '("g" . meow-cancel-selection)
-   '("G" . meow-grab)
-   '("h" . meow-left)
-   '("H" . meow-left-expand)
-   '("i" . meow-insert)
-   '("I" . meow-open-above)
-   '("j" . meow-next)
-   '("J" . meow-next-expand)
-   '("k" . meow-prev)
-   '("K" . meow-prev-expand)
-   '("l" . meow-right)
-   '("L" . meow-right-expand)
-   '("m" . meow-join)
-   '("n" . meow-search)
-   '("o" . meow-block)
-   '("O" . meow-to-block)
-   '("p" . meow-yank)
-   '("q" . meow-quit)
-   '("Q" . meow-goto-line)
-   '("r" . meow-replace)
-   '("R" . meow-swap-grab)
-   '("s" . meow-kill)
-   '("t" . meow-till)
-   '("u" . meow-undo)
-   '("U" . meow-undo-in-selection)
-   '("v" . meow-visit)
-   '("w" . meow-mark-word)
-   '("W" . meow-mark-symbol)
-   '("x" . meow-line)
-   '("X" . meow-goto-line)
-   '("y" . meow-save)
-   '("Y" . meow-sync-grab)
-   '("z" . meow-pop-selection)
-   '("<" . meow-indent)
-   '("'" . repeat)
-   '("<escape>" . ignore)))
+(use-package modus-themes
+  :ensure t
+  :demand t
+  :bind
+  (("<f5>" . modus-themes-rotate)
+   ("C-<f5>" . modus-themes-select)
+   ("M-<f5>" . modus-themes-load-random))
+  :config
+  ;; Your customizations here.  All customizations must evaluated
+  ;; BEFORE loading the theme.
+  (setq modus-themes-to-rotate modus-themes-items
+        modus-themes-mixed-fonts nil
+        modus-themes-variable-pitch-ui nil
+        modus-themes-italic-constructs t
+        modus-themes-bold-constructs t)
+  (setq modus-themes-common-palette-overrides nil)
+  (modus-themes-load-theme 'modus-operandi-tinted))
 
-(use-package meow
-    :ensure t
-    :config
-    (setq meow-use-clipboard t)
-    (meow-global-mode 1)
-    (meow-setup))
+;; Meow & Keybindings
+;; (defun meow-setup ()
+;;   (setq meow-cheatsheet-layout meow-cheatsheet-layout-qwerty)
+;;   (meow-motion-define-key
+;;    '("h" . meow-left)
+;;    '("j" . meow-next)
+;;    '("k" . meow-prev)
+;;    '("l" . meow-right)
+;;    '("<escape>" . ignore))
+;;   (meow-leader-define-key
+;;    ;; Use SPC (0-9) for digit arguments.
+;;    '("1" . meow-digit-argument)
+;;    '("2" . meow-digit-argument)
+;;    '("3" . meow-digit-argument)
+;;    '("4" . meow-digit-argument)
+;;    '("5" . meow-digit-argument)
+;;    '("6" . meow-digit-argument)
+;;    '("7" . meow-digit-argument)
+;;    '("8" . meow-digit-argument)
+;;    '("9" . meow-digit-argument)
+;;    '("0" . meow-digit-argument)
+;;    '("/" . meow-keypad-describe-key)
+;;    '("?" . meow-cheatsheet))
+;;   (meow-normal-define-key
+;;    '("0" . meow-expand-0)
+;;    '("9" . meow-expand-9)
+;;    '("8" . meow-expand-8)
+;;    '("7" . meow-expand-7)
+;;    '("6" . meow-expand-6)
+;;    '("5" . meow-expand-5)
+;;    '("4" . meow-expand-4)
+;;    '("3" . meow-expand-3)
+;;    '("2" . meow-expand-2)
+;;    '("1" . meow-expand-1)
+;;    '("-" . negative-argument)
+;;    '(";" . meow-reverse)
+;;    '("," . meow-inner-of-thing)
+;;    '("." . meow-bounds-of-thing)
+;;    '("[" . meow-beginning-of-thing)
+;;    '("]" . meow-end-of-thing)
+;;    '("a" . meow-append)
+;;    '("A" . meow-open-below)
+;;    '("b" . meow-back-word)
+;;    '("B" . meow-back-symbol)
+;;    '("c" . meow-change)
+;;    '("d" . meow-delete)
+;;    '("D" . meow-backward-delete)
+;;    '("e" . meow-next-word)
+;;    '("E" . meow-next-symbol)
+;;    '("f" . meow-find)
+;;    '("g" . meow-cancel-selection)
+;;    '("G" . meow-grab)
+;;    '("h" . meow-left)
+;;    '("H" . meow-left-expand)
+;;    '("i" . meow-insert)
+;;    '("I" . meow-open-above)
+;;    '("j" . meow-next)
+;;    '("J" . meow-next-expand)
+;;    '("k" . meow-prev)
+;;    '("K" . meow-prev-expand)
+;;    '("l" . meow-right)
+;;    '("L" . meow-right-expand)
+;;    '("m" . meow-join)
+;;    '("n" . meow-search)
+;;    '("o" . meow-block)
+;;    '("O" . meow-to-block)
+;;    '("p" . meow-yank)
+;;    '("q" . meow-quit)
+;;    '("Q" . meow-goto-line)
+;;    '("r" . meow-replace)
+;;    '("R" . meow-swap-grab)
+;;    '("s" . meow-kill)
+;;    '("t" . meow-till)
+;;    '("u" . meow-undo)
+;;    '("U" . meow-undo-in-selection)
+;;    '("v" . meow-visit)
+;;    '("w" . meow-mark-word)
+;;    '("W" . meow-mark-symbol)
+;;    '("x" . meow-line)
+;;    '("X" . meow-goto-line)
+;;    '("y" . meow-save)
+;;    '("Y" . meow-sync-grab)
+;;    '("z" . meow-pop-selection)
+;;    '("<" . meow-indent)
+;;    '("'" . repeat)
+;;    '("<escape>" . ignore)))
+
+;; (use-package meow
+;;     :ensure t
+;;     :config
+;;     (setq meow-use-clipboard t)
+;;     (meow-global-mode 1)
+;;     (meow-setup))
 
 (defalias 'list-buffers 'ibuffer)
 (use-package ibuffer-project
@@ -180,8 +197,6 @@
             (lambda ()
               (setq-local ibuffer-filter-groups
                           (ibuffer-project-generate-filter-groups)))))
-
-(setq show-trailing-whitespace t)
 
 (set-face-attribute 'default nil
                     :family "Iosevka"
@@ -236,14 +251,14 @@
 
   ;; Auto-refresh the PDF buffer after compilation finishes
   (add-hook 'TeX-after-compilation-finished-functions
-	    #'TeX-revert-document-buffer)
+	          #'TeX-revert-document-buffer)
 
   (add-hook 'LaTeX-mode-hook
-	    (lambda ()
-	      (add-hook 'after-save-hook
-                  (lambda ()
-                    (TeX-command-run-all nil))
-                  nil t))))
+	          (lambda ()
+	            (add-hook 'after-save-hook
+                        (lambda ()
+                          (TeX-command-run-all nil))
+                        nil t))))
 
 (use-package pdf-tools
   :ensure t
@@ -392,13 +407,13 @@
     (setq org-clock-persist t)
     (org-clock-persistence-insinuate)
     (setq org-clock-auto-clock-resolution 'when-no-clock-is-running))
-    (bongjun/meow-leader-define-key
-     '("o c" . org-capture)
-     '("o a" . org-agenda)
-     '("o l" . org-store-link)
-     '("o s" . consult-org-agenda)
-     '("o h" . consult-org-heading)
-     '("o b" . org-switchb))
+  (bongjun/meow-leader-define-key
+   '("o c" . org-capture)
+   '("o a" . org-agenda)
+   '("o l" . org-store-link)
+   '("o s" . consult-org-agenda)
+   '("o h" . consult-org-heading)
+   '("o b" . org-switchb))
   :hook
   (emacs-startup . org-agenda-list))
 
@@ -427,7 +442,7 @@
   (setq orderless-matching-styles '(orderless-prefixes))
   (setq completion-ignore-case t
         completion-styles '(basic substring initials orderless))
-        completion-category-overrides '((file (styles basic partial-completion))))
+  completion-category-overrides '((file (styles basic partial-completion))))
 
 (use-package marginalia
   :ensure t
@@ -488,54 +503,101 @@ INDIVIDUAL-CAPFS to the list."
   :ensure t
   :config
   (setq recentf-max-saved-items 200)
+  :bind (;; C-c bindings in `mode-specific-map'
+         ("C-c M-x" . consult-mode-command)
+         ("C-c h"   . consult-history)
+         ("C-c k"   . consult-kmacro)
+         ("C-c m"   . consult-man)
+         ("C-c i"   . consult-info)
+         ([remap Info-search] . consult-info)
+
+         ;; C-x bindings in `ctl-x-map'
+         ("C-x M-:" . consult-complex-command)
+         ("C-x b"   . consult-buffer)
+         ("C-x 4 b" . consult-buffer-other-window)
+         ("C-x 5 b" . consult-buffer-other-frame)
+         ("C-x t b" . consult-buffer-other-tab)
+         ("C-x r b" . consult-bookmark)
+         ("C-x p b" . consult-project-buffer)
+
+         ;; Custom M-# bindings for fast register access
+         ("M-#"     . consult-register-load)
+         ("M-'"     . consult-register-store)
+         ("C-M-#"   . consult-register)
+
+         ;; M-y replacement
+         ("M-y"     . consult-yank-pop)
+
+         ;; M-g bindings in `goto-map'
+         ("M-g e"   . consult-compile-error)
+         ("M-g d"   . consult-flymake)
+         ("M-g g"   . consult-goto-line)
+         ("M-g M-g" . consult-goto-line)
+         ("M-g o"   . consult-outline)
+         ("M-g m"   . consult-mark)
+         ("M-g k"   . consult-global-mark)
+         ("M-g i"   . consult-imenu)
+         ("M-g I"   . consult-imenu-multi)
+
+         ;; M-s bindings in `search-map'
+         ("M-s f"   . consult-find)
+         ("M-s c"   . consult-locate)
+         ("M-s g"   . consult-ripgrep)
+         ("M-s l"   . consult-line)
+         ("M-s L"   . consult-line-multi)
+         ("M-s k"   . consult-keep-lines)
+         ("M-s u"   . consult-focus-lines)
+         ("M-s e"   . consult-isearch-history)
+
+         ;; Isearch integration
+         :map isearch-mode-map
+         ("M-e"     . consult-isearch-history)
+         ("M-s e"   . consult-isearch-history)
+         ("M-s l"   . consult-line)
+         ("M-s L"   . consult-line-multi)
+
+         ;; Minibuffer history navigation
+         :map minibuffer-local-map
+         ("M-s"     . consult-history)
+         ("M-r"     . consult-history))
   :init
-  (recentf-mode 1)
-  (bongjun/meow-leader-define-key
-     '("s l" . consult-line)
-     '("s d" . consult-flymake)
-     '("s B" . consult-bookmark)
-     '("s s" . consult-recent-file)
-     '("s y" . consult-yank-pop)
-     '("s k" . consult-yank-from-kill-ring)
-     '("s K" . consult-yank-replace)
-     '("s g" . consult-ripgrep)
-     '("s r" . consult-register-store)
-     '("s R" . consult-register)
-     '("s o" . consult-org-agenda)
-     '("s b" . consult-buffer)
-     '("s i" . consult-imenu)
-     '("s f" . consult-fd)))
+  (setq xref-show-xrefs-function #'consult-xref
+        xref-show-definitions-function #'consult-xref)
+  (setq register-preview-delay 0.5
+        register-preview-function #'consult-register-format)
+  (advice-add #'register-preview :override #'consult-register-window)
+  (recentf-mode 1))
 
-(setq register-preview-delay 0.8
-      register-preview-function #'consult-register-format)
-
-(bongjun/meow-leader-define-key
-   '("r r" . point-to-register)
-   '("r s" . copy-to-register)
-   '("r i" . insert-register)
-   '("r m" . bookmark-set))
-
-(use-package eglot
+ (use-package eglot
   :ensure nil
+  :bind (("C-c e e" . eglot)
+
+         :map eglot-mode-map
+         ;; LSP actions & refactoring
+         ;; active only when eglot is running
+         ("C-c e a" . eglot-code-actions)
+         ("C-c e R" . eglot-rename)
+         ("C-c e f" . eglot-format)
+         ("C-c e F" . eglot-format-buffer)
+         ("C-c e o" . eglot-code-action-organize-imports)
+         ("C-c e q" . eglot-shutdown)
+         ("C-c e h" . eldoc)
+
+         ;; Diagnostics navigation
+         ("M-n"     . flymake-goto-next-error)
+         ("M-p"     . flymake-goto-prev-error))
   :config
   (setq eglot-prefer-plaintext t)
   (setq eglot-events-buffer-config '(:size 10000 :format full))
   (setq treesit-font-lock-level 4)
   (add-to-list
    'eglot-server-programs
-   '(python-ts-mode . ("uv" "tool" "run" "ty" "server")))
-  (bongjun/meow-leader-define-key
-     '("e e" . eglot)
-     '("e q" . eglot-shutdown)
-     '("e I" . eglot-inlay-hints-mode)
-     '("e d" . xref-find-definitions)
-     '("e D" . xref-find-definitions-other-window)
-     '("e r" . xref-find-references)
-     '("e b" . xref-go-back)
-     '("e f" . xref-go-forward)
-     '("e a" . eglot-code-actions)
-     '("e R" . eglot-rename)
-     '("e g" . flymake-show-buffer-diagnostics)))
+   '(python-ts-mode . ("uv" "tool" "run" "ty" "server"))))
+
+(use-package consult-eglot
+  :after (consult eglot)
+  :bind (:map eglot-mode-map
+              ("M-g s" . consult-eglot-symbols)))
 
 (use-package flymake
   :ensure nil
@@ -543,15 +605,7 @@ INDIVIDUAL-CAPFS to the list."
   (setq flymake-no-changes-timeout 1.0))
 
 ;; use treesitters as default
-(setq major-mode-remap-alist
-      '((python-mode . python-ts-mode)
-	      (c-mode . c-ts-mode)
-	      (rust-mode . rust-ts-mode)))
-
-(use-package rust-ts-mode
-  :ensure t
-  :config
-  (setq rust-format-on-save t))
+(setq treesit-enabled-modes t)
 
 ;; OCaml
 (use-package tuareg
@@ -658,49 +712,40 @@ DIR must include a .project file to be considered a project."
      '("a K" . gptel-abort)
      '("a r" . gptel-rewrite)))
 
-;; (use-package gptel-annotate
-;;   :vc (:url "https://github.com/karthink/gptel-annotate"
-;;        :rev :newest)
-;;   :after gptel)
+(use-package gptel-annotate
+  :vc (:url "https://github.com/karthink/gptel-annotate"
+       :rev :newest)
+  :after gptel)
+
+(use-package gptel-preset-collection
+  :vc (:url "https://github.com/karthink/gptel-preset-collection"
+       :rev :newest)
+  :after gptel)
+
+(use-package gptel-inline
+  :vc (:url "https://github.com/karthink/gptel-inline"
+       :rev :newest)
+  :after gptel)
 
 (use-package macher
   :ensure t
   :custom
   ;; The org UI has structured conversations and nice content folding.
   (macher-action-buffer-ui 'org)
-
   :hook
   ;; Set up action buffer behavior to your liking.  Alternately, do
   ;; this more generally in your `gptel-mode-hook'.
   (macher-action-buffer-setup
-   . (lambda ()
-      ;; Auto-scroll responses.
-      (setq-local window-point-insertion-type t)))
-
+   . (lambda () (setq-local window-point-insertion-type t)))
   :config
   ;; Recommended - register macher tools and presets with gptel.
   (macher-install)
 
-  ;; Recommended - enable macher infrastructure for tools/prompts in
-  ;; any buffer.  (Actions and presets will still work without this.)
-  (macher-enable)
-
-  ;; Adjust buffer positioning to taste.
-  ;; (add-to-list
-  ;;  'display-buffer-alist
-  ;;  '("\\*macher:.*\\*"
-  ;;    (display-buffer-in-side-window)
-  ;;    (side . bottom)))
-  ;; (add-to-list
-  ;;  'display-buffer-alist
-  ;;  '("\\*macher-patch:.*\\*"
-  ;;    (display-buffer-in-side-window)
-  ;;    (side . right)))
-  )
+  ;; Enable macher infrastructure for tools/prompts in any buffer.
+  (macher-enable))
 
 (require 'gptel-annotate)
-(require 'gptel-preset-collection)
-(require 'gptel-inline)
+;; (require 'gptel-presets)
 
 (setq gptel-tools
       (list
@@ -764,53 +809,7 @@ DIR must include a .project file to be considered a project."
   (setq rmsbolt-asm-format "intel")
   (setq rmsbolt-automatic-recompile nil))
 
-(use-package modus-themes
-  :ensure t
-  :demand t
-  :init
-  ;; Starting with version 5.0.0 of the `modus-themes', other packages
-  ;; can be built on top to provide their own "Modus" derivatives.
-  ;; For example, this is what I do with my `ef-themes' and
-  ;; `standard-themes' (starting with versions 2.0.0 and 3.0.0,
-  ;; respectively).
-  ;;
-  ;; The `modus-themes-include-derivatives-mode' makes all Modus
-  ;; commands that act on a theme consider all such derivatives, if
-  ;; their respective packages are available and have been loaded.
-  ;;
-  ;; Note that those packages can even completely take over from the
-  ;; Modus themes such that, for example, `modus-themes-rotate' only
-  ;; goes through the Ef themes (to this end, the Ef themes provide
-  ;; the `ef-themes-take-over-modus-themes-mode' and the Standard
-  ;; themes have the `standard-themes-take-over-modus-themes-mode'
-  ;; equivalent).
-  ;;
-  ;; If you only care about the Modus themes, then (i) you do not need
-  ;; to enable the `modus-themes-include-derivatives-mode' and (ii) do
-  ;; not install and activate those other theme packages.
-  (modus-themes-include-derivatives-mode 1)
-  :bind
-  (("<f5>" . modus-themes-rotate)
-   ("C-<f5>" . modus-themes-select)
-   ("M-<f5>" . modus-themes-load-random))
-  :config
-  ;; Your customizations here.  All customizations must evaluated
-  ;; BEFORE loading the theme.
-  (setq modus-themes-to-toggle '(modus-operandi modus-vivendi)
-        modus-themes-to-rotate modus-themes-items
-        modus-themes-mixed-fonts nil
-        modus-themes-variable-pitch-ui nil
-        modus-themes-italic-constructs t
-        modus-themes-bold-constructs t
-        modus-themes-completions '((t . (bold)))
-        modus-themes-prompts '(bold))
 
-  (setq modus-themes-common-palette-overrides nil)
-
-  ;; Finally, load your theme of choice (or a random one with
-  ;; `modus-themes-load-random', `modus-themes-load-random-dark',
-  ;; `modus-themes-load-random-light').
-  (modus-themes-load-theme 'modus-operandi-tinted))
 
 (use-package alert
   :ensure t
@@ -867,3 +866,32 @@ DIR must include a .project file to be considered a project."
   :vc (:url "https://github.com/ArthurHeymans/emacs-tramp-rpc"
        :rev :newest
        :lisp-dir "lisp"))
+
+(defun my-gptel--review-context ()
+  "Return the source, Flymake, and ElDoc buffers for the current view."
+  (let* ((source-window
+          (seq-find
+           (lambda (window)
+             (let ((buffer (window-buffer window)))
+               (not (with-current-buffer buffer
+                      (bound-and-true-p gptel-mode)))))
+           (window-list)))
+         (source-buffer
+          (and source-window
+               (window-buffer source-window)))
+         (flymake-buffer
+          (when (buffer-live-p source-buffer)
+            (with-current-buffer source-buffer
+              (when (bound-and-true-p flymake-mode)
+                (get-buffer
+                 (format "*Flymake diagnostics for `%s'*"
+                         (buffer-name source-buffer)))))))
+         (eldoc-buffer
+          (when (fboundp 'eldoc-doc-buffer)
+            (eldoc-doc-buffer))))
+    (delq nil (list source-buffer flymake-buffer eldoc-buffer))))
+
+(gptel-make-preset
+      'review-context
+    :description "CONTEXT: source, Flymake, and ElDoc buffers"
+    :context '(:eval (my-gptel--review-context)))
