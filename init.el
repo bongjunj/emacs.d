@@ -313,22 +313,6 @@
   (with-eval-after-load 'meow
     (define-key dired-mode-map (kbd "K") #'dired-kill-subdir)))
 
-(bongjun/meow-leader-define-key
- '("w w" . other-window)
- '("w h" . windmove-left)
- '("w j" . windmove-down)
- '("w k" . windmove-up)
- '("w l" . windmove-right)
- '("w d" . toggle-window-dedicated)
- '("w q" . delete-window)
- '("w v" . split-window-right)
- '("w s" . split-window-below)
- '("w K" . kill-current-buffer)
- '("w Q" . delete-frame)
- '("w f" . select-frame-by-name)
- '("w F" . make-frame)
- '("w r" . revert-buffer-quick))
-
 (use-package org
   :ensure nil ;; built-in
   :init
@@ -388,13 +372,10 @@
     (setq org-clock-persist t)
     (org-clock-persistence-insinuate)
     (setq org-clock-auto-clock-resolution 'when-no-clock-is-running))
-  (bongjun/meow-leader-define-key
-   '("o c" . org-capture)
-   '("o a" . org-agenda)
-   '("o l" . org-store-link)
-   '("o s" . consult-org-agenda)
-   '("o h" . consult-org-heading)
-   '("o b" . org-switchb))
+  :bind
+  (("C-c a" . org-agenda)
+   ("C-c c" . org-capture)
+   ("C-c b" . org-switchb))
   :hook
   (emacs-startup . org-agenda-list))
 
