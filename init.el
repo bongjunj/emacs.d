@@ -652,14 +652,9 @@ DIR must include a .project file to be considered a project."
        "Read ./AGENTS.md if exists. "
        "Read existing relevant buffers to understand the context clearly before you answer to the user. "
        "Respond concisely."))
-  :init
-  (bongjun/meow-leader-define-key
-     '("a s" . my-gptel-project)
-     '("a a" . gptel-menu)
-     '("a c" . gptel-add)
-     '("a k" . gptel-context-remove-all)
-     '("a K" . gptel-abort)
-     '("a r" . gptel-rewrite)))
+  :bind
+  (("C-c g g" . my-gptel-project)
+   ("C-c g m" . gptel-menu)))
 
 (use-package gptel-annotate
   :vc (:url "https://github.com/karthink/gptel-annotate"
