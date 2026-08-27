@@ -285,26 +285,7 @@
   (setq magit-refresh-status-buffer nil)
   (setq magit-commit-show-diff nil)
   (setq magit-revert-status-buffers nil)
-  (define-key magit-status-mode-map (kbd "K") #'magit-discard)
-  :init
-  (bongjun/meow-leader-define-key
-   '("v v" . magit-status)
-   '("v C" . magit-clone)
-   '("v P" . magit-push)
-   '("v F" . magit-pull-from-upstream)
-   '("v l" . magit-log-all)
-   '("v L" . magit-log-current)
-   '("v B" . magit-blame)
-   '("v d" . magit-diff-buffer-file)
-   '("v a" . magit-file-stage)
-   '("v h" . diff-hl-show-hunk)
-   '("v s" . diff-hl-stage-dwim)
-   '("v u" . magit-file-unstage)
-   '("v ]" . diff-hl-next-hunk)
-   '("v [" . diff-hl-previous-hunk)
-   '("v m" . magit-dispatch)
-   '("v c" . magit-commit-create)
-   '("v M" . magit-file-dispatch)))
+  (setq magit-define-global-key-bindings 'default))
 
 
 ;;; Controls how to display buffers
