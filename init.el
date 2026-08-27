@@ -7,9 +7,6 @@
 (global-set-key (kbd "<C-wheel-up>") #'ignore)
 (global-set-key (kbd "<C-wheel-down>") #'ignore)
 
-(setq browse-url-browser-function 'browse-url-default-browser)
-;; (setq default-frame-alist '((width . 80) (height . 45)))
-
 (add-to-list 'load-path (file-name-concat user-emacs-directory "lisp"))
 (require 'tools)
 (require 'util)
@@ -31,6 +28,7 @@
 (setq compilation-scroll-output t)
 (setq split-height-threshold 120)
 (setq split-width-threshold 140)
+
 
 (setq frame-title-format
       '(buffer-file-name "%b - %f"
@@ -59,7 +57,8 @@
 
 (with-eval-after-load 'tramp
   (with-eval-after-load 'compile
-    (remove-hook 'compilation-mode-hook #'tramp-compile-disable-ssh-controlmaster-options)))
+    (remove-hook 'compilation-mode-hook
+                 #'tramp-compile-disable-ssh-controlmaster-options)))
 
 ;; visual indicator at the column of width 80
 (setopt display-fill-column-indicator-column 80)
@@ -88,106 +87,12 @@
         modus-themes-italic-constructs t
         modus-themes-bold-constructs t)
   (setq modus-themes-common-palette-overrides nil)
-  (modus-themes-load-theme 'modus-operandi-tinted))
+  (modus-themes-load-theme 'modus-operandi))
 
-;; Meow & Keybindings
-;; (defun meow-setup ()
-;;   (setq meow-cheatsheet-layout meow-cheatsheet-layout-qwerty)
-;;   (meow-motion-define-key
-;;    '("h" . meow-left)
-;;    '("j" . meow-next)
-;;    '("k" . meow-prev)
-;;    '("l" . meow-right)
-;;    '("<escape>" . ignore))
-;;   (meow-leader-define-key
-;;    ;; Use SPC (0-9) for digit arguments.
-;;    '("1" . meow-digit-argument)
-;;    '("2" . meow-digit-argument)
-;;    '("3" . meow-digit-argument)
-;;    '("4" . meow-digit-argument)
-;;    '("5" . meow-digit-argument)
-;;    '("6" . meow-digit-argument)
-;;    '("7" . meow-digit-argument)
-;;    '("8" . meow-digit-argument)
-;;    '("9" . meow-digit-argument)
-;;    '("0" . meow-digit-argument)
-;;    '("/" . meow-keypad-describe-key)
-;;    '("?" . meow-cheatsheet))
-;;   (meow-normal-define-key
-;;    '("0" . meow-expand-0)
-;;    '("9" . meow-expand-9)
-;;    '("8" . meow-expand-8)
-;;    '("7" . meow-expand-7)
-;;    '("6" . meow-expand-6)
-;;    '("5" . meow-expand-5)
-;;    '("4" . meow-expand-4)
-;;    '("3" . meow-expand-3)
-;;    '("2" . meow-expand-2)
-;;    '("1" . meow-expand-1)
-;;    '("-" . negative-argument)
-;;    '(";" . meow-reverse)
-;;    '("," . meow-inner-of-thing)
-;;    '("." . meow-bounds-of-thing)
-;;    '("[" . meow-beginning-of-thing)
-;;    '("]" . meow-end-of-thing)
-;;    '("a" . meow-append)
-;;    '("A" . meow-open-below)
-;;    '("b" . meow-back-word)
-;;    '("B" . meow-back-symbol)
-;;    '("c" . meow-change)
-;;    '("d" . meow-delete)
-;;    '("D" . meow-backward-delete)
-;;    '("e" . meow-next-word)
-;;    '("E" . meow-next-symbol)
-;;    '("f" . meow-find)
-;;    '("g" . meow-cancel-selection)
-;;    '("G" . meow-grab)
-;;    '("h" . meow-left)
-;;    '("H" . meow-left-expand)
-;;    '("i" . meow-insert)
-;;    '("I" . meow-open-above)
-;;    '("j" . meow-next)
-;;    '("J" . meow-next-expand)
-;;    '("k" . meow-prev)
-;;    '("K" . meow-prev-expand)
-;;    '("l" . meow-right)
-;;    '("L" . meow-right-expand)
-;;    '("m" . meow-join)
-;;    '("n" . meow-search)
-;;    '("o" . meow-block)
-;;    '("O" . meow-to-block)
-;;    '("p" . meow-yank)
-;;    '("q" . meow-quit)
-;;    '("Q" . meow-goto-line)
-;;    '("r" . meow-replace)
-;;    '("R" . meow-swap-grab)
-;;    '("s" . meow-kill)
-;;    '("t" . meow-till)
-;;    '("u" . meow-undo)
-;;    '("U" . meow-undo-in-selection)
-;;    '("v" . meow-visit)
-;;    '("w" . meow-mark-word)
-;;    '("W" . meow-mark-symbol)
-;;    '("x" . meow-line)
-;;    '("X" . meow-goto-line)
-;;    '("y" . meow-save)
-;;    '("Y" . meow-sync-grab)
-;;    '("z" . meow-pop-selection)
-;;    '("<" . meow-indent)
-;;    '("'" . repeat)
-;;    '("<escape>" . ignore)))
-
-;; (use-package meow
-;;     :ensure t
-;;     :config
-;;     (setq meow-use-clipboard t)
-;;     (meow-global-mode 1)
-;;     (meow-setup))
-
-(defalias 'list-buffers 'ibuffer)
 (use-package ibuffer-project
   :ensure t
   :after ibuffer
+  :bind ("C-x C-b" . ibuffer)
   :config
   ;; Cache project detection when possible.
   (setq ibuffer-project-use-cache t)
@@ -373,9 +278,9 @@
     (org-clock-persistence-insinuate)
     (setq org-clock-auto-clock-resolution 'when-no-clock-is-running))
   :bind
-  (("C-c a" . org-agenda)
-   ("C-c c" . org-capture)
-   ("C-c b" . org-switchb))
+  (("C-c o a" . org-agenda)
+   ("C-c o c" . org-capture)
+   ("C-c o b" . org-switchb))
   :hook
   (emacs-startup . org-agenda-list))
 
@@ -533,7 +438,6 @@ INDIVIDUAL-CAPFS to the list."
  (use-package eglot
   :ensure nil
   :bind (("C-c e e" . eglot)
-
          :map eglot-mode-map
          ;; LSP actions & refactoring
          ;; active only when eglot is running
@@ -544,7 +448,6 @@ INDIVIDUAL-CAPFS to the list."
          ("C-c e o" . eglot-code-action-organize-imports)
          ("C-c e q" . eglot-shutdown)
          ("C-c e h" . eldoc)
-
          ;; Diagnostics navigation
          ("M-n"     . flymake-goto-next-error)
          ("M-p"     . flymake-goto-prev-error))
