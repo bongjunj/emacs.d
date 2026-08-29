@@ -11,10 +11,6 @@
 (require 'tools)
 (require 'util)
 
-(setq vc-handled-backends '(Git))
-(setq confirm-kill-emacs 'yes-or-no-p)
-(setq auto-save-default nil)
-(setq inhibit-startup-screen t)
 (tool-bar-mode 0)
 (scroll-bar-mode 0)
 (global-display-line-numbers-mode 1)
@@ -22,6 +18,12 @@
 (blink-cursor-mode -1)
 (global-auto-revert-mode)
 (winner-mode 1)
+(which-key-mode)
+
+(setq vc-handled-backends '(Git))
+(setq confirm-kill-emacs 'yes-or-no-p)
+(setq auto-save-default nil)
+(setq inhibit-startup-screen t)
 (setq-default indent-tabs-mode nil)
 (setq-default tab-width 2)
 (setq compilation-scroll-output t)
@@ -30,9 +32,10 @@
 
 
 (setq frame-title-format
-      '(buffer-file-name "%b - %f"
-                         (dired-directory dired-directory
-                                          ("%b - Dir: " default-directory))))
+      '(buffer-file-name
+        "%b - %f"
+        (dired-directory dired-directory
+                         ("%b - Dir: " default-directory))))
 
 ;; TRAMP Optimization: https://coredumped.dev/2025/06/18/making-tramp-go-brrrr./
 (setq remote-file-name-inhibit-locks t
@@ -119,10 +122,7 @@
   :hook
   (dired-mode . dired-hide-details-mode))
 
-(use-package which-key
-  :ensure nil ;; built-in
-  :config
-  (which-key-mode))
+
 
 (use-package exec-path-from-shell
   :ensure t
