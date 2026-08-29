@@ -19,7 +19,6 @@
 (scroll-bar-mode 0)
 (global-display-line-numbers-mode 1)
 (global-visual-line-mode -1)
-(toggle-truncate-lines)
 (blink-cursor-mode -1)
 (global-auto-revert-mode)
 (winner-mode 1)
