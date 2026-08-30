@@ -181,7 +181,8 @@
 (use-package magit
   :ensure t
   :bind
-  ("C-x g" . magit-status)
+  (("C-x g" . magit-status)
+   ("C-x v F" . vc-pull))
   :config
   (setq magit-save-repository-buffers 'dontask)
   (setq magit-tramp-pipe-stty-settings 'pty)
@@ -315,34 +316,70 @@
   :init
   (marginalia-mode 1))
 
-(use-package corfu
-  :ensure t
-  :init
-  (setq tab-always-indent 'complete)
+(use-package completion-preview
+  :ensure nil
+  :demand t
+  :bind
+  ( :map completion-preview-active-mode-map
+    ("M-i" . completion-preview-insert-word)
+    ("M-n" . completion-preview-next-candidate)
+    ("M-p" . completion-preview-prev-candidate)
+    ("M-<return>" . completion-preview-insert)
+    ;; With TAB we effectively defer to the *Completions* buffer to
+    ;; show more completion candidates at once.
+    ("<tab>" . completion-preview-complete))
   :config
-  (setq corfu-preview-current nil)
-  (setq corfu-min-width 20)
+  (setq completion-preview-minimum-symbol-length 2)
+  (setq completion-preview-idle-delay 0.2)
+  (global-completion-preview-mode 1))
 
-  (setq corfu-popupinfo-delay '(1.25 . 0.5))
-  (corfu-popupinfo-mode 1) ; shows documentation after `corfu-popupinfo-delay'
+;; I have a more detailed configuration (and explanation) that works
+;; with Emacs 31 built-in completion capabilities:
+;; https://protesilaos.com/codelog/2026-07-29-emacs-default-minibuffer-completion-overview/.
+(use-package minibuffer
+  :ensure nil
+  :demand t
+  :bind
+  ( :map completion-in-region-mode-map
+    ("M-i" . minibuffer-choose-completion)
+    ("M-n" . minibuffer-next-completion)
+    ("M-p" . minibuffer-previous-completion))
+  :config
+  (setq completions-format 'one-column)
+  (setq completions-max-height 12)
+  (setq completion-auto-help t)
+  (setq completion-auto-select nil)
+  (setq minibuffer-visible-completions t)
+  (setq completion-eager-update t))
 
-  (global-corfu-mode 1)
+;; (use-package corfu
+;;   :ensure t
+;;   :init
+;;   (setq tab-always-indent 'complete)
+;;   :config
+;;   (setq corfu-preview-current nil)
+;;   (setq corfu-min-width 20)
 
-  ;; I also have (setq tab-always-indent 'complete) for TAB to complete
-  ;; when it does not need to perform an indentation change.
-  (define-key corfu-map (kbd "<tab>") #'corfu-complete)
+;;   (setq corfu-popupinfo-delay '(1.25 . 0.5))
+;;   (corfu-popupinfo-mode 1) ; shows documentation after `corfu-popupinfo-delay'
 
-  ;; Sort by input history (no need to modify `corfu-sort-function').
-  (with-eval-after-load 'savehist
-    (corfu-history-mode 1)
-    (add-to-list 'savehist-additional-variables 'corfu-history)))
+;;   (global-corfu-mode 1)
+
+;;   ;; I also have (setq tab-always-indent 'complete) for TAB to complete
+;;   ;; when it does not need to perform an indentation change.
+;;   (define-key corfu-map (kbd "<tab>") #'corfu-complete)
+
+;;   ;; Sort by input history (no need to modify `corfu-sort-function').
+;;   (with-eval-after-load 'savehist
+;;     (corfu-history-mode 1)
+;;     (add-to-list 'savehist-additional-variables 'corfu-history)))
 
 (use-package cape
   :ensure t
   :after corfu
   :config
   ;; This is for the global value.
-  (setq completion-at-point-functions '(cape-dabbrev cape-file))
+  (setq completion-at-point-functions '(cape-dabbrev cape-file cape-keyword))
 
   (defun prot/cape-super-set-local (capfs &optional individual-capfs)
     "Set `completion-at-point-functions' to current value plus CAPFS.
@@ -700,6 +737,7 @@ DIR must include a .project file to be considered a project."
 (use-package ace-window
   :ensure t
   :config
+  (setq aw-dispatch-when-more-than 3)
   (global-set-key (kbd "M-o") 'ace-window))
 
 (require 'ansi-color)
