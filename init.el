@@ -524,7 +524,7 @@ INDIVIDUAL-CAPFS to the list."
             :lisp-dir "nael")
   :custom
   (eldoc-idle-delay 0.1)
-  (eglot-send-changes-idle-time 0.1)
+  (eglot-send-changes-idle-time 0.2)
   :init
   (setq nael-prepare-lsp nil)
   :mode ("\\.lean\\'" . nael-mode))
@@ -592,8 +592,9 @@ DIR must include a .project file to be considered a project."
        "Read existing relevant buffers to understand the context clearly before you answer to the user. "
        "Respond concisely."))
   :bind
-  (("C-c g g" . my-gptel-project)
-   ("C-c g m" . gptel-menu)))
+  (("C-c a a" . my-gptel-project)
+   ("C-c a i" . gptel-inline)
+   ("C-c a m" . gptel-menu)))
 
 (use-package gptel-annotate
   :vc (:url "https://github.com/karthink/gptel-annotate"
