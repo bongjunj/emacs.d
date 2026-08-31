@@ -577,6 +577,7 @@ DIR must include a .project file to be considered a project."
 ;; Log-in to OpenAI with M-x gptel-openai-oauth-login
 (use-package gptel
   :ensure t
+  :vc (:url "https://github.com/karthink/gptel" :rev newest)
   :config
   (setq gptel-backend
         (gptel-make-openai-oauth "ChatGPT"))
@@ -623,13 +624,7 @@ DIR must include a .project file to be considered a project."
    . (lambda () (setq-local window-point-insertion-type t)))
   :config
   ;; Recommended - register macher tools and presets with gptel.
-  (macher-install)
-
-  ;; Enable macher infrastructure for tools/prompts in any buffer.
-  (macher-enable))
-
-(require 'gptel-annotate)
-;; (require 'gptel-presets)
+  (macher-install))
 
 (setq gptel-tools
       (list
