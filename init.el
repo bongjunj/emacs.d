@@ -775,3 +775,16 @@ DIR must include a .project file to be considered a project."
       'review-context
     :description "CONTEXT: source, Flymake, and ElDoc buffers"
     :context '(:eval (my-gptel--review-context)))
+
+(use-package ellm
+  :vc (:url "https://github.com/isamert/ellm.el")
+  :config
+  (require 'ellm-tools)
+  (require 'ellm-llm)
+  (require 'ellm-codex)
+  ;; Set this to not get bombarded by nonfree warnings
+  (setq llm-warn-on-nonfree nil)
+  (setq ellm-provider-alist
+      `((codex . (:provider ,(ellm-make-codex-provider :chat-model "gpt-5.6-terra")
+                  :models ("gpt-5.6-terra" "gpt-5.6-sol" "gpt-5.6-luna"))))))
+
