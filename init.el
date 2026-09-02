@@ -777,7 +777,8 @@ DIR must include a .project file to be considered a project."
     :context '(:eval (my-gptel--review-context)))
 
 (use-package ellm
-  :vc (:url "https://github.com/isamert/ellm.el")
+  :vc (:url "https://github.com/bongjunj/ellm.el"
+       :rev :newest)
   :config
   (require 'ellm-tools)
   (require 'ellm-llm)
@@ -785,6 +786,6 @@ DIR must include a .project file to be considered a project."
   ;; Set this to not get bombarded by nonfree warnings
   (setq llm-warn-on-nonfree nil)
   (setq ellm-provider-alist
-      `((codex . (:provider ,(ellm-make-codex-provider :chat-model "gpt-5.6-terra")
+      `((codex . (:provider ,(ellm-make-codex-provider :chat-model "gpt-5.6-sol")
                   :models ("gpt-5.6-terra" "gpt-5.6-sol" "gpt-5.6-luna"))))))
 
