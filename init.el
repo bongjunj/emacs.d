@@ -106,13 +106,13 @@
                           (ibuffer-project-generate-filter-groups)))))
 
 (set-face-attribute 'default nil
-                    :family "Iosevka"
+                    :family "Menlo"
                     :height 160
                     :weight 'regular
                     :slant 'normal)
 
 (set-face-attribute 'variable-pitch nil
-                    :family "Source Serif 4"
+                    :family "Helvetica"
                     :height 160
                     :weight 'regular
                     :slant 'normal)
