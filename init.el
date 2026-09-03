@@ -65,8 +65,7 @@
     (remove-hook 'compilation-mode-hook
                  #'tramp-compile-disable-ssh-controlmaster-options)))
 
-;; visual indicator at the column of width 80
-(setopt display-fill-column-indicator-column 80)
+(setopt display-fill-column-indicator-column 90)
 (add-hook 'prog-mode-hook
           (lambda () (display-fill-column-indicator-mode 1)))
 (add-hook 'markdown-mode-hook
