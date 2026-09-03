@@ -11,8 +11,11 @@
 (require 'tools)
 (require 'util)
 
-(tool-bar-mode 0)
-(scroll-bar-mode 0)
+
+(when (display-graphic-p)
+  (tool-bar-mode 0)
+  (scroll-bar-mode 0))
+
 (global-display-line-numbers-mode 1)
 (global-visual-line-mode -1)
 (blink-cursor-mode -1)
