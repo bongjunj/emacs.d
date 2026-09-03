@@ -14,7 +14,17 @@
 
 (when (display-graphic-p)
   (tool-bar-mode 0)
-  (scroll-bar-mode 0))
+  (scroll-bar-mode 0)
+  (set-face-attribute 'default nil
+                      :family "Menlo"
+                      :height 160
+                      :weight 'regular
+                      :slant 'normal)
+  (set-face-attribute 'variable-pitch nil
+                      :family "Helvetica"
+                      :height 160
+                      :weight 'regular
+                      :slant 'normal))
 
 (global-display-line-numbers-mode 1)
 (global-visual-line-mode -1)
@@ -107,17 +117,6 @@
               (setq-local ibuffer-filter-groups
                           (ibuffer-project-generate-filter-groups)))))
 
-(set-face-attribute 'default nil
-                    :family "Menlo"
-                    :height 160
-                    :weight 'regular
-                    :slant 'normal)
-
-(set-face-attribute 'variable-pitch nil
-                    :family "Helvetica"
-                    :height 160
-                    :weight 'regular
-                    :slant 'normal)
 
 (use-package dired
   :ensure nil ;; built-tin
