@@ -123,8 +123,6 @@
   :hook
   (dired-mode . dired-hide-details-mode))
 
-
-
 (use-package exec-path-from-shell
   :ensure t
   :init
@@ -138,6 +136,7 @@
 
 (use-package tex
   :ensure auctex
+  :if (display-graphic-p)
   :config
   ;; Parse file on load/save for macro completion
   (setq TeX-auto-save t)
@@ -167,6 +166,7 @@
 
 (use-package pdf-tools
   :ensure t
+  :if (display-graphic-p)
   :mode ("\\.pdf\\'" . pdf-view-mode)
   :hook
   (pdf-view-mode . (lambda () (display-line-numbers-mode -1)))
@@ -287,6 +287,7 @@
 
 (use-package vterm
   :ensure t
+  :if (display-graphic-p)
   :config
   (setq vterm-shell (executable-find "bash"))
   :hook
@@ -521,8 +522,7 @@ INDIVIDUAL-CAPFS to the list."
 
 ;; Lean4
 (use-package nael
-  :vc (:url "https://codeberg.org/mekeor/nael.git"
-            :lisp-dir "nael")
+  :vc (:url "https://codeberg.org/mekeor/nael.git")
   :custom
   (eldoc-idle-delay 0.1)
   (eglot-send-changes-idle-time 0.2)
@@ -583,7 +583,7 @@ DIR must include a .project file to be considered a project."
   (setq gptel-backend
         (gptel-make-openai-oauth "ChatGPT"))
   (setq gptel-default-mode 'org-mode)
-  (setq gptel-model 'gpt-5.6-luna)
+  (setq gptel-model 'gpt-5.6-sol)
   (setq-default gptel-max-tokens nil)
   (setq gptel-system-prompt
       (concat
