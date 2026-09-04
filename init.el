@@ -773,6 +773,7 @@ DIR must include a .project file to be considered a project."
     :context '(:eval (my-gptel--review-context)))
 
 (use-package ellm
+  :ensure t
   :vc (:url "https://github.com/bongjunj/ellm.el"
        :rev :newest)
   :config
