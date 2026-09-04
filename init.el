@@ -174,11 +174,6 @@
   (pdf-tools-install)
   (setq-default pdf-view-display-size 'fit-page))
 
-(defun bongjun/meow-leader-define-key (&rest bindings)
-  "Define Meow leader BINDINGS after Meow has loaded."
-  (with-eval-after-load 'meow
-    (apply #'meow-leader-define-key bindings)))
-
 (use-package magit
   :ensure t
   :bind
@@ -789,4 +784,12 @@ DIR must include a .project file to be considered a project."
   (setq ellm-provider-alist
       `((codex . (:provider ,(ellm-make-codex-provider :chat-model "gpt-5.6-sol")
                   :models ("gpt-5.6-terra" "gpt-5.6-sol" "gpt-5.6-luna"))))))
+
+(use-package meow
+  :ensure t
+  :config
+  (require 'bongjun-meow)
+  (require 'meow)
+  (meow-setup)
+  (meow-global-mode 1))
 

@@ -33,3 +33,5 @@ custom.el
 /.lsp-session-v1
 /persist/
 /tramp-rpc/
+/eshell/
+/nov-places
