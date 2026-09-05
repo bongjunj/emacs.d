@@ -126,7 +126,6 @@
               (setq-local ibuffer-filter-groups
                           (ibuffer-project-generate-filter-groups)))))
 
-
 (use-package dired
   :ensure nil ;; built-tin
   :hook
@@ -430,9 +429,9 @@ INDIVIDUAL-CAPFS to the list."
          ("C-x p b" . consult-project-buffer)
 
          ;; Custom M-# bindings for fast register access
-         ("M-#"     . consult-register-load)
+         ("M-S-'"     . consult-register-load)
          ("M-'"     . consult-register-store)
-         ("C-M-#"   . consult-register)
+         ("C-M-S-'"   . consult-register)
 
          ;; M-y replacement
          ("M-y"     . consult-yank-pop)
@@ -477,7 +476,7 @@ INDIVIDUAL-CAPFS to the list."
   (advice-add #'register-preview :override #'consult-register-window)
   (recentf-mode 1))
 
- (use-package eglot
+(use-package eglot
   :ensure nil
   :bind (("C-c e e" . eglot)
          :map eglot-mode-map
@@ -739,7 +738,7 @@ DIR must include a .project file to be considered a project."
   :ensure t
   :config
   (setq aw-scope 'frame)
-  (setq aw-dispatch-when-more-than 3)
+  (setq aw-dispatch-when-more-than 4)
   (global-set-key (kbd "M-o") 'ace-window))
 
 (require 'ansi-color)
@@ -800,6 +799,7 @@ DIR must include a .project file to be considered a project."
       `((codex . (:provider ,(ellm-make-codex-provider :chat-model "gpt-6-astra")
                   :models ("gpt-5.6-terra" "gpt-5.6-sol" "gpt-5.6-luna", "gpt-6-astra"))))))
 
+
 (use-package meow
   :ensure t
   :config
@@ -815,4 +815,3 @@ DIR must include a .project file to be considered a project."
   (setq speedbar-prefer-window t)
   (setq speedbar-use-images nil)
   (setq speedbar-show-unknown-files t))
-  
