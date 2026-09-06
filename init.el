@@ -729,6 +729,7 @@ DIR must include a .project file to be considered a project."
 (use-package ace-window
   :ensure t
   :config
+  (setq aw-scope 'frame)
   (setq aw-dispatch-when-more-than 3)
   (global-set-key (kbd "M-o") 'ace-window))
 
@@ -783,8 +784,8 @@ DIR must include a .project file to be considered a project."
   ;; Set this to not get bombarded by nonfree warnings
   (setq llm-warn-on-nonfree nil)
   (setq ellm-provider-alist
-      `((codex . (:provider ,(ellm-make-codex-provider :chat-model "gpt-5.6-sol")
-                  :models ("gpt-5.6-terra" "gpt-5.6-sol" "gpt-5.6-luna"))))))
+      `((codex . (:provider ,(ellm-make-codex-provider :chat-model "gpt-6-astra")
+                  :models ("gpt-5.6-terra" "gpt-5.6-sol" "gpt-5.6-luna", "gpt-6-astra"))))))
 
 (use-package meow
   :ensure t
@@ -794,3 +795,11 @@ DIR must include a .project file to be considered a project."
   (meow-setup)
   (meow-global-mode 1))
 
+(use-package speedbar
+  :ensure nil ;; built-in
+  :commands (speedbar)
+  :config
+  (setq speedbar-prefer-window t)
+  (setq speedbar-use-images nil)
+  (setq speedbar-show-unknown-files t))
+  
