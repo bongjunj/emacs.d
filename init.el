@@ -32,6 +32,7 @@
 (global-auto-revert-mode)
 (winner-mode 1)
 (which-key-mode)
+(menu-bar-mode -1)
 
 (setq vc-handled-backends '(Git))
 (setq confirm-kill-emacs 'yes-or-no-p)
