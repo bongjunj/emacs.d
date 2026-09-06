@@ -50,6 +50,14 @@
         (dired-directory dired-directory
                          ("%b - Dir: " default-directory))))
 
+;; for TUI emacs env
+(setq-default header-line-format
+              '(buffer-file-name
+                " %b - %f"
+                (dired-directory
+                 (" " dired-directory)
+                 (" %b - Dir: " default-directory))))
+
 ;; TRAMP Optimization: https://coredumped.dev/2025/06/18/making-tramp-go-brrrr./
 (setq remote-file-name-inhibit-locks t
       tramp-use-scp-direct-remote-copying t
@@ -589,7 +597,7 @@ DIR must include a .project file to be considered a project."
        "Read existing relevant buffers to understand the context clearly before you answer to the user. "
        "Respond concisely."))
   :bind
-  (("C-c a a" . my-gptel-project)
+  (("C-c a p" . my-gptel-project)
    ("C-c a i" . gptel-inline)
    ("C-c a m" . gptel-menu)))
 
@@ -776,7 +784,11 @@ DIR must include a .project file to be considered a project."
 (use-package ellm
   :ensure t
   :vc (:url "https://github.com/bongjunj/ellm.el"
-       :rev :newest)
+            :rev :newest)
+  :bind
+  (("C-c a a" . ellm-dwim)
+   ("C-c a l" . ellm-list)
+   ("C-c a u" . ellm-codex-usage))
   :config
   (require 'ellm-tools)
   (require 'ellm-llm)
