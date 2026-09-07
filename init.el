@@ -185,8 +185,7 @@
 (use-package magit
   :ensure t
   :bind
-  (("C-x g" . magit-status)
-   ("C-x v F" . vc-pull))
+  (("C-x g" . magit-status))
   :config
   (setq magit-save-repository-buffers 'dontask)
   (setq magit-tramp-pipe-stty-settings 'pty)
