@@ -271,9 +271,6 @@
              ":DATE: %u\n"
              ":END:\n\n"
              "** Objective\n\n%?\n\n"
-             "** Work Log\n\n"
-             "** Findings\n\n"
-             "** Problems\n\n"
              "** Next Week\n\n"
              "- [ ] ")
            :empty-lines 1)))
