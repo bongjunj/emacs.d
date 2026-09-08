@@ -358,7 +358,9 @@
   :after completion-preview
   :config
   (setq completion-at-point-functions '(cape-dabbrev cape-file cape-keyword))
-
+  ;; A missing spelling dictionary must not abort the other super-CAPF providers.
+  (advice-add 'ispell-completion-at-point :around #'cape-wrap-silent)
+  
   (defun prot/cape-super-set-local (capfs &optional individual-capfs)
     "Set `completion-at-point-functions' to current value plus CAPFS.
 Treat CAPFS and the default value as a super CAPF.  Then append the
