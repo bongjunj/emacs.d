@@ -377,7 +377,7 @@
 
 (use-package cape
   :ensure t
-  :after corfu
+  :after completion-preview
   :config
   ;; This is for the global value.
   (setq completion-at-point-functions '(cape-dabbrev cape-file cape-keyword))
@@ -401,7 +401,13 @@ INDIVIDUAL-CAPFS to the list."
     "Set up Cape for prose."
     (prot/cape-super-set-local '(cape-dict cape-dabbrev cape-emoji) '(cape-file)))
 
-  (add-hook 'text-mode-hook #'prot/cape-text-setup))
+  (add-hook 'text-mode-hook #'prot/cape-text-setup)
+
+  (defun my/ellm-completion-setup ()
+    "Prioritize file completion in eLLM buffers."
+    (add-hook 'completion-at-point-functions #'cape-file nil t))
+
+  (add-hook 'ellm-mode-hook #'my/ellm-completion-setup))
 
 (use-package consult
   :ensure t
