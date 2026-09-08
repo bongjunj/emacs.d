@@ -783,6 +783,7 @@ DIR must include a .project file to be considered a project."
             :rev :newest)
   :bind
   (("C-c a a" . ellm-dwim)
+   ("C-c a n" . ellm-new-buffer)
    ("C-c a l" . ellm-list)
    ("C-c a u" . ellm-codex-usage))
   :config
@@ -793,7 +794,10 @@ DIR must include a .project file to be considered a project."
   (setq llm-warn-on-nonfree nil)
   (setq ellm-provider-alist
       `((codex . (:provider ,(ellm-make-codex-provider :chat-model "gpt-6-astra")
-                  :models ("gpt-5.6-terra" "gpt-5.6-sol" "gpt-5.6-luna", "gpt-6-astra"))))))
+                            :models ("gpt-5.6-terra"
+                                     "gpt-5.6-sol"
+                                     "gpt-5.6-luna"
+                                     "gpt-6-astra"))))))
 
 
 (use-package meow
