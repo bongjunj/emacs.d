@@ -17,12 +17,12 @@
   (scroll-bar-mode 0)
   (set-face-attribute 'default nil
                       :family "Menlo"
-                      :height 160
+                      :height 150
                       :weight 'regular
                       :slant 'normal)
   (set-face-attribute 'variable-pitch nil
                       :family "Helvetica"
-                      :height 160
+                      :height 150
                       :weight 'regular
                       :slant 'normal))
 
