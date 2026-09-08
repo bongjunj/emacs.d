@@ -773,6 +773,12 @@ DIR must include a .project file to be considered a project."
    ("C-c a u" . ellm-codex-usage))
   :config
   (require 'ellm-tools)
+  ;; Let agents discover and read buffers without approval prompts.
+  (let ((profile (alist-get 'agent ellm-profiles)))
+    (dolist (tool '("buffers" "read_buffer"))
+      (cl-pushnew tool (alist-get 'tools profile) :test #'equal))
+    (setf (alist-get 'buffers (alist-get 'tool-permissions profile)) "allow"
+          (alist-get 'read_buffer (alist-get 'tool-permissions profile)) "allow"))
   (require 'ellm-llm)
   (require 'ellm-codex)
   ;; Set this to not get bombarded by nonfree warnings
