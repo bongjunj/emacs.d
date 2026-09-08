@@ -783,13 +783,13 @@ DIR must include a .project file to be considered a project."
                                      "gpt-6-astra"))))))
 
 
-(use-package meow
-  :ensure t
-  :config
-  (require 'bongjun-meow)
-  (require 'meow)
-  (meow-setup)
-  (meow-global-mode 1))
+;; (use-package meow
+;;   :ensure t
+;;   :config
+;;   (require 'bongjun-meow)
+;;   (require 'meow)
+;;   (meow-setup)
+;;   (meow-global-mode 1))
 
 (use-package speedbar
   :ensure nil ;; built-in
