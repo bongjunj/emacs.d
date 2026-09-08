@@ -353,33 +353,10 @@
   (setq minibuffer-visible-completions t)
   (setq completion-eager-update t))
 
-;; (use-package corfu
-;;   :ensure t
-;;   :init
-;;   (setq tab-always-indent 'complete)
-;;   :config
-;;   (setq corfu-preview-current nil)
-;;   (setq corfu-min-width 20)
-
-;;   (setq corfu-popupinfo-delay '(1.25 . 0.5))
-;;   (corfu-popupinfo-mode 1) ; shows documentation after `corfu-popupinfo-delay'
-
-;;   (global-corfu-mode 1)
-
-;;   ;; I also have (setq tab-always-indent 'complete) for TAB to complete
-;;   ;; when it does not need to perform an indentation change.
-;;   (define-key corfu-map (kbd "<tab>") #'corfu-complete)
-
-;;   ;; Sort by input history (no need to modify `corfu-sort-function').
-;;   (with-eval-after-load 'savehist
-;;     (corfu-history-mode 1)
-;;     (add-to-list 'savehist-additional-variables 'corfu-history)))
-
 (use-package cape
   :ensure t
   :after completion-preview
   :config
-  ;; This is for the global value.
   (setq completion-at-point-functions '(cape-dabbrev cape-file cape-keyword))
 
   (defun prot/cape-super-set-local (capfs &optional individual-capfs)
