@@ -410,7 +410,7 @@ INDIVIDUAL-CAPFS to the list."
          ("C-x p b" . consult-project-buffer)
 
          ;; Custom M-# bindings for fast register access
-         ("M-S-'"     . consult-register-load)
+         ("M-\""     . consult-register-load)
          ("M-'"     . consult-register-store)
          ("C-M-S-'"   . consult-register)
 
@@ -784,7 +784,7 @@ DIR must include a .project file to be considered a project."
   ;; Set this to not get bombarded by nonfree warnings
   (setq llm-warn-on-nonfree nil)
   (setq ellm-provider-alist
-      `((codex . (:provider ,(ellm-make-codex-provider :chat-model "gpt-6-astra")
+      `((codex . (:provider ,(ellm-make-codex-provider :chat-model "gpt-5.6-terra")
                             :models ("gpt-5.6-terra"
                                      "gpt-5.6-sol"
                                      "gpt-5.6-luna"
