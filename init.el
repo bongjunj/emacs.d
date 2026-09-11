@@ -216,7 +216,7 @@
   :ensure nil ;; built-tin
   :bind
   (:map dired-mode-map
-        ("C-c C-z" . #'bongjun/dired-do-compress-to-async))
+        ("c" . #'bongjun/dired-do-compress-to-async))
   :hook
   (dired-mode . dired-hide-details-mode))
 
