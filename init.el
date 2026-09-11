@@ -126,8 +126,97 @@
               (setq-local ibuffer-filter-groups
                           (ibuffer-project-generate-filter-groups)))))
 
+;;; Authored By Codex-GPT-5.6 (Terra)
+(defun bongjun/dired-start-async-command (command title on-success)
+  (let* ((dired-buffer (current-buffer))
+         (directory default-directory)
+         (buffer (get-buffer-create
+                  (format "*Dired async: %s*" title))))
+    (with-current-buffer buffer
+      (setq default-directory directory)
+      (special-mode)
+      (let ((inhibit-read-only t))
+        (erase-buffer)
+        (insert (format "Starting: %s\n\n%s\n\n"
+                        command title))))
+    (display-buffer buffer)
+    (let ((process
+           (with-current-buffer buffer
+             (start-file-process-shell-command
+              "dired-async-command" buffer command))))
+      (set-process-sentinel
+       process
+       (lambda (proc _event)
+         (when (memq (process-status proc) '(exit signal))
+           (with-current-buffer (process-buffer proc)
+             (let ((inhibit-read-only t))
+               (goto-char (point-max))
+               (insert
+                (format "\n\n%s\n"
+                        (if (and (eq (process-status proc) 'exit)
+                                 (zerop (process-exit-status proc)))
+                            "Finished successfully."
+                          (format "Failed (exit status %s)."
+                                  (process-exit-status proc)))))))
+           (when (and (eq (process-status proc) 'exit)
+                      (zerop (process-exit-status proc)))
+             (with-current-buffer dired-buffer
+               (dired-uncache directory)
+               (revert-buffer nil t)
+               (funcall on-success proc))))))
+      process)))
+
+(defun bongjun/dired-do-compress-to-async ()
+  "Asynchronously compress marked Dired files into one archive."
+  (interactive nil dired-mode)
+  (let* ((in-files (dired-get-marked-files nil nil nil nil t))
+         (out-file (expand-file-name (read-file-name "Compress to: ")))
+         (rule (cl-find-if
+                (lambda (entry)
+                  (string-match-p (car entry) out-file))
+                dired-compress-files-alist)))
+    (cond
+     ((not rule)
+      (user-error
+       "No compression rule found for %s; see `dired-compress-files-alist'"
+       out-file))
+
+     ((and (file-exists-p out-file)
+           (not (y-or-n-p
+                 (format "%s exists, overwrite? "
+                         (abbreviate-file-name out-file)))))
+      (message "Compression aborted"))
+
+     (t
+      (let ((command
+             (format-spec
+              (cdr rule)
+              `((?o . ,(shell-quote-argument (file-local-name out-file)))
+                (?i . ,(mapconcat
+                        (lambda (in-file)
+                          (shell-quote-argument
+                           (file-relative-name in-file)))
+                        in-files
+                        " "))))))
+        (bongjun/dired-start-async-command
+         command
+         (format "Compressing %s" (file-name-nondirectory out-file))
+         (lambda (_process)
+           ;; This runs only after a zero exit status.
+           (message
+            (ngettext "Compressed %d file to %s"
+                      "Compressed %d files to %s"
+                      (length in-files))
+            (length in-files)
+            (file-name-nondirectory out-file)))))))
+  ;; Preserve the upstream command's normal post-command handling.
+  (dired-post-do-command)))
+
 (use-package dired
   :ensure nil ;; built-tin
+  :bind
+  (:map dired-mode-map
+        ("C-c C-z" . #'bongjun/dired-do-compress-to-async))
   :hook
   (dired-mode . dired-hide-details-mode))
 
