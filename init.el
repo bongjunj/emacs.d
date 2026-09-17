@@ -220,6 +220,7 @@
   :commands dired
   :init
   (setq dired-omit-files "\\`\\.[^.].*\\'\\|\\`[.]?#\\|\\`[.][.]?\\'")
+  (setq dired-listing-switches "-al --group-directories-first")
   :bind
   (:map dired-mode-map
         ("c" . #'bongjun/dired-do-compress-to-async))
