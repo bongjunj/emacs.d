@@ -7,6 +7,9 @@
 (global-set-key (kbd "<C-wheel-up>") #'ignore)
 (global-set-key (kbd "<C-wheel-down>") #'ignore)
 
+(setq enable-recursive-minibuffers t)
+(minibuffer-depth-indicate-mode 1)
+
 (add-to-list 'load-path (file-name-concat user-emacs-directory "lisp"))
 (require 'tools)
 (require 'util)
@@ -214,11 +217,15 @@
 
 (use-package dired
   :ensure nil ;; built-tin
+  :commands dired
+  :init
+  (setq dired-omit-files "\\`\\.[^.].*\\'\\|\\`[.]?#\\|\\`[.][.]?\\'")
   :bind
   (:map dired-mode-map
         ("c" . #'bongjun/dired-do-compress-to-async))
   :hook
-  (dired-mode . dired-hide-details-mode))
+  (dired-mode . dired-hide-details-mode)
+  (dired-mode . dired-omit-mode))
 
 (use-package exec-path-from-shell
   :ensure t
@@ -310,68 +317,7 @@
   (with-eval-after-load 'meow
     (define-key dired-mode-map (kbd "K") #'dired-kill-subdir)))
 
-(use-package org
-  :ensure nil ;; built-in
-  :init
-  (setq org-agenda-span 'week)
-  (setq org-directory "~/Documents/orgfiles/")
-  (setq org-agenda-window-setup 'current-window)
-  (setq org-agenda-files (list org-directory))
-  :config
-  (setq org-blank-before-new-entry
-        '((heading . t)
-          (plain-list-item . nil)))
-  (setq org-M-RET-may-split-line '((default . nil)))
-  (setq org-insert-heading-respect-content t)
-  (setq org-log-done 'time)
-  (setq org-log-into-drawer t)
-  (setq org-todo-keywords
-        '((sequence "TODO(t)" "|" "DONE(d!)" "CANCELLED(c!)")))
-  (setq org-refile-targets
-        '((nil :maxlevel . 3)
-          (org-agenda-files :maxlevel . 3)))
-  (setq org-outline-path-complete-in-steps nil)
-  (setq org-refile-use-outline-path 'file)
-  (setq org-default-notes-file (concat org-directory "notes.org"))
-  (setq org-capture-templates
-        `(("t" "Todo" entry
-	         (file+headline "tasks.org" "Inbox")
-           "* TODO %? %^G\nDEADLINE: %^t\n%U\n  %i\n  %a"
-	         :empty-lines 1)
-          ("j" "Journal" entry
-	         (file+olp+datetree "journal.org")
-           "* %?\nEntered on %U\n  %i"
-	         :empty-lines 1)
-	        ("n" "Note" entry
-	         (file "notes.org")
-	         "* %^{Title}\n  %U\n  %a"
-	         :empty-lines 1)
-	        ("s" "Seminar" entry
-	         (file "seminars.org")
-	         ,(concat "%[" (file-name-concat org-directory "templates" "seminars.org") "]")
-           :empty-lines 1)
-          ("w" "Weekly research note"
-           entry
-           (file "research.org")
-           ,(concat
-             "* %<%G-W%V> — %^{Topic}\n"
-             ":PROPERTIES:\n"
-             ":DATE: %u\n"
-             ":END:\n\n"
-             "** Objective\n\n%?\n\n"
-             "** Next Week\n\n"
-             "- [ ] ")
-           :empty-lines 1)))
-  (with-eval-after-load 'org-clock
-    (setq org-clock-persist t)
-    (org-clock-persistence-insinuate)
-    (setq org-clock-auto-clock-resolution 'when-no-clock-is-running))
-  :bind
-  (("C-c o a" . org-agenda)
-   ("C-c o c" . org-capture)
-   ("C-c o b" . org-switchb))
-  :hook
-  (emacs-startup . org-agenda-list))
+
 
 (use-package vterm
   :ensure t
@@ -749,10 +695,15 @@ DIR must include a .project file to be considered a project."
     (meow-leader-define-key
      '("w t" . rotate-layout))))
 
+(setq flymake-fringe-indicator-position nil)
+(setq flymake-suppress-zero-counters t)
+
 (use-package diff-hl
   :ensure t
   :init
-  (global-diff-hl-mode))
+  (global-diff-hl-mode)
+  :config
+  (diff-hl-margin-mode (if (display-graphic-p) 0 1)))
 
 (use-package rmsbolt
   :vc (:url "git@github.com:bongjunj/rmsbolt.git"
@@ -873,20 +824,20 @@ DIR must include a .project file to be considered a project."
   ;; Set this to not get bombarded by nonfree warnings
   (setq llm-warn-on-nonfree nil)
   (setq ellm-provider-alist
-      `((codex . (:provider ,(ellm-make-codex-provider :chat-model "gpt-5.6-terra")
+      `((codex . (:provider ,(ellm-make-codex-provider :chat-model "gpt-5.6-luna")
                             :models ("gpt-5.6-terra"
                                      "gpt-5.6-sol"
                                      "gpt-5.6-luna"
                                      "gpt-6-astra"))))))
 
 
-;; (use-package meow
-;;   :ensure t
-;;   :config
-;;   (require 'bongjun-meow)
-;;   (require 'meow)
-;;   (meow-setup)
-;;   (meow-global-mode 1))
+(use-package meow
+  :ensure t
+  :config
+  (require 'bongjun-meow)
+  (require 'meow)
+  (meow-setup)
+  (meow-global-mode 1))
 
 (use-package speedbar
   :ensure nil ;; built-in
@@ -895,3 +846,4 @@ DIR must include a .project file to be considered a project."
   (setq speedbar-prefer-window t)
   (setq speedbar-use-images nil)
   (setq speedbar-show-unknown-files t))
+
