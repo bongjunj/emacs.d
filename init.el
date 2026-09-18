@@ -814,6 +814,15 @@ DIR must include a .project file to be considered a project."
    ("C-c a u" . ellm-codex-usage))
   :config
   (require 'ellm-tools)
+  ;; use explore mode by default
+  (defun my-ellm-default-explore-profile (configuration)
+    (plist-put configuration :profile "explore"))
+  (advice-add #'ellm--new-buffer-default-configuration
+              :filter-return
+              #'my-ellm-default-explore-profile)
+
+  ;; Remove agent
+  (setq ellm-profiles (assq-delete-all 'agent ellm-profiles))
   ;; Let agents discover and read buffers without approval prompts.
   (let ((profile (alist-get 'agent ellm-profiles)))
     (dolist (tool '("buffers" "read_buffer"))
