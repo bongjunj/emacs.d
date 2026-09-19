@@ -113,7 +113,7 @@
         modus-themes-italic-constructs t
         modus-themes-bold-constructs t)
   (setq modus-themes-common-palette-overrides nil)
-  (modus-themes-load-theme 'modus-operandi))
+  (modus-themes-load-theme 'modus-operandi-tinted))
 
 (use-package ibuffer-project
   :ensure t
