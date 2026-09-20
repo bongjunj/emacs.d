@@ -14,10 +14,11 @@
 (require 'tools)
 (require 'util)
 
-
+(menu-bar-mode -1)
 (when (display-graphic-p)
   (tool-bar-mode 0)
   (scroll-bar-mode 0)
+  (menu-bar-mode)
   (set-face-attribute 'default nil
                       :family "Menlo"
                       :height 150
@@ -35,7 +36,6 @@
 (global-auto-revert-mode)
 (winner-mode 1)
 (which-key-mode)
-(menu-bar-mode -1)
 
 (setq vc-handled-backends '(Git))
 (setq confirm-kill-emacs 'yes-or-no-p)
