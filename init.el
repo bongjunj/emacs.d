@@ -865,7 +865,7 @@ DIR must include a .project file to be considered a project."
 
 (use-package ellm
   :ensure t
-  :vc (:url "https://github.com/bongjunj/ellm.el"
+  :vc (:url "git@github.com:bongjunj/ellm.el.git"
             :rev :newest)
   :bind
   (("C-c a a" . ellm-dwim)
@@ -894,11 +894,8 @@ DIR must include a .project file to be considered a project."
   ;; Set this to not get bombarded by nonfree warnings
   (setq llm-warn-on-nonfree nil)
   (setq ellm-provider-alist
-      `((codex . (:provider ,(ellm-make-codex-provider :chat-model "gpt-5.6-luna")
-                            :models ("gpt-5.6-terra"
-                                     "gpt-5.6-sol"
-                                     "gpt-5.6-luna"
-                                     "gpt-6-astra"))))))
+      `((codex . (:provider ,(ellm-make-codex-provider :chat-model "gpt-6-luna")
+                            :models ("gpt-6-sol" "gpt-6-luna" "gpt-6-astra"))))))
 
 
 (use-package meow
