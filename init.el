@@ -220,7 +220,10 @@
   :commands dired
   :init
   (setq dired-omit-files "\\`\\.[^.].*\\'\\|\\`[.]?#\\|\\`[.][.]?\\'")
-  (setq dired-listing-switches "-al --group-directories-first")
+  (setq dired-listing-switches
+        (if (eq system-type 'darwin)
+            "-al"
+          "-al --group-directories-first"))
   :bind
   (:map dired-mode-map
         ("c" . #'bongjun/dired-do-compress-to-async))
@@ -895,16 +898,18 @@ DIR must include a .project file to be considered a project."
   (setq llm-warn-on-nonfree nil)
   (setq ellm-provider-alist
       `((codex . (:provider ,(ellm-make-codex-provider :chat-model "gpt-6-luna")
-                            :models ("gpt-6-sol" "gpt-6-luna" "gpt-6-astra"))))))
+                            :models ("gpt-6-sol"
+                                     "gpt-6-luna"
+                                     "gpt-6-astra"))))))
 
 
-(use-package meow
-  :ensure t
-  :config
-  (require 'bongjun-meow)
-  (require 'meow)
-  (meow-setup)
-  (meow-global-mode 1))
+;; (use-package meow
+;;   :ensure t
+;;   :config
+;;   (require 'bongjun-meow)
+;;   (require 'meow)
+;;   (meow-setup)
+;;   (meow-global-mode 1))
 
 (use-package speedbar
   :ensure nil ;; built-in
