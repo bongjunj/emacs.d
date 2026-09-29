@@ -383,6 +383,15 @@
    ("C-c o c" . org-capture)
    ("C-c o b" . org-switchb)))
 
+(setq org-todo-keyword-faces
+      `(("TODO" :foreground "#000000"
+                :background ,(modus-themes-get-color-value 'bg-red-intense)
+                :weight bold
+                :box (:line-width (1 . 1)))
+        ("DONE" :foreground ,(modus-themes-get-color-value 'green)
+                :weight bold)
+        ("CANCELLED" :foreground ,(modus-themes-get-color-value 'fg-dim) :weight normal)))
+
 (use-package vterm
   :ensure t
   :if (display-graphic-p)
