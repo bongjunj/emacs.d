@@ -323,10 +323,10 @@
 
 (use-package org
   :ensure nil ;; built-in
-  :if (file-directory-p "~/Documents/orgfiles/")
+  :if (file-directory-p "~/malloc099@gmail.com - Google Drive/org/")
   :init
   (setq org-agenda-span 'week)
-  (setq org-directory "~/Documents/orgfiles/")
+  (setq org-directory "~/malloc099@gmail.com - Google Drive/org/")
   (setq org-agenda-window-setup 'current-window)
   (setq org-agenda-files (list org-directory))
   :config
@@ -391,19 +391,6 @@
         ("DONE" :foreground ,(modus-themes-get-color-value 'green)
                 :weight bold)
         ("CANCELLED" :foreground ,(modus-themes-get-color-value 'fg-dim) :weight normal)))
-
-(use-package vterm
-  :ensure t
-  :if (display-graphic-p)
-  :config
-  (setq vterm-shell (executable-find "bash"))
-  :hook
-  ((vterm-mode . (lambda ()
-                   (display-line-numbers-mode -1)))
-   (vterm-mode . (lambda () (meow-mode -1)))))
-
-(with-eval-after-load 'meow
-  (add-hook 'meow-mode-state-list '(vterm-mode . ignore)))
 
 (use-package vertico
   :ensure t
