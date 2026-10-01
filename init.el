@@ -113,7 +113,7 @@
         modus-themes-italic-constructs t
         modus-themes-bold-constructs t)
   (setq modus-themes-common-palette-overrides nil)
-  (modus-themes-load-theme 'modus-operandi-tinted))
+  (modus-themes-load-theme 'modus-operandi))
 
 (use-package ibuffer-project
   :ensure t
@@ -513,6 +513,7 @@ INDIVIDUAL-CAPFS to the list."
          ("M-y"     . consult-yank-pop)
 
          ;; M-g bindings in `goto-map'
+         ("M-g a"   . consult-org-agenda)
          ("M-g e"   . consult-compile-error)
          ("M-g d"   . consult-flymake)
          ("M-g g"   . consult-goto-line)
@@ -689,25 +690,6 @@ DIR must include a .project file to be considered a project."
   :vc (:url "https://github.com/karthink/gptel-preset-collection"
        :rev :newest)
   :after gptel)
-
-(use-package gptel-inline
-  :vc (:url "https://github.com/karthink/gptel-inline"
-       :rev :newest)
-  :after gptel)
-
-(use-package macher
-  :ensure t
-  :custom
-  ;; The org UI has structured conversations and nice content folding.
-  (macher-action-buffer-ui 'org)
-  :hook
-  ;; Set up action buffer behavior to your liking.  Alternately, do
-  ;; this more generally in your `gptel-mode-hook'.
-  (macher-action-buffer-setup
-   . (lambda () (setq-local window-point-insertion-type t)))
-  :config
-  ;; Recommended - register macher tools and presets with gptel.
-  (macher-install))
 
 (setq gptel-tools
       (list
