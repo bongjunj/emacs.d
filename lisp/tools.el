@@ -48,6 +48,62 @@ nil, read from the beginning.  If END-LINE is nil, read to the end."
          (format "Could not read %s: %s"
                  path (error-message-string err))))))))
 
+(defun my-gptel-project-search (regexp &optional path max-results)
+  "Search REGEXP in the current project, optionally restricted to PATH.
+
+PATH is relative to the project root.  MAX-RESULTS limits returned matches."
+  (require 'seq)
+  (require 'subr-x)
+  (require 'project)
+  (let* ((project (project-current))
+         (root (and project (file-name-as-directory (project-root project))))
+         (search-path (or path "."))
+         (target (and root (expand-file-name search-path root)))
+         (limit (or max-results 100)))
+    (cond
+     ((not root)
+      "No current project was found.")
+     ((string-empty-p regexp)
+      "Search pattern must not be empty.")
+     ((or (< limit 1) (> limit 500))
+      "max_results must be between 1 and 500.")
+     ((not (or (equal target (directory-file-name root))
+               (file-in-directory-p target root)))
+      "Search path must be inside the current project.")
+     (t
+      (let* ((rg (executable-find "rg"))
+             (program (or rg (executable-find "grep")))
+             (buffer (generate-new-buffer " *my-gptel-project-search*"))
+             (default-directory root)
+             (status
+              (if rg
+                  (call-process rg nil buffer nil
+                                "--line-number" "--no-heading" "--color" "never"
+                                "--smart-case" "--max-count" (number-to-string (1+ limit))
+                                "--" regexp target)
+                (if program
+                    (call-process program nil buffer nil
+                                  "-RInE" "-I" "-e" regexp "--" target)
+                  "missing")))
+             (output (with-current-buffer buffer
+                       (buffer-substring-no-properties (point-min) (point-max))))
+             (lines (split-string (string-trim-right output) "\n" t)))
+        (unwind-protect
+            (cond
+             ((equal status "missing")
+              "Neither ripgrep (rg) nor grep is available.")
+             ((equal status 1)
+              (format "No matches for %s." regexp))
+             ((not (and (integerp status) (= status 0)))
+              (format "Search failed: %s" (string-trim output)))
+             (t
+              (concat
+               (mapconcat #'identity (seq-take lines limit) "\n")
+               (if (> (length lines) limit)
+                   (format "\n… results limited to %d matches." limit)
+                 ""))))
+          (kill-buffer buffer)))))))
+
 (defun my-gptel-read-buffer (buffer)
   "Return BUFFER contents."
   (let ((buf (get-buffer buffer)))
@@ -57,6 +113,21 @@ nil, read from the beginning.  If END-LINE is nil, read to the end."
       (save-restriction
         (widen)
         (buffer-substring-no-properties (point-min) (point-max))))))
+
+(defun my-gptel-list-buffer ()
+  "List buffers belonging to the current project."
+  (require 'project)
+  (if-let ((project (project-current)))
+      (mapconcat
+       (lambda (buffer)
+         (with-current-buffer buffer
+           (format "%s%s%s"
+                   (buffer-name)
+                   (if buffer-file-name (format " — %s" buffer-file-name) "")
+                   (if (buffer-modified-p) " [modified]" ""))))
+       (project-buffers project)
+       "\n")
+    "No current project was found."))
 
 (defun codel-edit-buffer (buffer-name old-string new-string)
   "In BUFFER-NAME, replace OLD-STRING with NEW-STRING."
@@ -93,10 +164,6 @@ nil, read from the beginning.  If END-LINE is nil, read to the end."
         (error "Buffer is not visiting a file: %s" buffer))
       (save-buffer)
       (format "Saved %s" buffer-file-name))))
-
-(defun my-gptel-list-buffer ()
-  "List buffers"
-  (mapconcat #'buffer-name (buffer-list) "\n"))
 
 (defun my-gptel-list-windows ()
   (mapconcat

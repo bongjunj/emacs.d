@@ -707,6 +707,60 @@ DIR must include a .project file to be considered a project."
         :async t
         :confirm t)
        (gptel-make-tool
+        :name "project_read_file"
+        :function #'my-gptel-read-file
+        :description
+        "Read a file using the current chat's working directory as the base, optionally limited to an inclusive line range."
+        :args
+        (list
+         '(:name "filepath"
+                 :type "string"
+                 :description "Path to the file, relative to the current chat's working directory or absolute.")
+         '(:name "start_line"
+                 :type "integer"
+                 :optional t
+                 :description "First line to read (1-based); defaults to 1.")
+         '(:name "end_line"
+                 :type "integer"
+                 :optional t
+                 :description "Last line to read (1-based, inclusive); defaults to the end of the file."))
+        :category "project")
+       (gptel-make-tool
+        :name "project_search"
+        :function #'my-gptel-project-search
+        :description
+        "Search for a regular expression in the current project. Uses ripgrep when available, otherwise grep."
+        :args
+        (list
+         '(:name "regexp"
+                 :type "string"
+                 :description "Regular expression to search for.")
+         '(:name "path"
+                 :type "string"
+                 :optional t
+                 :description "Optional file or directory path within the project; defaults to the whole project.")
+         '(:name "max_results"
+                 :type "integer"
+                 :optional t
+                 :description "Maximum number of matches to return; defaults to 100, maximum 500."))
+        :category "project")
+       (gptel-make-tool
+        :name "project_list_buffers"
+        :function #'my-gptel-list-buffer
+        :description "List the Emacs buffers that belong to the current project, including their file paths and modified status."
+        :args nil
+        :category "project")
+       (gptel-make-tool
+        :name "read_buffer"
+        :function #'my-gptel-read-buffer
+        :description "Read the full contents of an Emacs buffer by its name. Use project_list_buffers to find project buffer names."
+        :args
+        (list
+         '(:name "buffer"
+                 :type "string"
+                 :description "Name of the Emacs buffer to read."))
+        :category "project")
+       (gptel-make-tool
         :name "describe_symbol"
         :function #'my-gptel-describe-symbol
         :description
@@ -890,4 +944,3 @@ DIR must include a .project file to be considered a project."
   (setq speedbar-prefer-window t)
   (setq speedbar-use-images nil)
   (setq speedbar-show-unknown-files t))
-
