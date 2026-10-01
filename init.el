@@ -323,10 +323,10 @@
 
 (use-package org
   :ensure nil ;; built-in
-  :if (file-directory-p "~/malloc099@gmail.com - Google Drive/org/")
+  :if (file-directory-p "~/malloc099@gmail.com - Google Drive/My Drive/org/")
   :init
   (setq org-agenda-span 'week)
-  (setq org-directory "~/malloc099@gmail.com - Google Drive/org/")
+  (setq org-directory "~/malloc099@gmail.com - Google Drive/My Drive/org/")
   (setq org-agenda-window-setup 'current-window)
   (setq org-agenda-files (list org-directory))
   :config
@@ -660,9 +660,11 @@ DIR must include a .project file to be considered a project."
   :vc (:url "https://github.com/karthink/gptel" :rev newest)
   :config
   (setq gptel-backend
-        (gptel-make-openai-oauth "ChatGPT"))
+        (gptel-make-openai-oauth "ChatGPT"
+        :models '(gpt-5.5 gpt-5.6-sol gpt-5.6-terra
+                 gpt-5.6-luna gpt-6-astra gpt-6-luna)))
   (setq gptel-default-mode 'org-mode)
-  (setq gptel-model 'gpt-5.6-sol)
+  (setq gptel-model 'gpt-6-luna)
   (setq-default gptel-max-tokens nil)
   (setq gptel-system-prompt
       (concat
