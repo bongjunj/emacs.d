@@ -663,7 +663,7 @@ DIR must include a .project file to be considered a project."
   (setq gptel-backend
         (gptel-make-openai-oauth "ChatGPT"
         :models '(gpt-5.5 gpt-5.6-sol gpt-5.6-terra
-                          gpt-5.6-luna gpt-6-astra gpt-6-luna)
+                          gpt-5.6-luna gpt-6-astra gpt-6-sol gpt-6-luna)
         :request-params '(:reasoning (:effort "high"))))
   (setq gptel-default-mode 'org-mode)
   (setq gptel-model 'gpt-6-luna)
