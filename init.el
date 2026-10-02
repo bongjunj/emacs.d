@@ -730,7 +730,7 @@ DIR must include a .project file to be considered a project."
                  :description "Last line to read (1-based, inclusive); defaults to the end of the file."))
         :category "project")
        (gptel-make-tool
-        :name "project_search"
+        :name "project_grep"
         :function #'my-gptel-project-search
         :description
         "Search for a regular expression in the current project. Uses ripgrep when available, otherwise grep."
