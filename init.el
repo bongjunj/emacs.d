@@ -323,13 +323,19 @@
 
 (use-package org
   :ensure nil ;; built-in
-  :if (file-directory-p "~/malloc099@gmail.com - Google Drive/My Drive/org/")
+  :if (file-directory-p (expand-file-name "~/malloc099@gmail.com - Google Drive/My Drive/org/"))
   :init
   (setq org-agenda-span 'week)
   (setq org-directory "~/malloc099@gmail.com - Google Drive/My Drive/org/")
   (setq org-agenda-window-setup 'current-window)
-  (setq org-agenda-files (list org-directory))
   :config
+  ;; quote (') prevents evaluation of whatever follows it
+  ;; backquote (`) prevents evaluation of whatever follows it, except for
+  ;; unquote-ed (,) expressions. i.e., ,(...) is evaluated.
+  (setq org-agenda-files
+        `(,org-directory
+          ,(file-name-concat org-directory "projects")
+          ,(file-name-concat org-directory "courses")))
   (setq org-blank-before-new-entry
         '((heading . t)
           (plain-list-item . nil)))
@@ -341,7 +347,7 @@
         '((sequence "TODO(t)" "|" "DONE(d!)" "CANCELLED(c!)")))
   (setq org-refile-targets
         '((nil :maxlevel . 3)
-          (org-agenda-files :maxlevel . 3)))
+          (org-agenda-files :maxlevel . 5)))
   (setq org-outline-path-complete-in-steps nil)
   (setq org-refile-use-outline-path 'file)
   (setq org-default-notes-file (concat org-directory "notes.org"))
