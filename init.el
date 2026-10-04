@@ -321,12 +321,14 @@
   (with-eval-after-load 'meow
     (define-key dired-mode-map (kbd "K") #'dired-kill-subdir)))
 
+(setq bongjun/org-directory "~/Documents/orgfiles/")
+
 (use-package org
   :ensure nil ;; built-in
-  :if (file-directory-p (expand-file-name "~/malloc099@gmail.com - Google Drive/My Drive/org/"))
+  :if (file-directory-p (expand-file-name bongjun/org-directory))
   :init
   (setq org-agenda-span 'week)
-  (setq org-directory "~/malloc099@gmail.com - Google Drive/My Drive/org/")
+  (setq org-directory bongjun/org-directory)
   (setq org-agenda-window-setup 'current-window)
   :config
   ;; quote (') prevents evaluation of whatever follows it
@@ -664,6 +666,7 @@ DIR must include a .project file to be considered a project."
 ;; Log-in to OpenAI with M-x gptel-openai-oauth-login
 (use-package gptel
   :ensure t
+  :demand t
   :vc (:url "https://github.com/karthink/gptel" :rev newest)
   :config
   (setq gptel-backend
@@ -950,3 +953,15 @@ DIR must include a .project file to be considered a project."
   (setq speedbar-prefer-window t)
   (setq speedbar-use-images nil)
   (setq speedbar-show-unknown-files t))
+
+(use-package yasnippet
+  :ensure t
+  :init
+  (yas-global-mode 1)
+  :bind
+  ("C-c y" . yas-insert-snippet))
+
+(use-package yasnippet-snippets
+  :ensure t
+  :after yasnippet)
+
