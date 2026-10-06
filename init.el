@@ -6,8 +6,6 @@
 (global-set-key (kbd "<C-pinch>") #'ignore)
 (global-set-key (kbd "<C-wheel-up>") #'ignore)
 (global-set-key (kbd "<C-wheel-down>") #'ignore)
-(global-unset-key (kbd "M-]"))
-(global-unset-key (kbd "M-["))
 
 (setq enable-recursive-minibuffers t)
 (minibuffer-depth-indicate-mode 1)
