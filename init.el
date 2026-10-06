@@ -265,14 +265,7 @@
 
   ;; Auto-refresh the PDF buffer after compilation finishes
   (add-hook 'TeX-after-compilation-finished-functions
-	          #'TeX-revert-document-buffer)
-
-  (add-hook 'LaTeX-mode-hook
-	          (lambda ()
-	            (add-hook 'after-save-hook
-                        (lambda ()
-                          (TeX-command-run-all nil))
-                        nil t))))
+	          #'TeX-revert-document-buffer))
 
 (use-package pdf-tools
   :ensure t
