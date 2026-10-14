@@ -685,7 +685,6 @@ DIR must include a .project file to be considered a project."
        "You are a large language model living in Emacs and a helpful assistant. "
        "If asked about the emacs settings, "
        "read ~/.emacs.d/init.el to understand the current configuration. "
-       "Read ./AGENTS.md if exists. "
        "Read existing relevant buffers to understand the context clearly before you answer to the user. "
        "Respond concisely."))
   :bind
