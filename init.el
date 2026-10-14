@@ -6,8 +6,8 @@
 (global-set-key (kbd "<C-pinch>") #'ignore)
 (global-set-key (kbd "<C-wheel-up>") #'ignore)
 (global-set-key (kbd "<C-wheel-down>") #'ignore)
-(global-set-key (kbd "M-]") #'next-buffer)
-(global-set-key (kbd "M-[") #'previous-buffer)
+(global-unset-key (kbd "M-]"))
+(global-unset-key (kbd "M-["))
 
 (setq enable-recursive-minibuffers t)
 (minibuffer-depth-indicate-mode 1)
@@ -394,6 +394,16 @@
         ("DONE" :foreground ,(modus-themes-get-color-value 'green)
                 :weight bold)
         ("CANCELLED" :foreground ,(modus-themes-get-color-value 'fg-dim) :weight normal)))
+
+(use-package avy
+  :ensure t
+  :after isearch
+  :config
+  (avy-setup-default)
+  :bind
+  (("C-:" . 'avy-goto-char)
+   ("C-'" . 'avy-goto-char-timer)
+   ("M-g f" . 'avy-goto-line)))
 
 (use-package vertico
   :ensure t
