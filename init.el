@@ -36,6 +36,9 @@
 (global-auto-revert-mode)
 (winner-mode 1)
 (which-key-mode)
+(repeat-mode 1)
+
+(setq repeat-exit-timeout 5) ;; exit after 5 seconds of inactivity
 
 (setq vc-handled-backends '(Git))
 (setq confirm-kill-emacs 'yes-or-no-p)
@@ -402,6 +405,14 @@
   (("C-:" . 'avy-goto-char)
    ("C-'" . 'avy-goto-char-timer)
    ("M-g f" . 'avy-goto-line)))
+
+(use-package expreg
+  :ensure t
+  :bind (("C-=" . expreg-expand)
+         ("C--" . expreg-contract)
+         (:repeat-map expreg-repeat-map
+                      ("=" .  expreg-expand)
+                      ("-" .  expreg-contract))))
 
 (use-package vertico
   :ensure t
