@@ -978,3 +978,7 @@ DIR must include a .project file to be considered a project."
   :ensure t
   :after yasnippet)
 
+(defun bongjun/syntax-highlighted ()
+  (interactive)
+  (let ((html-buffer (htmlize-buffer)))
+    (browse-url-of-buffer html-buffer)))
