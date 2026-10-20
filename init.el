@@ -20,7 +20,7 @@
   (scroll-bar-mode 0)
   (menu-bar-mode)
   (set-face-attribute 'default nil
-                      :family "Menlo"
+                      :family "JetBrains Mono"
                       :height 150
                       :weight 'regular
                       :slant 'normal)
