@@ -984,7 +984,16 @@ DIR must include a .project file to be considered a project."
         agent-shell-show-config-icons nil
         agent-shell-show-busy-indicator nil
         agent-shell-show-welcome-message nil
-        agent-shell-preferred-agent-config 'codex))
+        agent-shell-chat-mode-enabled nil
+        agent-shell-preferred-agent-config 'codex)
+  :config
+  (define-key agent-shell-mode-map (kbd "TAB") nil)
+  (define-key agent-shell-mode-map (kbd "<backtab>") nil)
+  (define-key agent-shell-mode-map (kbd "M-n") #'agent-shell-next-item)
+  (define-key agent-shell-mode-map (kbd "M-p") #'agent-shell-previous-item)
+  (define-key agent-shell-ui-fragment-map (kbd "RET") nil)
+  (define-key agent-shell-ui-fragment-map
+              (kbd "TAB") #'agent-shell-ui-toggle-fragment))
 
 (use-package htmlize
   :ensure t
