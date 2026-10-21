@@ -976,24 +976,79 @@ DIR must include a .project file to be considered a project."
   (let ((html-buffer (htmlize-buffer)))
     (browse-url-of-buffer html-buffer)))
 
+(defun bongjun/agent-shell-permission-keys (original &rest args)
+  "Add consistent keys to an agent-shell tool permission prompt."
+  (let* ((text (apply original args))
+         (tool-call (plist-get args :tool-call))
+         (actions (map-elt tool-call :permission-actions))
+         (button-pos (text-property-any
+                      0 (length text) 'agent-shell-permission-button t text))
+         (button-map (and button-pos (get-text-property button-pos 'keymap text)))
+         (map (and button-map (keymap-parent button-map))))
+    (when map
+      (let* ((allow (seq-find (lambda (action)
+                                (equal (map-elt action :kind) "allow_once"))
+                              actions))
+             (decline (seq-find (lambda (action)
+                                  (equal (map-elt action :option-id) "decline"))
+                                actions))
+             (cancel (seq-find (lambda (action)
+                                 (equal (map-elt action :option-id) "cancel"))
+                               actions))
+             (reject (or decline
+                         (seq-find (lambda (action)
+                                     (equal (map-elt action :kind) "reject_once"))
+                                   actions))))
+        (cl-labels ((bind-choice (key action)
+                      (define-key map (kbd key)
+                        (if action
+                            (let ((option-id (map-elt action :option-id))
+                                  (label (map-elt action :option)))
+                              (lambda ()
+                                (interactive)
+                                (agent-shell--send-permission-response
+                                 :client (plist-get args :client)
+                                 :request-id (map-elt tool-call :permission-request-id)
+                                 :option-id option-id
+                                 :state (plist-get args :state)
+                                 :tool-call-id (plist-get args :tool-call-id)
+                                 :message-text label)))
+                          #'undefined))))
+          (bind-choice "C-c C-c" allow)
+          (bind-choice "C-c C-k" reject)
+          (bind-choice "C-c C-f" cancel))
+        (when-let* ((view (lookup-key map (kbd "v"))))
+          (define-key map (kbd "=") view))))
+    text))
+
 (use-package agent-shell
   :vc (:url "https://github.com/xenodium/agent-shell"
             :rev latest)
+  :bind (("C-c a s" . agent-shell)
+         :map agent-shell-mode-map
+         ("C-c C-c" . undefined)
+         ("C-c C-k" . agent-shell-interrupt)
+         ("TAB" . nil)
+         ("<backtab>" . nil)
+         ("M-n" . agent-shell-next-item)
+         ("M-p" . agent-shell-previous-item)
+         :map agent-shell-diff-mode-map
+         ("y" . undefined)
+         ("C-c C-c" . agent-shell-diff-accept-all)
+         ("C-c C-k" . agent-shell-diff-reject-all)
+         :map agent-shell-ui-fragment-map
+         ("RET" . nil)
+         ("TAB" . agent-shell-ui-toggle-fragment))
   :init
   (setq agent-shell-header-style 'text
         agent-shell-show-config-icons nil
-        agent-shell-show-busy-indicator nil
+        agent-shell-show-busy-indicator t
         agent-shell-show-welcome-message nil
         agent-shell-chat-mode-enabled nil
         agent-shell-preferred-agent-config 'codex)
   :config
-  (define-key agent-shell-mode-map (kbd "TAB") nil)
-  (define-key agent-shell-mode-map (kbd "<backtab>") nil)
-  (define-key agent-shell-mode-map (kbd "M-n") #'agent-shell-next-item)
-  (define-key agent-shell-mode-map (kbd "M-p") #'agent-shell-previous-item)
-  (define-key agent-shell-ui-fragment-map (kbd "RET") nil)
-  (define-key agent-shell-ui-fragment-map
-              (kbd "TAB") #'agent-shell-ui-toggle-fragment))
+  (advice-add 'agent-shell--make-tool-call-permission-text :around
+              #'bongjun/agent-shell-permission-keys))
 
 (use-package htmlize
   :ensure t
