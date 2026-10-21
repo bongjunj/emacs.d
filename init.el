@@ -355,8 +355,8 @@
            "* TODO %? %^G\nDEADLINE: %^t\n%U\n  %i\n  %a"
 	         :empty-lines 1)
           ("j" "Journal" entry
-	         (file+olp+datetree "journal.org")
-           "* %?\nEntered on %U\n  %i"
+           (file+olp+datetree "journal.org")
+           "* %<%Y-%m-%d>\nEntered on %U\n  %i"
 	         :empty-lines 1)
 	        ("n" "Note" entry
 	         (file "notes.org")
@@ -876,13 +876,6 @@ DIR must include a .project file to be considered a project."
 (use-package embark-consult
   :ensure t)
 
-(use-package ace-window
-  :ensure t
-  :config
-  (setq aw-scope 'frame)
-  (setq aw-dispatch-when-more-than 4)
-  (global-set-key (kbd "M-o") 'ace-window))
-
 (require 'ansi-color)
 (defun colorize-compilation-buffer ()
   (ansi-color-apply-on-region compilation-filter-start (point)))
@@ -987,3 +980,7 @@ DIR must include a .project file to be considered a project."
   :vc (:url "https://github.com/xenodium/agent-shell"
             :rev latest))
 
+(use-package htmlize
+  :ensure t
+  :config
+  (setq htmlize-output-type 'inline-css))
