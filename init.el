@@ -982,3 +982,8 @@ DIR must include a .project file to be considered a project."
   (interactive)
   (let ((html-buffer (htmlize-buffer)))
     (browse-url-of-buffer html-buffer)))
+
+(use-package agent-shell
+  :vc (:url "https://github.com/xenodium/agent-shell"
+            :rev latest))
+
