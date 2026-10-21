@@ -982,7 +982,9 @@ DIR must include a .project file to be considered a project."
   :init
   (setq agent-shell-header-style 'text
         agent-shell-show-config-icons nil
-        agent-shell-show-busy-indicator nil))
+        agent-shell-show-busy-indicator nil
+        agent-shell-show-welcome-message nil
+        agent-shell-preferred-agent-config 'codex))
 
 (use-package htmlize
   :ensure t
