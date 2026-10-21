@@ -978,7 +978,11 @@ DIR must include a .project file to be considered a project."
 
 (use-package agent-shell
   :vc (:url "https://github.com/xenodium/agent-shell"
-            :rev latest))
+            :rev latest)
+  :init
+  (setq agent-shell-header-style 'text
+        agent-shell-show-config-icons nil
+        agent-shell-show-busy-indicator nil))
 
 (use-package htmlize
   :ensure t
