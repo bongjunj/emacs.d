@@ -30,7 +30,13 @@
                       :weight 'regular
                       :slant 'normal))
 
-(global-display-line-numbers-mode 1)
+(global-display-line-numbers-mode -1)
+(define-globalized-minor-mode bongjun/global-file-line-numbers-mode
+  display-line-numbers-mode
+  (lambda ()
+    (when buffer-file-name
+      (display-line-numbers-mode 1))))
+(bongjun/global-file-line-numbers-mode 1)
 (global-visual-line-mode -1)
 (blink-cursor-mode -1)
 (global-auto-revert-mode)
@@ -1024,8 +1030,6 @@ DIR must include a .project file to be considered a project."
 (use-package agent-shell
   :vc (:url "https://github.com/xenodium/agent-shell"
             :rev latest)
-  :hook
-  (agent-shell-mode . (lambda () (display-line-numbers-mode -1)))
   :bind (("C-c a s" . agent-shell)
          :map agent-shell-mode-map
          ("C-c C-c" . undefined)
