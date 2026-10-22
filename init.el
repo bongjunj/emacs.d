@@ -116,7 +116,7 @@
         modus-themes-italic-constructs t
         modus-themes-bold-constructs t)
   (setq modus-themes-common-palette-overrides nil)
-  (modus-themes-load-theme 'modus-operandi))
+  (modus-themes-load-theme 'modus-operandi-tinted))
 
 (use-package ibuffer-project
   :ensure t
@@ -1024,6 +1024,8 @@ DIR must include a .project file to be considered a project."
 (use-package agent-shell
   :vc (:url "https://github.com/xenodium/agent-shell"
             :rev latest)
+  :hook
+  (agent-shell-mode . (lambda () (display-line-numbers-mode -1)))
   :bind (("C-c a s" . agent-shell)
          :map agent-shell-mode-map
          ("C-c C-c" . undefined)
