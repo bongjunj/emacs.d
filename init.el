@@ -652,6 +652,8 @@ INDIVIDUAL-CAPFS to the list."
 
 (use-package treesit-fold
   :ensure t
+  :bind
+  (("C-c z" . treesit-fold-toggle))
   :config
   (setq treesit-fold-line-count-show t)
   (global-treesit-fold-mode 1)
