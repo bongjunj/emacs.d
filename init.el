@@ -982,50 +982,99 @@ DIR must include a .project file to be considered a project."
   (let ((html-buffer (htmlize-buffer)))
     (browse-url-of-buffer html-buffer)))
 
+(defun bongjun/agent-shell-confirm (original prompt)
+  "Use confirmation chords for agent-shell's yes/no PROMPT.
+Call ORIGINAL for prompts outside agent-shell.  Check the call stack as
+well as the current mode to cover session creation and exit hooks."
+  (if (or (string-prefix-p "agent-shell-" (symbol-name major-mode))
+          (seq-some (lambda (frame)
+                      (let ((function (nth 1 frame)))
+                        (and (symbolp function)
+                             (or (eq function 'agent-shell)
+                                 (string-prefix-p "agent-shell-"
+                                                  (symbol-name function))))))
+                    (backtrace-frames)))
+      (let (answer)
+        (while (not answer)
+          (setq answer
+                (pcase (key-description
+                        (read-key-sequence
+                         (format "%s (C-c C-c yes, C-c C-k cancel) "
+                                 (string-trim-right prompt))))
+                  ("C-c C-c" 'yes)
+                  ("C-c C-k" 'no)
+                  ("C-g" (signal 'quit nil))
+                  (_ (message "Use C-c C-c to confirm or C-c C-k to cancel")
+                     nil))))
+        (eq answer 'yes))
+    (funcall original prompt)))
+
 (defun bongjun/agent-shell-permission-keys (original &rest args)
-  "Add consistent keys to an agent-shell tool permission prompt."
-  (let* ((text (apply original args))
-         (tool-call (plist-get args :tool-call))
+  "Render permission chords for approval, halting and declining.
+C-c C-k cancels the turn; C-c C-f declines so it can be corrected."
+  (let* ((tool-call (copy-alist (plist-get args :tool-call)))
          (actions (map-elt tool-call :permission-actions))
-         (button-pos (text-property-any
-                      0 (length text) 'agent-shell-permission-button t text))
-         (button-map (and button-pos (get-text-property button-pos 'keymap text)))
-         (map (and button-map (keymap-parent button-map))))
-    (when map
-      (let* ((allow (seq-find (lambda (action)
-                                (equal (map-elt action :kind) "allow_once"))
-                              actions))
-             (decline (seq-find (lambda (action)
-                                  (equal (map-elt action :option-id) "decline"))
-                                actions))
-             (cancel (seq-find (lambda (action)
-                                 (equal (map-elt action :option-id) "cancel"))
-                               actions))
-             (reject (or decline
-                         (seq-find (lambda (action)
-                                     (equal (map-elt action :kind) "reject_once"))
-                                   actions))))
-        (cl-labels ((bind-choice (key action)
-                      (define-key map (kbd key)
-                        (if action
-                            (let ((option-id (map-elt action :option-id))
-                                  (label (map-elt action :option)))
-                              (lambda ()
-                                (interactive)
-                                (agent-shell--send-permission-response
-                                 :client (plist-get args :client)
-                                 :request-id (map-elt tool-call :permission-request-id)
-                                 :option-id option-id
-                                 :state (plist-get args :state)
-                                 :tool-call-id (plist-get args :tool-call-id)
-                                 :message-text label)))
-                          #'undefined))))
-          (bind-choice "C-c C-c" allow)
-          (bind-choice "C-c C-k" reject)
-          (bind-choice "C-c C-f" cancel))
+         (allow (seq-find (lambda (action)
+                            (equal (map-elt action :kind) "allow_once"))
+                          actions))
+         (decline (seq-find (lambda (action)
+                              (equal (map-elt action :option-id) "decline"))
+                            actions))
+         (cancel (seq-find (lambda (action)
+                             (equal (map-elt action :option-id) "cancel"))
+                           actions))
+         (reject (or decline
+                     (seq-find (lambda (action)
+                                 (and (equal (map-elt action :kind) "reject_once")
+                                      (not (eq action cancel))))
+                               actions)))
+         (choices `(("C-c C-c" . ,allow)
+                    ("C-c C-k" . ,cancel)
+                    ("C-c C-f" . ,reject))))
+    ;; Copy the actions so labels, hover hints and keys agree, without
+    ;; changing the tool-call data kept in the session state.
+    (setq actions
+          (mapcar (lambda (action)
+                    (if-let* ((choice (rassq action choices)))
+                        (let ((copy (copy-alist action)))
+                          (setf (map-elt copy :char) (car choice)
+                                (map-elt copy :label)
+                                (format "%s (%s)" (map-elt action :option)
+                                        (car choice)))
+                          copy)
+                      action))
+                  actions))
+    (setf (map-elt tool-call :permission-actions) actions)
+    (let* ((text (apply original
+                        (plist-put (copy-sequence args) :tool-call tool-call)))
+           (button-pos (text-property-any
+                        0 (length text) 'agent-shell-permission-button t text))
+           (button-map (and button-pos (get-text-property button-pos 'keymap text)))
+           (map (and button-map (keymap-parent button-map))))
+      (when map
+        ;; The renderer installs an interrupt on C-c C-c after the action
+        ;; bindings.  Restore each chord from its actual button command.
+        (dolist (choice choices)
+          (let* ((key (car choice))
+                 (action (seq-find (lambda (action)
+                                     (equal (map-elt action :char) key))
+                                   actions))
+                 (pos (and action
+                           (text-property-any 0 (length text) 'help-echo
+                                              (map-elt action :label) text)))
+                 (button-map (and pos (get-text-property pos 'keymap text))))
+            (define-key map (kbd key)
+              (or (and button-map (lookup-key button-map (kbd "RET")))
+                  (when (equal key "C-c C-k")
+                    (let ((shell-buffer (map-elt (plist-get args :state) :buffer)))
+                      (lambda ()
+                        (interactive)
+                        (with-current-buffer shell-buffer
+                          (agent-shell-interrupt t)))))
+                  #'undefined))))
         (when-let* ((view (lookup-key map (kbd "v"))))
-          (define-key map (kbd "=") view))))
-    text))
+          (define-key map (kbd "=") view)))
+      text)))
 
 (use-package agent-shell
   :vc (:url "https://github.com/xenodium/agent-shell"
@@ -1042,6 +1091,10 @@ DIR must include a .project file to be considered a project."
          ("y" . undefined)
          ("C-c C-c" . agent-shell-diff-accept-all)
          ("C-c C-k" . agent-shell-diff-reject-all)
+         :map agent-shell-viewport-view-mode-map
+         ("y" . undefined)
+         ("C-c C-c" . agent-shell-viewport-reply-yes)
+         ("C-c C-k" . agent-shell-viewport-interrupt)
          :map agent-shell-ui-fragment-map
          ("RET" . nil)
          ("TAB" . agent-shell-ui-toggle-fragment))
@@ -1053,6 +1106,7 @@ DIR must include a .project file to be considered a project."
         agent-shell-chat-mode-enabled nil
         agent-shell-preferred-agent-config 'codex)
   :config
+  (advice-add 'y-or-n-p :around #'bongjun/agent-shell-confirm)
   (advice-add 'agent-shell--make-tool-call-permission-text :around
               #'bongjun/agent-shell-permission-keys))
 
