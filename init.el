@@ -618,6 +618,10 @@ INDIVIDUAL-CAPFS to the list."
 ;; use treesitters as default
 (setq treesit-enabled-modes t)
 
+(use-package markdown-ts-mode
+  :ensure nil
+  :defer t)
+
 ;; OCaml
 (use-package tuareg
   :ensure t)
