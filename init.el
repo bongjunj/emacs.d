@@ -1085,25 +1085,8 @@ C-c C-k cancels the turn; C-c C-f declines so it can be corrected."
 (use-package agent-shell
   :vc (:url "https://github.com/xenodium/agent-shell"
             :rev latest)
-  :bind (("C-c a s" . agent-shell)
-         :map agent-shell-mode-map
-         ("C-c C-c" . undefined)
-         ("C-c C-k" . agent-shell-interrupt)
-         ("TAB" . nil)
-         ("<backtab>" . nil)
-         ("M-n" . agent-shell-next-item)
-         ("M-p" . agent-shell-previous-item)
-         :map agent-shell-diff-mode-map
-         ("y" . undefined)
-         ("C-c C-c" . agent-shell-diff-accept-all)
-         ("C-c C-k" . agent-shell-diff-reject-all)
-         :map agent-shell-viewport-view-mode-map
-         ("y" . undefined)
-         ("C-c C-c" . agent-shell-viewport-reply-yes)
-         ("C-c C-k" . agent-shell-viewport-interrupt)
-         :map agent-shell-ui-fragment-map
-         ("RET" . nil)
-         ("TAB" . agent-shell-ui-toggle-fragment))
+  :bind
+  (("C-c a s" . agent-shell))
   :init
   (setq agent-shell-header-style 'text
         agent-shell-show-config-icons nil
