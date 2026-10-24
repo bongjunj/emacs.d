@@ -297,6 +297,13 @@
   (setq magit-revert-status-buffers nil)
   (setq magit-define-global-key-bindings 'default))
 
+;; Intergrate with GitHub
+(setq auth-sources '("~/.authinfo.gpg"))
+;; Ask for GPG passphrases in Emacs instead of an external pinentry.
+(setq epg-pinentry-mode 'loopback)
+(use-package forge
+  :ensure t
+  :after magit)
 
 ;;; Controls how to display buffers
 (setq switch-to-buffer-obey-display-actions nil)
