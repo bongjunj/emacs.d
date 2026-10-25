@@ -1100,11 +1100,8 @@ C-c C-k cancels the turn; C-c C-f declines so it can be corrected."
         agent-shell-show-busy-indicator t
         agent-shell-show-welcome-message nil
         agent-shell-chat-mode-enabled nil
-        agent-shell-preferred-agent-config 'codex)
-  :config
-  (advice-add 'y-or-n-p :around #'bongjun/agent-shell-confirm)
-  (advice-add 'agent-shell--make-tool-call-permission-text :around
-              #'bongjun/agent-shell-permission-keys))
+        agent-shell-preferred-agent-config 'codex))
+
 
 (use-package htmlize
   :ensure t
