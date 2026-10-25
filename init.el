@@ -659,12 +659,19 @@ INDIVIDUAL-CAPFS to the list."
 
 (use-package treesit-fold
   :ensure t
-  :bind
-  (("C-c z" . treesit-fold-toggle))
   :config
   (setq treesit-fold-line-count-show t)
   (global-treesit-fold-mode 1)
   (global-treesit-fold-indicators-mode 1))
+
+(use-package kirigami
+  :vc (:url "https://github.com/jamescherti/kirigami.el"
+            :rev :newest)
+  :demand t
+  :bind
+  (("C-c z" . kirigami-toggle-fold))
+  :config
+  (kirigami-global-mode 1))
 
 (cl-defmethod project-root ((project (head local)))
   (cdr project))
