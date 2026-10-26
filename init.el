@@ -19,14 +19,10 @@
   (tool-bar-mode 0)
   (scroll-bar-mode 0)
   (menu-bar-mode)
+  ;; https://github.com/y-kim/monoplex
   (set-face-attribute 'default nil
-                      :family "JetBrains Mono"
-                      :height 150
-                      :weight 'regular
-                      :slant 'normal)
-  (set-face-attribute 'variable-pitch nil
-                      :family "Helvetica"
-                      :height 150
+                      :family "Monoplex KR Nerd Font"
+                      :height 180
                       :weight 'regular
                       :slant 'normal))
 
