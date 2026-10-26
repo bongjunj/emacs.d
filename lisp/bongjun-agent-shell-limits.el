@@ -45,7 +45,7 @@ Use the same Codex installation and CODEX_HOME as codex-acp.")
                   '(300 10080)))))
 
 (defun bongjun/agent-shell-limits--indicator ()
-  "Format cached account limits, with reset times in the tooltip."
+  "Format cached limits and reset times, with full dates in the tooltip."
   (let ((windows (bongjun/agent-shell-limits--windows
                   bongjun/agent-shell-limits--snapshot)))
     (if (not windows)
@@ -68,7 +68,8 @@ Use the same Codex installation and CODEX_HOME as codex-acp.")
                    (format "%s resets %s"
                            (if (= (map-elt window 'windowDurationMins) 300)
                                "5h" "Weekly")
-                           (if-let* ((reset (map-elt window 'resetsAt)))
+                           (if-let* ((reset (map-elt window 'resetsAt))
+                                     ((numberp reset)))
                                (format-time-string "%a %b %d %H:%M %Z"
                                                    (seconds-to-time reset))
                              "at an unknown time")))
@@ -84,13 +85,18 @@ Use the same Codex installation and CODEX_HOME as codex-acp.")
          (mapconcat
           (lambda (window)
             (let* ((left (max 0 (min 100 (- 100 (map-elt window 'usedPercent)))))
-                   (expired (and (numberp (map-elt window 'resetsAt))
-                                 (<= (map-elt window 'resetsAt) (float-time)))))
+                   (reset (map-elt window 'resetsAt))
+                   (weekly (= (map-elt window 'windowDurationMins) 10080))
+                   (expired (and (numberp reset) (<= reset (float-time)))))
               (propertize
-               (format "%s: %s" (if (= (map-elt window 'windowDurationMins) 300)
-                                       "5h" "Weekly")
+               (format "%s: %s%s" (if weekly "Weekly" "5h")
                        ;; Header strings use mode-line percent escaping.
-                       (if expired "…" (format "%.0f%%%% left" left)))
+                       (if expired "…" (format "%.0f%%%%" left))
+                       (if (and (numberp reset) (not expired))
+                           (format-time-string
+                            (if weekly " ↻ %a %H:%M" " ↻ %H:%M")
+                            (seconds-to-time reset))
+                         ""))
                'face (cond ((or stale expired) 'shadow)
                            ((<= left 10) 'error)
                            ((<= left 20) 'warning)
