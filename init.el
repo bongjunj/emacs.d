@@ -817,6 +817,8 @@ DIR must include a .project file to be considered a project."
   (("C-c a s" . agent-shell)
    ("C-c a n" . agent-shell-new-shell)
    ("C-c a r" . agent-shell-restart)
+   ("C-c a a" . bongjun/agent-shell-switch-account)
+   ("C-c a l" . bongjun/agent-shell-account-login)
    ("C-c a w" . agent-shell-new-worktree-shell)
    ("C-c a c" . agent-shell-prompt-compose)
    :map agent-shell-ui-fragment-map
@@ -829,6 +831,7 @@ DIR must include a .project file to be considered a project."
         agent-shell-chat-mode-enabled nil
         agent-shell-preferred-agent-config 'codex)
   :config
+  (require 'bongjun-agent-shell-accounts)
   (require 'bongjun-agent-shell-limits))
 
 
