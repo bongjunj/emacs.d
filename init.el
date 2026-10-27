@@ -752,33 +752,6 @@ DIR must include a .project file to be considered a project."
   (let ((html-buffer (htmlize-buffer)))
     (browse-url-of-buffer html-buffer)))
 
-(defun bongjun/agent-shell-confirm (original prompt)
-  "Use confirmation chords for agent-shell's yes/no PROMPT.
-Call ORIGINAL for prompts outside agent-shell.  Check the call stack as
-well as the current mode to cover session creation and exit hooks."
-  (if (or (string-prefix-p "agent-shell-" (symbol-name major-mode))
-          (seq-some (lambda (frame)
-                      (let ((function (nth 1 frame)))
-                        (and (symbolp function)
-                             (or (eq function 'agent-shell)
-                                 (string-prefix-p "agent-shell-"
-                                                  (symbol-name function))))))
-                    (backtrace-frames)))
-      (let (answer)
-        (while (not answer)
-          (setq answer
-                (pcase (key-description
-                        (read-key-sequence
-                         (format "%s (C-c C-c yes, C-c C-k cancel) "
-                                 (string-trim-right prompt))))
-                  ("C-c C-c" 'yes)
-                  ("C-c C-k" 'no)
-                  ("C-g" (signal 'quit nil))
-                  (_ (message "Use C-c C-c to confirm or C-c C-k to cancel")
-                     nil))))
-        (eq answer 'yes))
-    (funcall original prompt)))
-
 (use-package agent-shell
   :vc (:url "https://github.com/xenodium/agent-shell"
             :rev latest)
