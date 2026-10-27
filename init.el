@@ -67,31 +67,6 @@
                  (" " dired-directory)
                  (" %b - Dir: " default-directory))))
 
-;; TRAMP Optimization: https://coredumped.dev/2025/06/18/making-tramp-go-brrrr./
-(setq remote-file-name-inhibit-locks t
-      tramp-use-scp-direct-remote-copying t
-      remote-file-name-inhibit-auto-save-visited t)
-
-(setq tramp-copy-size-limit (* 1024 1024) ;; 1MB
-      tramp-verbose 2)
-
-(setq tramp-default-method "ssh")
-
-(connection-local-set-profile-variables
- 'remote-direct-async-process
- '((tramp-direct-async-process . t)))
-
-(connection-local-set-profiles
- '(:application tramp :protocol "ssh")
- 'remote-direct-async-process)
-
-(setq magit-tramp-pipe-stty-settings 'pty)
-
-(with-eval-after-load 'tramp
-  (with-eval-after-load 'compile
-    (remove-hook 'compilation-mode-hook
-                 #'tramp-compile-disable-ssh-controlmaster-options)))
-
 (setopt display-fill-column-indicator-column 90)
 (add-hook 'prog-mode-hook
           (lambda () (display-fill-column-indicator-mode 1)))
@@ -756,12 +731,6 @@ DIR must include a .project file to be considered a project."
 (defun colorize-compilation-buffer ()
   (ansi-color-apply-on-region compilation-filter-start (point)))
 (add-hook 'compilation-filter-hook 'colorize-compilation-buffer)
-
-(use-package tramp-rpc
-  :after tramp
-  :vc (:url "https://github.com/ArthurHeymans/emacs-tramp-rpc"
-       :rev :newest
-       :lisp-dir "lisp"))
 
 (use-package speedbar
   :ensure nil ;; built-in
