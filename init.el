@@ -297,10 +297,6 @@
          (side . bottom)
          (slot . 2))))
 
-(with-eval-after-load 'dired
-  (with-eval-after-load 'meow
-    (define-key dired-mode-map (kbd "K") #'dired-kill-subdir)))
-
 (setq bongjun/org-directory "~/Documents/orgfiles/")
 
 (use-package org
