@@ -280,7 +280,14 @@
 (setq switch-to-buffer-obey-display-actions nil)
 (setq switch-to-buffer-in-dedicated-window 'pop)
 (setq display-buffer-alist
-      '(("\\*Help\\*"
+      '(("\\`\\*vc-[^*]+\\*\\'"
+         (display-buffer-in-side-window)
+         (side . bottom)
+         (slot . -1)
+         (window-height . 0.25)
+         (window-parameters . ((no-delete-other-windows . nil))))
+
+        ("\\*Help\\*"
          (display-buffer-reuse-window
           display-buffer-pop-up-window)
          (inhibit-same-window . t))
