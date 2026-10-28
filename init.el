@@ -721,6 +721,33 @@ DIR must include a .project file to be considered a project."
 
   :config
 
+  (defun bongjun/embark-target-git-commit ()
+    "Target a Git commit hash of 7 to 40 hexadecimal digits at point."
+    (unless (minibufferp)
+      (when-let* ((bounds (bounds-of-thing-at-point 'symbol))
+                  (hash (buffer-substring-no-properties
+                         (car bounds) (cdr bounds))))
+        (when (string-match-p "\\`[[:xdigit:]]\\{7,40\\}\\'" hash)
+          `(git-commit ,hash ,(car bounds) . ,(cdr bounds))))))
+
+  (defun bongjun/embark-magit-show-commit (commit)
+    "Show COMMIT in Magit using the current buffer's repository."
+    (interactive "sCommit: ")
+    (require 'magit)
+    (unless (magit-toplevel)
+      (user-error "This buffer's default-directory is not in a Git repository"))
+    (magit-show-commit commit))
+
+  (defvar bongjun/embark-git-commit-map
+    (make-sparse-keymap)
+    "Embark actions for Git commit hashes.")
+  (set-keymap-parent bongjun/embark-git-commit-map embark-general-map)
+  (define-key bongjun/embark-git-commit-map (kbd "g")
+              #'bongjun/embark-magit-show-commit)
+  (add-to-list 'embark-keymap-alist
+               '(git-commit . bongjun/embark-git-commit-map))
+  (add-to-list 'embark-target-finders #'bongjun/embark-target-git-commit)
+
   ;; Hide the mode line of the Embark live/completions buffers
   (add-to-list 'display-buffer-alist
                '("\\`\\*Embark Collect \\(Live\\|Completions\\)\\*"
@@ -763,7 +790,8 @@ DIR must include a .project file to be considered a project."
   :vc (:url "https://github.com/xenodium/agent-shell"
             :rev latest)
   :bind
-  (("C-c a s" . agent-shell))
+  (("C-c a s" . agent-shell)
+   ("C-c a c" . agent-shell-prompt-compose))
   :init
   (setq agent-shell-header-style 'text
         agent-shell-show-config-icons nil
