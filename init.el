@@ -791,6 +791,8 @@ DIR must include a .project file to be considered a project."
             :rev latest)
   :bind
   (("C-c a s" . agent-shell)
+   ("C-c a r" . agent-shell-restart)
+   ("C-c a w" . agent-shell-new-worktree-shell)
    ("C-c a c" . agent-shell-prompt-compose))
   :init
   (setq agent-shell-header-style 'text
