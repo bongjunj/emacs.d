@@ -21,7 +21,7 @@
   (menu-bar-mode)
   ;; https://github.com/y-kim/monoplex
   (set-face-attribute 'default nil
-                      :family "Monoplex KR Nerd Font"
+                      :family "Monoplex CJK Nerd Font"
                       :height 180
                       :weight 'regular
                       :slant 'normal))
