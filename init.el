@@ -821,8 +821,20 @@ DIR must include a .project file to be considered a project."
    ("C-c a l" . bongjun/agent-shell-account-login)
    ("C-c a w" . agent-shell-new-worktree-shell)
    ("C-c a c" . agent-shell-prompt-compose)
+   :map agent-shell-mode-map
+   ("TAB" . agent-shell-ui-toggle-fragment)
+   ("<tab>" . agent-shell-ui-toggle-fragment)
+   ("M-n" . comint-previous-input)
+   ("M-p" . comint-next-input)
    :map agent-shell-ui-fragment-map
-   ("TAB" . agent-shell-ui-toggle-fragment))
+   ("TAB" . agent-shell-ui-toggle-fragment)
+   ("<tab>" . agent-shell-ui-toggle-fragment)
+   :map agent-shell-viewport-view-mode-map
+   ("TAB" . agent-shell-ui-toggle-fragment)
+   ("<tab>" . agent-shell-ui-toggle-fragment)
+   :map agent-shell-viewport-edit-mode-map
+   ("M-n" . agent-shell-viewport-previous-history)
+   ("M-p" . agent-shell-viewport-next-history))
   :init
   (setq agent-shell-header-style 'text
         agent-shell-show-config-icons nil
