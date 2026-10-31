@@ -77,6 +77,16 @@
 (add-to-list 'package-archives '("melpa" . "https://melpa.org/packages/") t)
 (package-initialize)
 
+;; Start the browser bridge on local Macs, not in SSH sessions.
+(when (and (eq system-type 'darwin)
+           (not (getenv "SSH_CONNECTION")))
+  (use-package browser-gt
+    :ensure t
+    :demand t
+    :config
+    (require 'browser-gt-tab-manager)
+    (browser-gt-start)))
+
 (use-package modus-themes
   :ensure t
   :demand t
@@ -222,38 +232,41 @@
   :config
   (add-to-list 'tramp-remote-path 'tramp-own-remote-path))
 
-(use-package tex
-  :ensure auctex
-  :if (display-graphic-p)
-  :config
-  ;; Parse file on load/save for macro completion
-  (setq TeX-auto-save t)
-  (setq TeX-parse-self t)
-  ;; Default to PDF output instead of DVI
-  (setq-default TeX-PDF-mode t)
+(when (and (eq system-type 'darwin)
+           (not (getenv "SSH_CONNECTION")))
+  (use-package tex
+    :ensure auctex
+    :if (display-graphic-p)
+    :config
+    ;; Parse file on load/save for macro completion
+    (setq TeX-auto-save t)
+    (setq TeX-parse-self t)
+    ;; Default to PDF output instead of DVI
+    (setq-default TeX-PDF-mode t)
 
-  ;; --- 2. SyncTeX Configuration ---
-  ;; Enable SyncTeX for cross-navigation between .tex and .pdf
-  (setq TeX-source-correlate-mode t)
-  (setq TeX-source-correlate-method 'synctex)
-  (setq TeX-source-correlate-start-server t)
+    ;; Enable SyncTeX for cross-navigation between .tex and .pdf
+    (setq TeX-source-correlate-mode t)
+    (setq TeX-source-correlate-method 'synctex)
+    (setq TeX-source-correlate-start-server t)
 
-  ;; Set PDF Tools as the default viewer for AUCTeX
-  (setq TeX-view-program-selection '((output-pdf "PDF Tools")))
+    ;; Set PDF Tools as the default viewer for AUCTeX
+    (setq TeX-view-program-selection '((output-pdf "PDF Tools")))
 
-  ;; Auto-refresh the PDF buffer after compilation finishes
-  (add-hook 'TeX-after-compilation-finished-functions
-	          #'TeX-revert-document-buffer))
+    ;; Auto-refresh the PDF buffer after compilation finishes
+    (add-hook 'TeX-after-compilation-finished-functions
+              #'TeX-revert-document-buffer)))
 
-(use-package pdf-tools
-  :ensure t
-  :if (display-graphic-p)
-  :mode ("\\.pdf\\'" . pdf-view-mode)
-  :hook
-  (pdf-view-mode . (lambda () (display-line-numbers-mode -1)))
-  :config
-  (pdf-tools-install)
-  (setq-default pdf-view-display-size 'fit-page))
+(when (and (eq system-type 'darwin)
+           (not (getenv "SSH_CONNECTION")))
+  (use-package pdf-tools
+    :ensure t
+    :if (display-graphic-p)
+    :mode ("\\.pdf\\'" . pdf-view-mode)
+    :hook
+    (pdf-view-mode . (lambda () (display-line-numbers-mode -1)))
+    :config
+    (pdf-tools-install)
+    (setq-default pdf-view-display-size 'fit-page)))
 
 (use-package magit
   :ensure t
@@ -267,14 +280,6 @@
   (setq magit-commit-show-diff nil)
   (setq magit-revert-status-buffers nil)
   (setq magit-define-global-key-bindings 'default))
-
-;; Intergrate with GitHub
-(setq auth-sources '("~/.authinfo.gpg"))
-;; Ask for GPG passphrases in Emacs instead of an external pinentry.
-(setq epg-pinentry-mode 'loopback)
-(use-package forge
-  :ensure t
-  :after magit)
 
 ;;; Controls how to display buffers
 (setq switch-to-buffer-obey-display-actions nil)
