@@ -83,9 +83,21 @@
   (use-package browser-gt
     :ensure t
     :demand t
+    :bind (("C-c b b" . browser-gt-tab-jump)
+           ("C-c b t" . browser-gt-tab-manager))
     :config
     (require 'browser-gt-tab-manager)
     (browser-gt-start)))
+
+(when (and (eq system-type 'darwin)
+           (not (getenv "SSH_CONNECTION")))
+  (use-package zotero-connect
+    :vc (:url "git@github.com:bongjunj/zotero-connect.git")
+    :bind (("C-c r s" . zotero-connect-search)
+           ("C-c r b" . zotero-connect-insert-bibtex)
+           ("C-c r w" . zotero-connect-copy-bibtex)
+           ("C-c r c" . zotero-connect-insert-citation)
+           ("C-c r e" . zotero-connect-export-library))))
 
 (use-package modus-themes
   :ensure t
