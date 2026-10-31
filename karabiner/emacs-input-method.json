@@ -1,0 +1,80 @@
+{
+  "title": "Caps Lock as Control and Korean input with physical Control",
+  "rules": [
+    {
+      "description": "Caps Lock is Control; physical Control switches Korean (Emacs F18, macOS Caps Lock elsewhere)",
+      "manipulators": [
+        {
+          "type": "basic",
+          "from": {
+            "key_code": "caps_lock",
+            "modifiers": { "optional": ["any"] }
+          },
+          "to": [{ "key_code": "left_control" }]
+        },
+        {
+          "type": "basic",
+          "from": {
+            "key_code": "left_control",
+            "modifiers": { "optional": ["caps_lock"] }
+          },
+          "to": [
+            { "select_input_source": { "language": "^en$" } },
+            { "key_code": "f18", "repeat": false }
+          ],
+          "conditionns": [
+            {
+              "type": "frontmost_application_if",
+              "bundle_identifiers": ["^org\\.gnu\\.Emacs$"]
+            }
+          ]
+        },
+        {
+          "type": "basic",
+          "from": {
+            "key_code": "right_control",
+            "modifiers": { "optional": ["caps_lock"] }
+          },
+          "to": [
+            { "select_input_source": { "language": "^en$" } },
+            { "key_code": "f18", "repeat": false }
+          ],
+          "conditions": [
+            {
+              "type": "frontmost_application_if",
+              "bundle_identifiers": ["^org\\.gnu\\.Emacs$"]
+            }
+          ]
+        },
+        {
+          "type": "basic",
+          "from": {
+            "key_code": "left_control",
+            "modifiers": { "optional": ["any"] }
+          },
+          "to": [{ "key_code": "caps_lock" }],
+          "conditions": [
+            {
+              "type": "frontmost_application_unless",
+              "bundle_identifiers": ["^org\\.gnu\\.Emacs$"]
+            }
+          ]
+        },
+        {
+          "type": "basic",
+          "from": {
+            "key_code": "right_control",
+            "modifiers": { "optional": ["any"] }
+          },
+          "to": [{ "key_code": "caps_lock" }],
+          "conditions": [
+            {
+              "type": "frontmost_application_unless",
+              "bundle_identifiers": ["^org\\.gnu\\.Emacs$"]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

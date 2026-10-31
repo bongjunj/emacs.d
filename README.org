@@ -4,4 +4,27 @@ If you use multiple input source (e.g. Korean, English),
 turn off the shortcut to change input source at
 =System Settings > Keyboard Shorcuts... > Input Sources=.
 
+** Korean input with the physical Control key
 
+Karabiner maps physical Caps Lock to Control in all apps. Physical Control
+sends F18 in Emacs and Caps Lock elsewhere (for macOS input-source switching).
+These mappings belong in Complex Modifications: a Simple Modification from
+Caps Lock to Control would feed into the Control-to-F18 rule as well.
+
+Existing macOS mappings for the physical keyboard can stay, but keep
+Modifier Keys for the Karabiner virtual keyboard at their defaults to avoid
+remapping Karabiner's output a second time.
+
+Copy =karabiner/emacs-input-method.json= to
+=~/.config/karabiner/assets/complex_modifications/=, then enable its rule in
+Karabiner-Elements under Complex Modifications > Add predefined rule.
+
+In the Emacs GUI, physical Control selects an English macOS input source
+and sends F18 to toggle Emacs's built-in =korean-hangul= input method.
+Physical Caps Lock continues to act as Control for shortcuts. Other apps
+retain the macOS input-source switching behavior.
+
+Restart Emacs or evaluate the Darwin/F18 block near the start of =init.el=.
+Check that physical Control toggles Hangul and that physical Caps Lock + x
+still starts =C-x= while Hangul input is active. This rule does not target
+terminal Emacs.
