@@ -7,6 +7,12 @@
 (global-set-key (kbd "<C-wheel-up>") #'ignore)
 (global-set-key (kbd "<C-wheel-down>") #'ignore)
 
+;; Karabiner sends F18 for the physical Control key only in Emacs.
+;; Keep macOS on an English input source; compose Hangul inside Emacs.
+(when (eq system-type 'darwin)
+  (setq default-input-method "korean-hangul")
+  (keymap-global-set "<f18>" #'toggle-input-method))
+
 (setq enable-recursive-minibuffers t)
 (minibuffer-depth-indicate-mode 1)
 
