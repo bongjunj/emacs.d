@@ -818,7 +818,9 @@ DIR must include a .project file to be considered a project."
    ("C-c a n" . agent-shell-new-shell)
    ("C-c a r" . agent-shell-restart)
    ("C-c a w" . agent-shell-new-worktree-shell)
-   ("C-c a c" . agent-shell-prompt-compose))
+   ("C-c a c" . agent-shell-prompt-compose)
+   :map agent-shell-ui-fragment-map
+   ("TAB" . agent-shell-ui-toggle-fragment))
   :init
   (setq agent-shell-header-style 'text
         agent-shell-show-config-icons nil
