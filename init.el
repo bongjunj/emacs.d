@@ -17,8 +17,9 @@ TRAMP connection or whether Emacs uses a graphical display."
 (global-set-key (kbd "<C-wheel-up>") #'ignore)
 (global-set-key (kbd "<C-wheel-down>") #'ignore)
 
-;; Karabiner sends F18 for the physical Control key only in Emacs.
-;; Keep macOS on an English input source; compose Hangul inside Emacs.
+;; In GUI Emacs, Karabiner maps physical Control to F18 and selects English.
+;; F18 toggles Emacs Hangul input; physical Caps Lock serves as Control.
+;; See README.org for the macOS and Karabiner setup.
 (when (bongjun/local-machine-p)
   (setq default-input-method "korean-hangul")
   (keymap-global-set "<f18>" #'toggle-input-method))

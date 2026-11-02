@@ -1,30 +1,70 @@
-* MacOS settings
+* macOS 키보드 및 한글 입력 설정
 
-If you use multiple input source (e.g. Korean, English),
-turn off the shortcut to change input source at
-=System Settings > Keyboard Shorcuts... > Input Sources=.
+macOS 한글 입력 상태에서 Emacs 단축키를 누르면 =C-x= 대신 =C-ㅊ=처럼
+인식되어 사용하기 불편하다. 이를 해결하기 위해 Emacs에서는 macOS 입력
+소스를 영어로 두고 Emacs 자체 입력기로 한글을 입력한다. 단축키는 그대로
+사용하면서 물리 Control로 한영 입력을 전환할 수 있다.
 
-** Korean input with the physical Control key
+이 설정은 로컬 macOS에서 Karabiner-Elements와 Emacs 설정을 함께 사용한다.
 
-Karabiner maps physical Caps Lock to Control in all apps. Physical Control
-sends F18 in Emacs and Caps Lock elsewhere (for macOS input-source switching).
-These mappings belong in Complex Modifications: a Simple Modification from
-Caps Lock to Control would feed into the Control-to-F18 rule as well.
+** 키 동작
 
-Existing macOS mappings for the physical keyboard can stay, but keep
-Modifier Keys for the Karabiner virtual keyboard at their defaults to avoid
-remapping Karabiner's output a second time.
+| 물리 키 | Emacs GUI | 다른 앱 |
+|---------+-----------+---------|
+| Caps Lock | Control 단축키 (예: Caps Lock + x = C-x) | Control 단축키 |
+| 왼쪽/오른쪽 Control | Emacs 한글 입력 켜기/끄기 | macOS 입력 소스 전환용 Caps Lock |
 
-Copy =karabiner/emacs-input-method.json= to
-=~/.config/karabiner/assets/complex_modifications/=, then enable its rule in
-Karabiner-Elements under Complex Modifications > Add predefined rule.
+Emacs에서 물리 Control을 누르면 Karabiner가 macOS 입력 소스를 영어로
+선택하고 =F18=을 보낸다. =init.el=은 =F18=을 =toggle-input-method=에
+연결하고 기본 입력기로 Emacs의 =korean-hangul=을 지정한다. 따라서 Emacs의
+한글 입력 상태와 다른 앱의 macOS 입력 소스 상태는 별개다.
 
-In the Emacs GUI, physical Control selects an English macOS input source
-and sends F18 to toggle Emacs's built-in =korean-hangul= input method.
-Physical Caps Lock continues to act as Control for shortcuts. Other apps
-retain the macOS input-source switching behavior.
+역할은 다음과 같다.
 
-Restart Emacs or evaluate the Darwin/F18 block near the start of =init.el=.
-Check that physical Control toggles Hangul and that physical Caps Lock + x
-still starts =C-x= while Hangul input is active. This rule does not target
-terminal Emacs.
+- macOS: 영어와 한국어 입력 소스를 제공하고, 다른 앱에서 Caps Lock 입력으로
+  입력 소스를 전환한다. 보조 키 매핑은 시스템 기본값으로 둔다.
+- Karabiner: [[file:karabiner/emacs-input-method.json][emacs-input-method.json]]의 규칙으로 물리 키를 변환한다.
+- Emacs: Karabiner가 보낸 =F18=으로 자체 한글 입력기를 켜고 끈다.
+
+이 규칙은 GUI Emacs의 번들 ID =org.gnu.Emacs=를 대상으로 한다. 터미널
+Emacs는 다른 앱으로 취급하므로 이 =F18= 전환이 적용되지 않는다. =init.el=의
+한글 입력기와 =F18= 설정은 로컬 macOS에서만 적용되며 Linux와 SSH 세션에서는
+설정하지 않는다. 원격 터미널에서의 사용법은 아래 =SSH와 터미널 Emacs=를
+참고한다.
+
+** 최초 설정
+
+1. [[https://karabiner-elements.pqrs.org/][Karabiner-Elements]]를 설치하고 실행한다. 설정 안내에 따라 백그라운드
+   서비스, 손쉬운 사용, 입력 모니터링, 가상 키보드 드라이버를 허용한다.
+   자세한 내용은 [[https://karabiner-elements.pqrs.org/docs/getting-started/installation/][공식 설치 안내]]를 참고한다.
+2. macOS의 =시스템 설정 > 키보드 > 키보드 단축키 > 보조 키=에서 물리
+   키보드와 Karabiner 가상 키보드의 설정을 각각 기본값으로 복원한다.
+   이전에 보조 키를 변경했다면 로그아웃 후 다시 로그인해 변경을 적용한다.
+3. macOS의 =시스템 설정 > 키보드 > 텍스트 입력 > 편집=에서 영어 입력 소스
+   (예: ABC)와 한국어를 추가한다. 다른 앱에서도 물리 Control로 한영 전환을
+   사용하려면 Caps Lock으로 마지막으로 사용한 라틴 입력 소스와 전환하는
+   옵션을 켠다.
+** Karabiner 규칙 활성화
+
+아래는 이 저장소가 =~/.emacs.d=에 있을 때의 방법이다. 먼저 터미널에서
+규칙 파일을 Karabiner의 규칙 목록 폴더에 복사한다.
+
+#+begin_src sh
+mkdir -p ~/.config/karabiner/assets/complex_modifications
+cp ~/.emacs.d/karabiner/emacs-input-method.json ~/.config/karabiner/assets/complex_modifications/
+#+end_src
+
+다음으로 Karabiner 화면에서 규칙을 켠다.
+
+1. 응용 프로그램에서 =Karabiner-Elements=를 연다.
+2. =Profiles=에서 사용할 프로필을 선택한다.
+3. =Complex Modifications=를 열고 =Add predefined rule=을 누른다.
+4. 목록에서 =Caps Lock as Control and Korean input with physical Control=을
+   찾고, 그 아래의 다음 규칙 옆에 있는 =Enable=을 누른다.
+
+   =Caps Lock is Control; physical Control switches Korean (Emacs F18, macOS Caps Lock elsewhere)=
+
+5. =Complex Modifications= 화면에 규칙이 추가되었는지 확인한다. 파일을
+   복사하기만 해서는 활성화되지 않는다.
+6. Emacs를 다시 시작하거나 =init.el=의 해당 설정을 평가한다.
+

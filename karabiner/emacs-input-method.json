@@ -22,7 +22,7 @@
             { "select_input_source": { "language": "^en$" } },
             { "key_code": "f18", "repeat": false }
           ],
-          "conditionns": [
+          "conditions": [
             {
               "type": "frontmost_application_if",
               "bundle_identifiers": ["^org\\.gnu\\.Emacs$"]
