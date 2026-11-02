@@ -690,10 +690,10 @@ DIR must include a .project file to be considered a project."
 
 (use-package rotate
   :ensure t
-  :init
-  (with-eval-after-load 'meow
-    (meow-leader-define-key
-     '("w t" . rotate-layout))))
+  :bind
+  (("C-x w o o" . rotate-window)
+   (:repeat-map rotate-repeat-map
+                 ("o" . rotate-window))))
 
 (setq flymake-fringe-indicator-position nil)
 (setq flymake-suppress-zero-counters t)
