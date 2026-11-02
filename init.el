@@ -17,7 +17,6 @@
 (minibuffer-depth-indicate-mode 1)
 
 (add-to-list 'load-path (file-name-concat user-emacs-directory "lisp"))
-(require 'tools)
 (require 'kvpn)
 (setq kvpn-program (expand-file-name "~/kaist-openconnect/kvpn"))
 (add-to-list 'load-path (file-name-concat user-emacs-directory "lisp/hwpx-mode"))
