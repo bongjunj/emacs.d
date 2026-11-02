@@ -1,6 +1,16 @@
 ;; -*- lexical-binding: t; -*-
 
 (require 'cl-lib)
+
+(defun bongjun/local-machine-p ()
+  "Return non-nil when Emacs runs on a local macOS workstation.
+Linux hosts and Emacs processes started through SSH are remote for
+this configuration.  This does not depend on the current buffer's
+TRAMP connection or whether Emacs uses a graphical display."
+  (and (eq system-type 'darwin)
+       (not (getenv "SSH_CONNECTION"))
+       (not (getenv "SSH_TTY"))))
+
 (setq custom-file "~/.emacs.d/custom.el")
 ;; (load custom-file nil nil)
 (global-set-key (kbd "<C-pinch>") #'ignore)
@@ -9,7 +19,7 @@
 
 ;; Karabiner sends F18 for the physical Control key only in Emacs.
 ;; Keep macOS on an English input source; compose Hangul inside Emacs.
-(when (eq system-type 'darwin)
+(when (bongjun/local-machine-p)
   (setq default-input-method "korean-hangul")
   (keymap-global-set "<f18>" #'toggle-input-method))
 
@@ -17,10 +27,12 @@
 (minibuffer-depth-indicate-mode 1)
 
 (add-to-list 'load-path (file-name-concat user-emacs-directory "lisp"))
-(require 'kvpn)
-(setq kvpn-program (expand-file-name "~/kaist-openconnect/kvpn"))
-(add-to-list 'load-path (file-name-concat user-emacs-directory "lisp/hwpx-mode"))
-(require 'hwpx-mode)
+;; Personal workstation tools; skip these on Linux experiment servers.
+(when (bongjun/local-machine-p)
+  (require 'kvpn)
+  (setq kvpn-program (expand-file-name "~/kaist-openconnect/kvpn"))
+  (add-to-list 'load-path (file-name-concat user-emacs-directory "lisp/hwpx-mode"))
+  (require 'hwpx-mode))
 
 (menu-bar-mode -1)
 (when (display-graphic-p)
@@ -86,8 +98,7 @@
 (package-initialize)
 
 ;; Start the browser bridge on local Macs, not in SSH sessions.
-(when (and (eq system-type 'darwin)
-           (not (getenv "SSH_CONNECTION")))
+(when (bongjun/local-machine-p)
   (use-package browser-gt
     :ensure t
     :demand t
@@ -97,8 +108,7 @@
     (require 'browser-gt-tab-manager)
     (browser-gt-start)))
 
-(when (and (eq system-type 'darwin)
-           (not (getenv "SSH_CONNECTION")))
+(when (bongjun/local-machine-p)
   (use-package zotero-connect
     :vc (:url "git@github.com:bongjunj/zotero-connect.git")
     :bind (("C-c r s" . zotero-connect-search)
@@ -252,8 +262,7 @@
   :config
   (add-to-list 'tramp-remote-path 'tramp-own-remote-path))
 
-(when (and (eq system-type 'darwin)
-           (not (getenv "SSH_CONNECTION")))
+(when (bongjun/local-machine-p)
   (use-package tex
     :ensure auctex
     :if (display-graphic-p)
@@ -276,8 +285,7 @@
     (add-hook 'TeX-after-compilation-finished-functions
               #'TeX-revert-document-buffer)))
 
-(when (and (eq system-type 'darwin)
-           (not (getenv "SSH_CONNECTION")))
+(when (bongjun/local-machine-p)
   (use-package pdf-tools
     :ensure t
     :if (display-graphic-p)
@@ -712,8 +720,6 @@ DIR must include a .project file to be considered a project."
   :config
   (setq rmsbolt-asm-format "intel")
   (setq rmsbolt-automatic-recompile nil))
-
-
 
 (use-package alert
   :ensure t
