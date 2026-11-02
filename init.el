@@ -20,6 +20,8 @@
 (require 'tools)
 (require 'kvpn)
 (setq kvpn-program (expand-file-name "~/kaist-openconnect/kvpn"))
+(add-to-list 'load-path (file-name-concat user-emacs-directory "lisp/hwpx-mode"))
+(require 'hwpx-mode)
 
 (menu-bar-mode -1)
 (when (display-graphic-p)
