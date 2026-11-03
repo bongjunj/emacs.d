@@ -225,6 +225,36 @@ any device."
 (advice-add 'agent-shell--make-header-model :around
             #'bongjun/agent-shell--account-header)
 
+(defun bongjun/agent-shell--authentication-hint (original &rest args)
+  "Preserve ORIGINAL request handling and explain account login failures.
+ARGS are the keyword arguments to `agent-shell--send-request'."
+  (let* ((state (plist-get args :state))
+         (buffer (plist-get args :buffer))
+         (account (map-nested-elt state '(:agent-config :bongjun-account)))
+         (on-failure (plist-get args :on-failure)))
+    (when account
+      (setq args
+            (plist-put
+             args :on-failure
+             (lambda (acp-error raw-message)
+               (unwind-protect
+                   (when on-failure (funcall on-failure acp-error raw-message))
+                 (when (and (buffer-live-p buffer)
+                            (string-match-p
+                             "[Aa]uthentication required"
+                             (or (map-elt acp-error 'message) "")))
+                   (with-current-buffer buffer
+                     (agent-shell--update-bootstrapping-fragment
+                      :state state :block-id "bongjun-account-login"
+                      :body (agent-shell--make-boxed-message
+                             :text (format "Sign in to Codex account %s with C-c a l, then start a new shell with C-c a n." account))))))))))
+    (apply original args)))
+
+(unless (advice-member-p #'bongjun/agent-shell--authentication-hint
+                         'agent-shell--send-request)
+  (advice-add 'agent-shell--send-request :around
+              #'bongjun/agent-shell--authentication-hint))
+
 (defvar bongjun/agent-shell--base-agent-configs agent-shell-agent-configs
   "Agent configuration source before installing the account integration.")
 
