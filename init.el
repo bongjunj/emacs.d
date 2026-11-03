@@ -802,17 +802,6 @@ DIR must include a .project file to be considered a project."
   (setq speedbar-use-images nil)
   (setq speedbar-show-unknown-files t))
 
-(use-package yasnippet
-  :ensure t
-  :init
-  (yas-global-mode 1)
-  :bind
-  ("C-c y" . yas-insert-snippet))
-
-(use-package yasnippet-snippets
-  :ensure t
-  :after yasnippet)
-
 (defun bongjun/syntax-highlighted ()
   (interactive)
   (let ((html-buffer (htmlize-buffer)))
