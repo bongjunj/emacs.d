@@ -31,7 +31,7 @@ sessions, and skills; the existing ~/.codex directory is independent."
 (defcustom bongjun/agent-shell-current-account nil
   "Account used when opening a shell outside an existing account shell.
 If nil or no longer configured, use the first entry in
-`bongjun/agent-shell-accounts'.  Switching accounts updates this value."
+`bongjun/agent-shell-accounts'.  Selecting an account updates this value."
   :type '(choice (const :tag "First configured account" nil) string)
   :group 'bongjun-agent-shell-accounts)
 
@@ -178,33 +178,71 @@ With a prefix argument NEW-SHELL, always start another shell."
   (interactive (list (bongjun/agent-shell--read-account) current-prefix-arg))
   (bongjun/agent-shell--open-account account new-shell))
 
+(defun bongjun/agent-shell--select-after-login (account shell directory)
+  "Select ACCOUNT, replacing SHELL's session if necessary, in DIRECTORY."
+  (if (buffer-live-p shell)
+      (with-current-buffer shell
+        (let* ((state agent-shell--state)
+               (old-config (map-elt state :agent-config)))
+          (unless (equal account (map-elt old-config :bongjun-account))
+            (let ((new-config (bongjun/agent-shell-make-codex-config account)))
+              (unwind-protect
+                  (progn
+                    (setf (map-elt state :agent-config) new-config)
+                    (agent-shell-restart))
+                (when (buffer-live-p shell)
+                  (setf (map-elt state :agent-config) old-config)))))))
+    (let ((default-directory directory))
+      (bongjun/agent-shell--open-account account)))
+  (setq bongjun/agent-shell-current-account account)
+  (message "Selected Codex account %s" account))
+
 ;;;###autoload
 (defun bongjun/agent-shell-account-login (account &optional method)
-  "Run Codex login for ACCOUNT in a dedicated comint buffer.
-METHOD is `browser' (the default) or `device'.  Interactively, a
-prefix argument selects device login.  Follow its URL and code on
-any device."
+  "Sign in if needed and select ACCOUNT for the current shell.
+Changing accounts restarts the current shell with a fresh session.
+METHOD is `browser' (the default) or `device'; a prefix selects device."
   (interactive (list (bongjun/agent-shell--read-account)
                      (if current-prefix-arg 'device 'browser)))
   (bongjun/agent-shell--check-local)
   (unless (memq method '(nil device browser))
     (user-error "Unknown Codex login method: %s" method))
-  (let* ((home (bongjun/agent-shell--account-home account))
+  (let* ((shell (when (derived-mode-p 'agent-shell-mode
+                                      'agent-shell-viewport-view-mode
+                                      'agent-shell-viewport-edit-mode)
+                  (agent-shell-shell-buffer :no-create t :no-error t)))
+         (directory (if shell
+                        (with-current-buffer shell (agent-shell-cwd))
+                      (agent-shell-cwd)))
+         (home (bongjun/agent-shell--account-home account))
          (environment (bongjun/agent-shell--account-environment home))
          (process-environment (append environment process-environment))
          (codex (getenv "CODEX_PATH"))
          (name (format "Codex login [%s]" account))
          (buffer (get-buffer-create (format "*%s*" name))))
     (bongjun/agent-shell--ensure-account-home home)
-    (if (comint-check-proc buffer)
-        (progn
-          (pop-to-buffer buffer)
-          (message "A Codex login for %s is already running" account))
+    (if (zerop (process-file codex nil nil nil "login" "status"))
+        (bongjun/agent-shell--select-after-login account shell directory)
+      (when (comint-check-proc buffer)
+        (user-error "A Codex login for %s is already running" account))
       (let ((default-directory (file-name-as-directory home)))
         (apply #'make-comint-in-buffer name buffer codex nil
                (if (eq method 'device)
                    '("login" "--device-auth")
-                 '("login"))))
+                 '("login")))
+        (let* ((process (get-buffer-process buffer))
+               (original-sentinel (process-sentinel process)))
+          (set-process-sentinel
+           process
+           (lambda (proc event)
+             (when original-sentinel (funcall original-sentinel proc event))
+             (when (memq (process-status proc) '(exit signal))
+               (if (and (eq (process-status proc) 'exit)
+                        (zerop (process-exit-status proc)))
+                   (condition-case err
+                       (bongjun/agent-shell--select-after-login account shell directory)
+                     (error (message "Unable to select account: %s" (error-message-string err))))
+                 (message "Codex login for %s failed or was cancelled" account)))))))
       (pop-to-buffer buffer)
       (message (if (eq method 'device)
                    "Follow the device login instructions for %s in the buffer"
@@ -247,7 +285,7 @@ ARGS are the keyword arguments to `agent-shell--send-request'."
                      (agent-shell--update-bootstrapping-fragment
                       :state state :block-id "bongjun-account-login"
                       :body (agent-shell--make-boxed-message
-                             :text (format "Sign in to Codex account %s with C-c a l, then start a new shell with C-c a n." account))))))))))
+                             :text (format "Sign in to Codex account %s with C-c a l." account))))))))))
     (apply original args)))
 
 (unless (advice-member-p #'bongjun/agent-shell--authentication-hint
