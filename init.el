@@ -851,6 +851,9 @@ DIR must include a .project file to be considered a project."
         agent-shell-chat-mode-enabled nil
         agent-shell-preferred-agent-config 'codex)
   :config
+  (setq agent-shell-openai-default-model-id "gpt-6.1-terra"
+        agent-shell-openai-default-config-options
+        '(("reasoning_effort" . "high")))
   (require 'bongjun-agent-shell-accounts)
   (require 'bongjun-agent-shell-limits))
 
