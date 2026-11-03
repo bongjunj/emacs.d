@@ -179,11 +179,16 @@ With a prefix argument NEW-SHELL, always start another shell."
   (bongjun/agent-shell--open-account account new-shell))
 
 ;;;###autoload
-(defun bongjun/agent-shell-account-login (account)
+(defun bongjun/agent-shell-account-login (account &optional method)
   "Run Codex login for ACCOUNT in a dedicated comint buffer.
-Complete the browser login with the corresponding OpenAI account."
-  (interactive (list (bongjun/agent-shell--read-account)))
+METHOD is `browser' (the default) or `device'.  Interactively, a
+prefix argument selects device login.  Follow its URL and code on
+any device."
+  (interactive (list (bongjun/agent-shell--read-account)
+                     (if current-prefix-arg 'device 'browser)))
   (bongjun/agent-shell--check-local)
+  (unless (memq method '(nil device browser))
+    (user-error "Unknown Codex login method: %s" method))
   (let* ((home (bongjun/agent-shell--account-home account))
          (environment (bongjun/agent-shell--account-environment home))
          (process-environment (append environment process-environment))
@@ -191,11 +196,20 @@ Complete the browser login with the corresponding OpenAI account."
          (name (format "Codex login [%s]" account))
          (buffer (get-buffer-create (format "*%s*" name))))
     (bongjun/agent-shell--ensure-account-home home)
-    (unless (comint-check-proc buffer)
+    (if (comint-check-proc buffer)
+        (progn
+          (pop-to-buffer buffer)
+          (message "A Codex login for %s is already running" account))
       (let ((default-directory (file-name-as-directory home)))
-        (make-comint-in-buffer name buffer codex nil "login")))
-    (pop-to-buffer buffer)
-    (message "Complete Codex login for %s in your browser" account)))
+        (apply #'make-comint-in-buffer name buffer codex nil
+               (if (eq method 'device)
+                   '("login" "--device-auth")
+                 '("login"))))
+      (pop-to-buffer buffer)
+      (message (if (eq method 'device)
+                   "Follow the device login instructions for %s in the buffer"
+                 "Complete Codex login for %s in your browser")
+               account))))
 
 (defun bongjun/agent-shell--account-header (original state &rest args)
   "Show STATE's configured profile name in ORIGINAL's header model."
