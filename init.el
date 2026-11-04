@@ -628,8 +628,7 @@ INDIVIDUAL-CAPFS to the list."
 (setq treesit-enabled-modes t)
 
 (use-package markdown-ts-mode
-  :ensure nil
-  :defer t)
+  :ensure nil)
 
 ;; OCaml
 (use-package tuareg
