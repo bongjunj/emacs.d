@@ -631,14 +631,20 @@ INDIVIDUAL-CAPFS to the list."
   :ensure nil)
 
 ;; OCaml
-(use-package tuareg
-  :ensure t)
+(use-package neocaml
+  :ensure t
+  :hook (neocaml-base-mode . neocaml-dune-interaction-mode))
 
 (use-package ocaml-eglot
   :ensure t
-  :after tuareg
+  :after neocaml
   :hook
-  (tuareg-mode . ocaml-eglot))
+  (neocaml-base-mode . ocaml-eglot-mode)
+  (ocaml-eglot-mode . eglot-ensure))
+
+(use-package opam-switch-mode
+  :ensure t
+  :hook (neocaml-base-mode . opam-switch-mode))
 
 ;; Lean4
 (use-package nael
