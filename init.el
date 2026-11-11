@@ -796,7 +796,9 @@ DIR must include a .project file to be considered a project."
 (use-package speedbar
   :ensure nil ;; built-in
   :commands (speedbar)
-  :bind (("C-c s" . speedbar))
+  :bind
+  (("C-c s" . speedbar)
+   ("C-x 9" . speedbar))
   :config
   (setq speedbar-prefer-window t)
   (setq speedbar-use-images nil)
