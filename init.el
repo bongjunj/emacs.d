@@ -798,7 +798,11 @@ DIR must include a .project file to be considered a project."
   :commands (speedbar)
   :bind
   (("C-c s" . speedbar)
-   ("C-x 9" . speedbar-get-focus))
+   ("C-x 9" . speedbar-get-focus)
+   :map speedbar-file-key-map
+   ("^" . speedbar-up-directory))
+  :init
+  (setq speedbar-window-default-width 40)
   :config
   (setq speedbar-prefer-window t)
   (setq speedbar-use-images nil)
