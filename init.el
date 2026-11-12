@@ -43,7 +43,7 @@ TRAMP connection or whether Emacs uses a graphical display."
   ;; https://github.com/y-kim/monoplex
   (set-face-attribute 'default nil
                       :family "Monoplex CJK Nerd Font"
-                      :height 180
+                      :height 160
                       :weight 'regular
                       :slant 'normal))
 
@@ -423,8 +423,7 @@ TRAMP connection or whether Emacs uses a graphical display."
   :config
   (avy-setup-default)
   :bind
-  (("C-:" . 'avy-goto-char)
-   ("C-'" . 'avy-goto-char-timer)
+  (("C-'" . 'avy-goto-char-timer)
    ("M-g f" . 'avy-goto-line)))
 
 (use-package expreg
