@@ -17,6 +17,8 @@ TRAMP connection or whether Emacs uses a graphical display."
 (global-set-key (kbd "<C-wheel-up>") #'ignore)
 (global-set-key (kbd "<C-wheel-down>") #'ignore)
 
+(setq gc-cons-threshold (* 64 1024 1024))
+
 ;; In GUI Emacs, Karabiner maps physical Control to F18 and selects English.
 ;; F18 toggles Emacs Hangul input; physical Caps Lock serves as Control.
 ;; See README.org for the macOS and Karabiner setup.
@@ -624,7 +626,7 @@ INDIVIDUAL-CAPFS to the list."
   (setq flymake-no-changes-timeout 1.0))
 
 ;; use treesitters as default
-(setq treesit-enabled-modes t)
+(setopt treesit-enabled-modes t)
 
 (use-package markdown-ts-mode
   :ensure nil)
