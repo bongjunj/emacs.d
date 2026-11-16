@@ -62,6 +62,7 @@ TRAMP connection or whether Emacs uses a graphical display."
 (winner-mode 1)
 (which-key-mode)
 (repeat-mode 1)
+(setq-default truncate-lines t)
 (setq next-screen-context-lines 15)
 
 (setq repeat-exit-timeout 5) ;; exit after 5 seconds of inactivity
