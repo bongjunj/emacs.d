@@ -325,7 +325,9 @@ TRAMP connection or whether Emacs uses a graphical display."
          (slot . 0)
          (window-height . 0.25))
 
-        ("\\`\\*vc-[^*]+\\*\\'"
+        ((lambda (buffer-name _action)
+           (and (string-match-p "\\`\\*vc-[^*]+\\*\\'" buffer-name)
+                (not (string= buffer-name "*vc-diff*"))))
          (display-buffer-in-side-window)
          (side . bottom)
          (slot . -1)
