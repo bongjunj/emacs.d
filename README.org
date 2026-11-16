@@ -68,3 +68,15 @@ cp ~/.emacs.d/karabiner/emacs-input-method.json ~/.config/karabiner/assets/compl
    복사하기만 해서는 활성화되지 않는다.
 6. Emacs를 다시 시작하거나 =init.el=의 해당 설정을 평가한다.
 
+* Embark와 Expreg 영역 선택
+
+Lisp 버퍼(Emacs Lisp, Common Lisp, Scheme) 또는 Tree-sitter 파서가 활성화된
+버퍼에서는 =C-.=로 Embark를 열고 같은 키를 반복해서 누르면 Expreg가 계산한
+작은 영역부터 큰 영역까지 순서대로 대상을 바꿀 수 있다. Lisp 버퍼에서는
+Tree-sitter 없이도 동작한다. 선택한 대상에서 =w=를 누르면 내용을 복사한다.
+기존 심볼, 파일, Git 커밋 대상도 계속 사용할 수 있다.
+
+이미 영역을 선택했다면 그 영역을 포함하는 더 큰 영역만 추가한다.
+그 외 Tree-sitter 파서가 없는 버퍼와 미니버퍼에서는 기존 Embark 동작을 사용한다.
+대상을 바꾸는 동안 실제 선택 영역이나 Expreg의 확장 기록은 바뀌지 않는다.
+

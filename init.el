@@ -429,11 +429,7 @@ TRAMP connection or whether Emacs uses a graphical display."
 
 (use-package expreg
   :ensure t
-  :bind (("C-=" . expreg-expand)
-         ("C--" . expreg-contract)
-         (:repeat-map expreg-repeat-map
-                      ("=" .  expreg-expand)
-                      ("-" .  expreg-contract))))
+  :commands (expreg-expand expreg-contract))
 
 (use-package vertico
   :ensure t
@@ -758,6 +754,10 @@ DIR must include a .project file to be considered a project."
 
   :config
 
+  ;; In Lisp or Tree-sitter buffers, repeated C-. cycles Expreg's region sizes.
+  (require 'bongjun-embark-expreg)
+  (bongjun/embark-expreg-setup)
+
   (defun bongjun/embark-target-git-commit ()
     "Target a Git commit hash of 7 to 40 hexadecimal digits at point."
     (unless (minibufferp)
@@ -871,9 +871,9 @@ DIR must include a .project file to be considered a project."
 
 (use-package popper
   :ensure t
-  :bind (("C-,"   . popper-toggle)
-         ("M-,"   . popper-cycle)
-         ("C-M-," . popper-toggle-type))
+  :bind (("C-="   . popper-toggle)
+         ("M-="   . popper-cycle)
+         ("C-M-=" . popper-toggle-type))
   :init
   (setq popper-reference-buffers
         '("\\*Messages\\*"
