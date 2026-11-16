@@ -334,18 +334,6 @@ TRAMP connection or whether Emacs uses a graphical display."
          (window-height . 0.25)
          (window-parameters . ((no-delete-other-windows . nil))))
 
-        ("\\*Help\\*"
-         (display-buffer-reuse-window
-          display-buffer-pop-up-window)
-         (inhibit-same-window . t))
-
-        ("\\*\\(?:compilation\\|Async Shell Command\\)\\*"
-         (display-buffer-in-side-window
-          display-buffer-reuse-window)
-         (side . bottom)
-         (slot . -1)
-         (window-min-height . 0.35))
-
         ("\\*Org todo\\*"
          (display-buffer-below-selected)
          (side . bottom)
@@ -880,3 +868,18 @@ DIR must include a .project file to be considered a project."
   :vc (:url "https://github.com/ArthurHeymans/emacs-tramp-rpc"
        :rev :newest
        :lisp-dir "lisp"))
+
+(use-package popper
+  :ensure t
+  :bind (("C-`"   . popper-toggle)
+         ("M-`"   . popper-cycle)
+         ("C-M-`" . popper-toggle-type))
+  :init
+  (setq popper-reference-buffers
+        '("\\*Messages\\*"
+          "Output\\*$"
+          "\\*Async Shell Command\\*"
+          help-mode
+          compilation-mode))
+  (popper-mode +1)
+  (popper-echo-mode +1))                ; For echo area hints
