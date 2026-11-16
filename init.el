@@ -272,7 +272,6 @@ TRAMP connection or whether Emacs uses a graphical display."
 (when (bongjun/local-machine-p)
   (use-package tex
     :ensure auctex
-    :if (display-graphic-p)
     :config
     ;; Parse file on load/save for macro completion
     (setq TeX-auto-save t)
@@ -320,7 +319,13 @@ TRAMP connection or whether Emacs uses a graphical display."
 (setq switch-to-buffer-obey-display-actions nil)
 (setq switch-to-buffer-in-dedicated-window 'pop)
 (setq display-buffer-alist
-      '(("\\`\\*vc-[^*]+\\*\\'"
+      '(("\\`\\*log-edit-files\\*\\'"
+         (display-buffer-in-side-window)
+         (side . bottom)
+         (slot . 0)
+         (window-height . 0.25))
+
+        ("\\`\\*vc-[^*]+\\*\\'"
          (display-buffer-in-side-window)
          (side . bottom)
          (slot . -1)
@@ -867,3 +872,9 @@ DIR must include a .project file to be considered a project."
   :ensure t
   :config
   (setq htmlize-output-type 'inline-css))
+
+(use-package tramp-rpc
+  :after tramp
+  :vc (:url "https://github.com/ArthurHeymans/emacs-tramp-rpc"
+       :rev :newest
+       :lisp-dir "lisp"))
