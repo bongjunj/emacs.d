@@ -871,9 +871,9 @@ DIR must include a .project file to be considered a project."
 
 (use-package popper
   :ensure t
-  :bind (("C-`"   . popper-toggle)
-         ("M-`"   . popper-cycle)
-         ("C-M-`" . popper-toggle-type))
+  :bind (("C-,"   . popper-toggle)
+         ("M-,"   . popper-cycle)
+         ("C-M-," . popper-toggle-type))
   :init
   (setq popper-reference-buffers
         '("\\*Messages\\*"
@@ -882,4 +882,5 @@ DIR must include a .project file to be considered a project."
           help-mode
           compilation-mode))
   (popper-mode +1)
-  (popper-echo-mode +1))                ; For echo area hints
+  (popper-echo-mode +1)
+  (setq popper-group-function #'popper-group-by-project))
