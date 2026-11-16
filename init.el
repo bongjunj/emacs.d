@@ -62,6 +62,7 @@ TRAMP connection or whether Emacs uses a graphical display."
 (winner-mode 1)
 (which-key-mode)
 (repeat-mode 1)
+(setq next-screen-context-lines 15)
 
 (setq repeat-exit-timeout 5) ;; exit after 5 seconds of inactivity
 
@@ -114,6 +115,8 @@ TRAMP connection or whether Emacs uses a graphical display."
 (when (bongjun/local-machine-p)
   (use-package zotero-connect
     :vc (:url "git@github.com:bongjunj/zotero-connect.git")
+    :custom
+    (zotero-connect-export-backend 'better-bibtex)
     :bind (("C-c r s" . zotero-connect-search)
            ("C-c r b" . zotero-connect-insert-bibtex)
            ("C-c r w" . zotero-connect-copy-bibtex)
@@ -852,9 +855,9 @@ DIR must include a .project file to be considered a project."
         agent-shell-chat-mode-enabled nil
         agent-shell-preferred-agent-config 'codex)
   :config
-  (setq agent-shell-openai-default-model-id "gpt-6.1-terra"
+  (setq agent-shell-openai-default-model-id "gpt-6.1-sol"
         agent-shell-openai-default-config-options
-        '(("reasoning_effort" . "high")))
+        '(("reasoning_effort" . "xhigh")))
   (require 'bongjun-agent-shell-accounts)
   (require 'bongjun-agent-shell-limits))
 
