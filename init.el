@@ -893,3 +893,10 @@ DIR must include a .project file to be considered a project."
   (popper-mode +1)
   (popper-echo-mode +1)
   (setq popper-group-function #'popper-group-by-project))
+
+(use-package smartparens
+  :ensure smartparens  ;; install the package
+  :hook (prog-mode text-mode markdown-mode) ;; add `smartparens-mode` to these hooks
+  :config
+  ;; load default config
+  (require 'smartparens-config))
