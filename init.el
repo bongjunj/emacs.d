@@ -869,21 +869,6 @@ DIR must include a .project file to be considered a project."
   (ansi-color-apply-on-region compilation-filter-start (point)))
 (add-hook 'compilation-filter-hook 'colorize-compilation-buffer)
 
-(use-package speedbar
-  :ensure nil ;; built-in
-  :commands (speedbar)
-  :bind
-  (("C-c s" . speedbar)
-   ("C-x 9" . speedbar-get-focus)
-   :map speedbar-file-key-map
-   ("^" . speedbar-up-directory))
-  :init
-  (setq speedbar-window-default-width 40)
-  :config
-  (setq speedbar-prefer-window t)
-  (setq speedbar-use-images nil)
-  (setq speedbar-show-unknown-files t))
-
 (defun bongjun/syntax-highlighted ()
   (interactive)
   (let ((html-buffer (htmlize-buffer)))
