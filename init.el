@@ -375,6 +375,8 @@ On a file or a non-file line, use the current Dired subdirectory."
   :bind
   (("C-x g" . magit-status))
   :config
+  (setq magit-status-margin
+      '(t age magit-log-margin-width t 18))
   (setq magit-save-repository-buffers 'dontask)
   (setq magit-tramp-pipe-stty-settings 'pty)
   (setq magit-branch-direct-configure nil)
