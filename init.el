@@ -333,6 +333,33 @@ On a file or a non-file line, use the current Dired subdirectory."
               #'TeX-revert-document-buffer)))
 
 (when (bongjun/local-machine-p)
+  (defun bongjun/open-pdf-in-galley (file &optional _link)
+    "Open PDF FILE in Galley, or visit it in Emacs if it is remote."
+    (if (file-remote-p file)
+        (find-file file)
+      (require 'url-util)
+      (start-process "galley-open" nil "open"
+                     (concat "galleypdf://open?pdfpath="
+                             (url-hexify-string (expand-file-name file))))))
+
+  (defun bongjun/find-file-with-galley (original-function file &rest args)
+    "Open local PDFs in Galley; otherwise call ORIGINAL-FUNCTION."
+    (if (and (not (file-remote-p file))
+             (equal (downcase (or (file-name-extension file) "")) "pdf")
+             (file-regular-p file))
+        (bongjun/open-pdf-in-galley file)
+      (apply original-function file args)))
+
+  (dolist (command '(find-file find-file-other-window find-file-other-frame
+                    find-file-other-tab find-file-read-only
+                    find-file-read-only-other-window
+                    find-file-read-only-other-frame))
+    (advice-add command :around #'bongjun/find-file-with-galley))
+
+  (with-eval-after-load 'org
+    (setf (alist-get "\\.pdf\\'" org-file-apps nil nil #'equal)
+          #'bongjun/open-pdf-in-galley))
+
   (use-package pdf-tools
     :ensure t
     :if (display-graphic-p)
