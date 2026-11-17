@@ -63,7 +63,14 @@ TRAMP connection or whether Emacs uses a graphical display."
 (which-key-mode)
 (repeat-mode 1)
 (setq-default truncate-lines t)
-(setq next-screen-context-lines 15)
+(defun bongjun/scroll-with-window-context (scroll-function &rest args)
+  "Keep 15% of the current window's height as context when scrolling."
+  (let ((next-screen-context-lines
+         (max 1 (floor (* 0.15 (window-body-height))))))
+    (apply scroll-function args)))
+
+(advice-add 'scroll-up-command :around #'bongjun/scroll-with-window-context)
+(advice-add 'scroll-down-command :around #'bongjun/scroll-with-window-context)
 
 (setq repeat-exit-timeout 5) ;; exit after 5 seconds of inactivity
 
@@ -879,6 +886,7 @@ DIR must include a .project file to be considered a project."
         '("\\*Messages\\*"
           "Output\\*$"
           "\\*Async Shell Command\\*"
+          vc-compilation-mode
           help-mode
           compilation-mode))
   (popper-mode +1)
