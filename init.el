@@ -326,26 +326,26 @@ TRAMP connection or whether Emacs uses a graphical display."
 ;;; Controls how to display buffers
 (setq switch-to-buffer-obey-display-actions nil)
 (setq switch-to-buffer-in-dedicated-window 'pop)
-(setq display-buffer-alist
-      '(("\\`\\*log-edit-files\\*\\'"
-         (display-buffer-in-side-window)
-         (side . bottom)
-         (slot . 0)
-         (window-height . 0.25))
-
-        ((lambda (buffer-name _action)
-           (and (string-match-p "\\`\\*vc-[^*]+\\*\\'" buffer-name)
-                (not (string= buffer-name "*vc-diff*"))))
-         (display-buffer-in-side-window)
-         (side . bottom)
-         (slot . -1)
-         (window-height . 0.25)
-         (window-parameters . ((no-delete-other-windows . nil))))
-
-        ("\\*Org todo\\*"
-         (display-buffer-below-selected)
-         (side . bottom)
-         (slot . 2))))
+(add-to-list 'display-buffer-alist
+             '("\\`\\*log-edit-files\\*\\'"
+               (display-buffer-in-side-window)
+               (side . bottom)
+               (slot . 0)
+               (window-height . 0.25)) t)
+(add-to-list 'display-buffer-alist
+             '((lambda (buffer-name _action)
+                 (and (string-match-p "\\`\\*vc-[^*]+\\*\\'" buffer-name)
+                      (not (string= buffer-name "*vc-diff*"))))
+               (display-buffer-in-side-window)
+               (side . bottom)
+               (slot . -1)
+               (window-height . 0.25)
+               (window-parameters . ((no-delete-other-windows . nil)))) t)
+(add-to-list 'display-buffer-alist
+             '("\\*Org todo\\*"
+               (display-buffer-below-selected)
+               (side . bottom)
+               (slot . 2)) t)
 
 (setq bongjun/org-directory "~/Documents/orgfiles/")
 
