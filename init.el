@@ -16,6 +16,7 @@ TRAMP connection or whether Emacs uses a graphical display."
 (global-set-key (kbd "<C-pinch>") #'ignore)
 (global-set-key (kbd "<C-wheel-up>") #'ignore)
 (global-set-key (kbd "<C-wheel-down>") #'ignore)
+(global-unset-key (kbd "C-x C-p")) ;; confusing with C-x p
 
 (setq gc-cons-threshold (* 64 1024 1024))
 
