@@ -292,8 +292,29 @@ TRAMP connection or whether Emacs uses a graphical display."
     (setq TeX-source-correlate-method 'synctex)
     (setq TeX-source-correlate-start-server t)
 
-    ;; Set PDF Tools as the default viewer for AUCTeX
-    (setq TeX-view-program-selection '((output-pdf "PDF Tools")))
+    ;; brew install --cask munepi/galley/galley
+    ;; brew trust munepi/galley/galley
+
+    (defun bongjun/galley-forward-search ()
+      "Show the current TeX position in Galley using its URL scheme."
+      (require 'url-util)
+      (let* ((pdf-file (expand-file-name
+                        (TeX-active-master (TeX-output-extension))))
+             (src-file (expand-file-name (TeX-buffer-file-name)))
+             (url (format (concat "galleypdf://forward?line=%s&column=%d"
+                                  "&pdfpath=%s&srcpath=%s&background=1")
+                          (TeX-current-line)
+                          (current-column)
+                          (url-hexify-string pdf-file)
+                          (url-hexify-string src-file))))
+        (start-process "galley-forward" nil "open" "-g" url)))
+
+    ;; Register Galley as a custom PDF viewer
+    (add-to-list 'TeX-view-program-list
+                 '("Galley" bongjun/galley-forward-search "open"))
+
+    ;; Set Galley as the default viewer for AUCTeX
+    (setq TeX-view-program-selection '((output-pdf "Galley")))
 
     ;; Auto-refresh the PDF buffer after compilation finishes
     (add-hook 'TeX-after-compilation-finished-functions
