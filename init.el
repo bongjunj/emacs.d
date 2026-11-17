@@ -908,6 +908,7 @@ DIR must include a .project file to be considered a project."
         '("\\*Messages\\*"
           "Output\\*$"
           "\\*Async Shell Command\\*"
+          agent-shell-mode
           vc-compilation-mode
           help-mode
           compilation-mode))
