@@ -250,6 +250,17 @@ TRAMP connection or whether Emacs uses a graphical display."
   ;; Preserve the upstream command's normal post-command handling.
   (dired-post-do-command)))
 
+(defun bongjun/dired-find-file ()
+  "Find or create a file in the directory at point in Dired.
+On a file or a non-file line, use the current Dired subdirectory."
+  (interactive nil dired-mode)
+  (let* ((file (dired-get-filename nil t))
+         (default-directory
+          (if (and file (file-directory-p file))
+              (file-name-as-directory file)
+            (dired-current-directory))))
+    (call-interactively #'find-file)))
+
 (use-package dired
   :ensure nil ;; built-tin
   :commands dired
@@ -261,6 +272,7 @@ TRAMP connection or whether Emacs uses a graphical display."
           "-al --group-directories-first"))
   :bind
   (:map dired-mode-map
+        ([remap find-file] . #'bongjun/dired-find-file)
         ("c" . #'bongjun/dired-do-compress-to-async))
   :hook
   (dired-mode . dired-hide-details-mode)
