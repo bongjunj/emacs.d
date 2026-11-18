@@ -441,35 +441,36 @@ On a file or a non-file line, use the current Dired subdirectory."
   (setq org-outline-path-complete-in-steps nil)
   (setq org-refile-use-outline-path 'file)
   (setq org-default-notes-file (concat org-directory "notes.org"))
+  (add-to-list
+   'org-agenda-custom-commands
+   '("a" "Agenda and recent daily logs"
+     ((agenda ""
+              ((org-agenda-overriding-header "Daily logs — last 7 days")
+               (org-agenda-files
+                (list (expand-file-name "daily.org" org-directory)))
+               (org-agenda-start-day "-6d")
+               (org-agenda-span 7)
+               (org-agenda-start-on-weekday nil)
+               (org-agenda-include-inactive-timestamps t)
+               (org-agenda-show-all-dates t)
+               (org-agenda-use-time-grid nil)))
+      (agenda ""
+              ((org-agenda-overriding-header "Weekly agenda")
+               (org-agenda-span 'week))))))
+
   (setq org-capture-templates
         `(("t" "Todo" entry
-	         (file+headline "tasks.org" "Inbox")
+	         (file "tasks.org")
            "* TODO %? %^G\nDEADLINE: %^t\n%U\n  %i\n  %a"
 	         :empty-lines 1)
-          ("j" "Journal" entry
-           (file+olp+datetree "journal.org")
-           "* %<%Y-%m-%d>\nEntered on %U\n  %i"
-	         :empty-lines 1)
+          ("d" "Daily log" plain
+               (file+olp+datetree "daily.org")
+               "%U\n%?\n"
+               :empty-lines 1)
 	        ("n" "Note" entry
 	         (file "notes.org")
 	         "* %^{Title}\n  %U\n  %a"
-	         :empty-lines 1)
-	        ("s" "Seminar" entry
-	         (file "seminars.org")
-	         ,(concat "%[" (file-name-concat org-directory "templates" "seminars.org") "]")
-           :empty-lines 1)
-          ("w" "Weekly research note"
-           entry
-           (file "research.org")
-           ,(concat
-             "* %<%G-W%V> — %^{Topic}\n"
-             ":PROPERTIES:\n"
-             ":DATE: %u\n"
-             ":END:\n\n"
-             "** Objective\n\n%?\n\n"
-             "** Next Week\n\n"
-             "- [ ] ")
-           :empty-lines 1)))
+	         :empty-lines 1)))
   (with-eval-after-load 'org-clock
     (setq org-clock-persist t)
     (org-clock-persistence-insinuate)
