@@ -526,7 +526,8 @@ On a file or a non-file line, use the current Dired subdirectory."
   ( :map global-map
     ("C-c n n" . denote)
     ("C-c n d" . denote-dired)
-    ("C-c n g" . denote-grep)
+    ("C-c n g" . consule-denote-grep)
+    ("C-c n f" . consult-denote-find)
     ;; If you intend to use Denote with a variety of file types, it is
     ;; easier to bind the link-related commands to the `global-map', as
     ;; shown here.  Otherwise follow the same pattern for `org-mode-map',
