@@ -2,6 +2,7 @@
 
 (require 'cl-lib)
 
+;;; Code:
 (defun bongjun/local-machine-p ()
   "Return non-nil when Emacs runs on a local macOS workstation.
 Linux hosts and Emacs processes started through SSH are remote for
@@ -603,22 +604,21 @@ On a file or a non-file line, use the current Dired subdirectory."
   :init
   (marginalia-mode 1))
 
-(use-package completion-preview
-  :ensure nil
+(use-package company
+  :ensure t
   :demand t
   :bind
-  ( :map completion-preview-active-mode-map
-    ("M-i" . completion-preview-insert-word)
-    ("M-n" . completion-preview-next-candidate)
-    ("M-p" . completion-preview-prev-candidate)
-    ("M-<return>" . completion-preview-insert)
-    ;; With TAB we effectively defer to the *Completions* buffer to
-    ;; show more completion candidates at once.
-    ("<tab>" . completion-preview-complete))
+  (:map company-active-map
+        ("M-i" . company-complete-common)
+        ("M-n" . company-select-next)
+        ("M-p" . company-select-previous)
+        ("M-<return>" . company-complete-selection))
+  :custom
+  (company-backends '(company-capf))
+  (company-minimum-prefix-length 2)
+  (company-idle-delay 0.2)
   :config
-  (setq completion-preview-minimum-symbol-length 2)
-  (setq completion-preview-idle-delay 0.2)
-  (global-completion-preview-mode 1))
+  (global-company-mode 1))
 
 ;; I have a more detailed configuration (and explanation) that works
 ;; with Emacs 31 built-in completion capabilities:
@@ -641,7 +641,7 @@ On a file or a non-file line, use the current Dired subdirectory."
 
 (use-package cape
   :ensure t
-  :after completion-preview
+  :after company
   :config
   (setq completion-at-point-functions '(cape-dabbrev cape-file cape-keyword))
   ;; A missing spelling dictionary must not abort the other super-CAPF providers.
@@ -955,3 +955,6 @@ DIR must include a .project file to be considered a project."
   :config
   ;; load default config
   (require 'smartparens-config))
+
+(provide 'init)
+
