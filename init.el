@@ -507,6 +507,7 @@ On a file or a non-file line, use the current Dired subdirectory."
 
 ;; This is a steal from https://protesilaos.com/emacs/denote#h:998ae528-9276-47ec-b642-3d7355a38f27
 (use-package denote
+  :if (file-directory-p (expand-file-name bongjun/org-directory))
   :ensure t
   :hook
   (;; If you use plain text files (.txt), then you want to make the
