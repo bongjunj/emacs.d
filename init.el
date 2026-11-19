@@ -18,7 +18,8 @@ TRAMP connection or whether Emacs uses a graphical display."
 (global-set-key (kbd "<C-wheel-down>") #'ignore)
 (global-unset-key (kbd "C-x C-p")) ;; confusing with C-x p
 
-(setq gc-cons-threshold (* 64 1024 1024))
+(setq gc-cons-threshold (* 128 1024 1024))
+(setq read-process-output-max (* 4 1024 1024))
 
 ;; In GUI Emacs, Karabiner maps physical Control to F18 and selects English.
 ;; F18 toggles Emacs Hangul input; physical Caps Lock serves as Control.
@@ -404,7 +405,6 @@ On a file or a non-file line, use the current Dired subdirectory."
   (setq magit-branch-direct-configure nil)
   (setq magit-refresh-status-buffer nil)
   (setq magit-commit-show-diff nil)
-  (setq magit-revert-status-buffers nil)
   (setq magit-define-global-key-bindings 'default))
 
 ;;; Controls how to display buffers
@@ -699,7 +699,6 @@ INDIVIDUAL-CAPFS to the list."
          ;; M-g bindings in `goto-map'
          ("M-g a"   . consult-org-agenda)
          ("M-g e"   . consult-compile-error)
-         ("M-g d"   . consult-flymake)
          ("M-g g"   . consult-goto-line)
          ("M-g M-g" . consult-goto-line)
          ("M-g o"   . consult-outline)
@@ -737,79 +736,7 @@ INDIVIDUAL-CAPFS to the list."
   (advice-add #'register-preview :override #'consult-register-window)
   (recentf-mode 1))
 
-(use-package eglot
-  :ensure nil
-  :bind (("C-c e e" . eglot)
-         :map eglot-mode-map
-         ;; LSP actions & refactoring
-         ;; active only when eglot is running
-         ("C-c e a" . eglot-code-actions)
-         ("C-c e R" . eglot-rename)
-         ("C-c e f" . eglot-format)
-         ("C-c e F" . eglot-format-buffer)
-         ("C-c e o" . eglot-code-action-organize-imports)
-         ("C-c e q" . eglot-shutdown)
-         ("C-c e h" . eldoc)
-         ;; Diagnostics navigation
-         ("M-n"     . flymake-goto-next-error)
-         ("M-p"     . flymake-goto-prev-error))
-  :config
-  (setq eglot-prefer-plaintext t)
-  (setq eglot-events-buffer-config '(:size 10000 :format full))
-  (setq treesit-font-lock-level 4)
-  (add-to-list
-   'eglot-server-programs
-   '(python-ts-mode . ("uv" "tool" "run" "ty" "server"))))
-
-(use-package consult-eglot
-  :after (consult eglot)
-  :bind (:map eglot-mode-map
-              ("M-g s" . consult-eglot-symbols)))
-
-(use-package flymake
-  :ensure nil
-  :config
-  (setq flymake-no-changes-timeout 1.0))
-
-;; use treesitters as default
-(setopt treesit-enabled-modes t)
-
-(use-package markdown-ts-mode
-  :ensure nil)
-
-;; OCaml
-(use-package neocaml
-  :ensure t
-  :hook (neocaml-base-mode . neocaml-dune-interaction-mode))
-
-(use-package ocaml-eglot
-  :ensure t
-  :after neocaml
-  :hook
-  (neocaml-base-mode . ocaml-eglot-mode)
-  (ocaml-eglot-mode . eglot-ensure))
-
-(use-package opam-switch-mode
-  :ensure t
-  :hook (neocaml-base-mode . opam-switch-mode))
-
-;; Lean4
-(use-package nael
-  :vc (:url "https://codeberg.org/mekeor/nael.git")
-  :custom
-  (eldoc-idle-delay 0.1)
-  (eglot-send-changes-idle-time 0.2)
-  :init
-  (setq nael-prepare-lsp nil)
-  :mode ("\\.lean\\'" . nael-mode))
-
-;; Dafny
-(use-package dash :ensure t)
-(use-package boogie-friends
-  :ensure t
-  :after dash
-  :hook
-  (dafny-mode . (lambda () (prettify-symbols-mode -1))))
+(require 'ide)
 
 (use-package treesit-fold
   :ensure t
@@ -855,9 +782,6 @@ DIR must include a .project file to be considered a project."
   (("C-x w o o" . rotate-window)
    (:repeat-map rotate-repeat-map
                  ("o" . rotate-window))))
-
-(setq flymake-fringe-indicator-position nil)
-(setq flymake-suppress-zero-counters t)
 
 (use-package diff-hl
   :ensure t
@@ -987,9 +911,9 @@ DIR must include a .project file to be considered a project."
         agent-shell-chat-mode-enabled nil
         agent-shell-preferred-agent-config 'codex)
   :config
-  (setq agent-shell-openai-default-model-id "gpt-6.1-sol"
+  (setq agent-shell-openai-default-model-id "gpt-6.2-sol"
         agent-shell-openai-default-config-options
-        '(("reasoning_effort" . "xhigh")))
+        '(("reasoning_effort" . "medium")))
   (require 'bongjun-agent-shell-accounts)
   (require 'bongjun-agent-shell-limits))
 
@@ -1021,6 +945,7 @@ DIR must include a .project file to be considered a project."
           compilation-mode))
   (popper-mode +1)
   (popper-echo-mode +1)
+  (setq popper-window-height 15)
   (setq popper-group-function #'popper-group-by-project))
 
 (use-package smartparens
