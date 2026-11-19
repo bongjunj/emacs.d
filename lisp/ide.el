@@ -51,9 +51,7 @@
   (setq lsp-keymap-prefix "C-c l")
   :custom
   (lsp-diagnostics-provider :flycheck)
-  ;; LSP still installs its CAPF; :none prevents it from enabling Company
-  ;; alongside the completion-preview frontend configured in init.el.
-  (lsp-completion-provider :none)
+  (lsp-completion-provider :capf)
   (lsp-completion-enable t)
   ;; Keep the file header configured in init.el.
   (lsp-headerline-breadcrumb-enable nil)
@@ -111,6 +109,8 @@
 (use-package lean4-mode
   :vc (:url "git@github.com:leanprover-community/lean4-mode.git" :rev :last-release)
   :config
+  (remove-hook 'lean4-mode-hook #'lsp)
+  (add-hook 'lean4-mode-hook #'lsp-deferred)
   ;; Inlay hints are disabled; acknowledge Lean's refresh requests.
   (puthash "workspace/inlayHint/refresh"
            (lambda (_workspace _params) nil)
