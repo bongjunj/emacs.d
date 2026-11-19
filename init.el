@@ -157,7 +157,7 @@ TRAMP connection or whether Emacs uses a graphical display."
   :demand t
   :config
   ;; These are the default values.
-  (setq doric-themes-to-toggle '(doric-light doric-dark))
+  (setq doric-themes-to-toggle '(doric-almond doric-obsidian))
   (setq doric-themes-to-rotate doric-themes-collection)
 
   (doric-themes-select 'doric-almond))
@@ -521,12 +521,10 @@ On a file or a non-file line, use the current Dired subdirectory."
    ;; `denote-dired-mode', use `denote-dired-mode-in-directories'.
    (dired-mode . denote-dired-mode))
   :bind
-  ;; Denote DOES NOT define any key bindings.  This is for the user to
-  ;; decide.  For example:
   ( :map global-map
     ("C-c n n" . denote)
     ("C-c n d" . denote-dired)
-    ("C-c n g" . consule-denote-grep)
+    ("C-c n g" . consult-denote-grep)
     ("C-c n f" . consult-denote-find)
     ;; If you intend to use Denote with a variety of file types, it is
     ;; easier to bind the link-related commands to the `global-map', as
@@ -571,6 +569,9 @@ On a file or a non-file line, use the current Dired subdirectory."
 
   ;; Automatically rename Denote buffers using the `denote-rename-buffer-format'.
   (denote-rename-buffer-mode 1))
+
+(use-package consult-denote
+  :ensure t)
 
 (use-package avy
   :ensure t
