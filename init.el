@@ -431,23 +431,34 @@ On a file or a non-file line, use the current Dired subdirectory."
                (side . bottom)
                (slot . 2)) t)
 
-(setq bongjun/org-directory "~/Documents/orgfiles/")
+(defvar bongjun/org-directory "~/Documents/orgfiles/"
+  "Directory for my Org files.")
 
 (use-package org
   :ensure nil ;; built-in
   :if (file-directory-p (expand-file-name bongjun/org-directory))
-  :init
-  (setq org-agenda-span 'week)
-  (setq org-directory bongjun/org-directory)
-  (setq org-agenda-window-setup 'current-window)
+  :custom
+  (org-directory bongjun/org-directory)
+  (org-outline-path-complete-in-steps nil)
+  (org-refile-use-outline-path 'file)
+  (org-default-notes-file (concat org-directory "notes.org"))
+  (org-capture-templates
+   `(("t" "Todo" entry
+	    (file "tasks.org")
+      "* TODO %? %^G\nDEADLINE: %^t\n%U\n  %i\n  %a"
+	    :empty-lines 1)
+     ("d" "Daily log" plain
+      (file+olp+datetree "daily.org")
+      "%U\n%?\n"
+      :empty-lines 1)
+	   ("n" "Note" entry
+	    (file "notes.org")
+	    "* %^{Title}\n  %U\n  %a"
+	    :empty-lines 1)))
   :config
   ;; quote (') prevents evaluation of whatever follows it
   ;; backquote (`) prevents evaluation of whatever follows it, except for
   ;; unquote-ed (,) expressions. i.e., ,(...) is evaluated.
-  (setq org-agenda-files
-        `(,org-directory
-          ,(file-name-concat org-directory "projects")
-          ,(file-name-concat org-directory "courses")))
   (setq org-blank-before-new-entry
         '((heading . t)
           (plain-list-item . nil)))
@@ -460,11 +471,23 @@ On a file or a non-file line, use the current Dired subdirectory."
   (setq org-refile-targets
         '((nil :maxlevel . 3)
           (org-agenda-files :maxlevel . 5)))
-  (setq org-outline-path-complete-in-steps nil)
-  (setq org-refile-use-outline-path 'file)
-  (setq org-default-notes-file (concat org-directory "notes.org"))
-  (setq org-agenda-diary-file
-      (expand-file-name "daily.org" org-directory))
+  :bind
+  (("C-c o a" . org-agenda)
+   ("C-c o c" . org-capture)
+   ("C-c o b" . org-switchb)))
+
+(use-package org-agenda
+  :after org
+  :custom
+  (org-agenda-span 'week)
+  (org-agenda-window-setup 'current-window)
+  (org-agenda-diary-file
+   (expand-file-name "daily.org" org-directory))
+  :config
+  (setq org-agenda-files
+        `(,org-directory
+          ,(file-name-concat org-directory "projects")
+          ,(file-name-concat org-directory "courses")))
   (add-to-list
    'org-agenda-custom-commands
    '("a" "Agenda and recent daily logs"
@@ -480,29 +503,7 @@ On a file or a non-file line, use the current Dired subdirectory."
                (org-agenda-use-time-grid nil)))
       (agenda ""
               ((org-agenda-overriding-header "Weekly agenda")
-               (org-agenda-span 'week))))))
-
-  (setq org-capture-templates
-        `(("t" "Todo" entry
-	         (file "tasks.org")
-           "* TODO %? %^G\nDEADLINE: %^t\n%U\n  %i\n  %a"
-	         :empty-lines 1)
-          ("d" "Daily log" plain
-               (file+olp+datetree "daily.org")
-               "%U\n%?\n"
-               :empty-lines 1)
-	        ("n" "Note" entry
-	         (file "notes.org")
-	         "* %^{Title}\n  %U\n  %a"
-	         :empty-lines 1)))
-  (with-eval-after-load 'org-clock
-    (setq org-clock-persist t)
-    (org-clock-persistence-insinuate)
-    (setq org-clock-auto-clock-resolution 'when-no-clock-is-running))
-  :bind
-  (("C-c o a" . org-agenda)
-   ("C-c o c" . org-capture)
-   ("C-c o b" . org-switchb)))
+               (org-agenda-span 'week)))))))
 
 ;; This is a steal from https://protesilaos.com/emacs/denote#h:998ae528-9276-47ec-b642-3d7355a38f27
 (use-package denote
