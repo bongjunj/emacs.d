@@ -552,10 +552,10 @@ On a file or a non-file line, use the current Dired subdirectory."
   (setq denote-directory (expand-file-name "~/Documents/orgfiles/notes/"))
   (setq denote-save-buffers nil)
   (setq denote-known-keywords '("emacs"
-                                "programming-languages"
-                                "software-engineering"
+                                "programminglanguages"
+                                "swe"
                                 "compilers"
-                                "formal-methods"
+                                "formalmethods"
                                 "ai"))
   (setq denote-infer-keywords t)
   (setq denote-sort-keywords t)
