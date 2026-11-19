@@ -158,7 +158,7 @@ TRAMP connection or whether Emacs uses a graphical display."
   (setq doric-themes-to-toggle '(doric-light doric-dark))
   (setq doric-themes-to-rotate doric-themes-collection)
 
-  (doric-themes-select 'doric-light)
+  (doric-themes-select 'doric-almond))
 
   ;; ;; To load a random theme instead, use something like one of these:
   ;;
@@ -171,7 +171,6 @@ TRAMP connection or whether Emacs uses a graphical display."
   ;; (set-face-attribute 'default nil :family "Aporetic Sans Mono" :height 160)
   ;; (set-face-attribute 'variable-pitch nil :family "Aporetic Sans" :height 1.0)
   ;; (set-face-attribute 'fixed-pitch nil :family "Aporetic Sans Mono" :height 1.0)
-  )
 
 (use-package ibuffer-project
   :ensure t
@@ -569,15 +568,6 @@ On a file or a non-file line, use the current Dired subdirectory."
 
   ;; Automatically rename Denote buffers using the `denote-rename-buffer-format'.
   (denote-rename-buffer-mode 1))
-
-;; (setq org-todo-keyword-faces
-;;       `(("TODO" :foreground "#000000"
-;;                 :background ,(modus-themes-get-color-value 'bg-red-intense)
-;;                 :weight bold
-;;                 :box (:line-width (1 . 1)))
-;;         ("DONE" :foreground ,(modus-themes-get-color-value 'green)
-;;                 :weight bold)
-;;         ("CANCELLED" :foreground ,(modus-themes-get-color-value 'fg-dim) :weight normal)))
 
 (use-package avy
   :ensure t
