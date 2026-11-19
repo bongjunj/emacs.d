@@ -155,6 +155,8 @@ TRAMP connection or whether Emacs uses a graphical display."
 (use-package doric-themes
   :ensure t
   :demand t
+  :bind
+  ("<f5>" . doric-themes-toggle)
   :config
   ;; These are the default values.
   (setq doric-themes-to-toggle '(doric-almond doric-obsidian))
