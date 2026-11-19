@@ -441,15 +441,17 @@ On a file or a non-file line, use the current Dired subdirectory."
   (setq org-outline-path-complete-in-steps nil)
   (setq org-refile-use-outline-path 'file)
   (setq org-default-notes-file (concat org-directory "notes.org"))
+  (setq org-agenda-diary-file
+      (expand-file-name "daily.org" org-directory))
   (add-to-list
    'org-agenda-custom-commands
    '("a" "Agenda and recent daily logs"
      ((agenda ""
-              ((org-agenda-overriding-header "Daily logs — last 7 days")
+              ((org-agenda-overriding-header "Daily logs — last 5 days")
                (org-agenda-files
                 (list (expand-file-name "daily.org" org-directory)))
-               (org-agenda-start-day "-6d")
-               (org-agenda-span 7)
+               (org-agenda-start-day "-4d")
+               (org-agenda-span 5)
                (org-agenda-start-on-weekday nil)
                (org-agenda-include-inactive-timestamps t)
                (org-agenda-show-all-dates t)
