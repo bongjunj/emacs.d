@@ -674,8 +674,8 @@ INDIVIDUAL-CAPFS to the list."
 
 (use-package consult
   :ensure t
-  :config
-  (setq recentf-max-saved-items 200)
+  :custom
+  (recentf-max-saved-items 200)
   :bind (;; C-c bindings in `mode-specific-map'
          ("C-c M-x" . consult-mode-command)
          ("C-c h"   . consult-history)
