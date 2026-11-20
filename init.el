@@ -795,6 +795,38 @@ DIR must include a .project file to be considered a project."
   :config
   (diff-hl-margin-mode (if (display-graphic-p) 0 1)))
 
+  
+(use-package ghostel
+  :ensure t
+  :hook (after-init . ghostel-status-indicator-mode)
+  :bind (("C-x m" . ghostel)
+         :map ghostel-semi-char-mode-map
+         ("C-s"  . consult-line)
+         ("C-k"  . my/ghostel-send-C-k-and-kill)
+         ;; I'm used to go up/down the shell history with M-n/p from eshell
+         ;; Simulate this behavior in ghostel by sending C-p and C-n
+         ("M-p" . (lambda () (interactive) (ghostel-send-key "p" "ctrl")))
+         ("M-n" . (lambda () (interactive) (ghostel-send-key "n" "ctrl"))))
+  :config
+  (defun my/ghostel-send-C-k-and-kill ()
+    "Send `C-k' to ghostel.
+Like normal Emacs `C-k'.  Kill to end of line and put content in kill-ring."
+    (interactive)
+    (kill-ring-save (point) (line-end-position))
+    (ghostel-send-key "k" "ctrl"))
+
+  (add-to-list 'ghostel-eval-cmds '("magit-status-setup-buffer" magit-status-setup-buffer)))
+
+(use-package ghostel-project
+  :bind (:map project-prefix-map
+         ("m" . ghostel-project)
+         ("M" . ghostel-project-list-buffers))
+  :config
+  (add-to-list 'project-switch-commands '(ghostel-project "Ghostel") t)
+  (add-to-list 'project-switch-commands '(ghostel-project-list-buffers "Ghostel buffers") t)
+  ;; Have `project-kill-buffers' (C-x p k) kill the project's terminals too
+  (add-to-list 'project-kill-buffer-conditions '(derived-mode . ghostel-mode)))
+
 (use-package rmsbolt
   :vc (:url "git@github.com:bongjunj/rmsbolt.git"
        :rev :newest)
