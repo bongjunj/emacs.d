@@ -679,8 +679,6 @@ INDIVIDUAL-CAPFS to the list."
   :bind (;; C-c bindings in `mode-specific-map'
          ("C-c M-x" . consult-mode-command)
          ("C-c h"   . consult-history)
-         ("C-c k"   . consult-kmacro)
-         ("C-c m"   . consult-man)
          ("C-c i"   . consult-info)
          ([remap Info-search] . consult-info)
 
@@ -906,6 +904,26 @@ Like normal Emacs `C-k'.  Kill to end of line and put content in kill-ring."
 (use-package embark-consult
   :ensure t)
 
+(use-package yasnippet
+  :ensure t
+  :config
+  (yas-reload-all)
+  (add-hook 'prog-mode-hook #'yas-minor-mode)
+  (add-hook 'markdown-mode-hook #'yas-minor-mode))
+
+(use-package yasnippet-snippets
+  :ensure t)
+
+(use-package multiple-cursors
+  :ensure t
+  :bind
+  (("C-c m e" . mc/edit-lines)
+   ("C-c m n" . mc/mark-next-like-this)
+   ("C-c m p" . mc/mark-previous-like-this)
+   (:repeat-map bongjun/multiple-cursors-repeat-map
+    ("n" . mc/mark-next-like-this)
+    ("p" . mc/mark-previous-like-this))))
+
 (require 'ansi-color)
 (defun colorize-compilation-buffer ()
   (ansi-color-apply-on-region compilation-filter-start (point)))
@@ -992,5 +1010,4 @@ Like normal Emacs `C-k'.  Kill to end of line and put content in kill-ring."
   ;; load default config
   (require 'smartparens-config))
 
-(provide 'init)
 
