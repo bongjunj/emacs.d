@@ -45,6 +45,7 @@ TRAMP connection or whether Emacs uses a graphical display."
 ;; Personal workstation tools; skip these on Linux experiment servers.
 (when (bongjun/local-machine-p)
   (require 'kvpn)
+  (defvar kvpn-program)
   (setq kvpn-program (expand-file-name "~/kaist-openconnect/kvpn"))
   (add-to-list 'load-path (file-name-concat user-emacs-directory "lisp/hwpx-mode"))
   (require 'hwpx-mode))
@@ -66,14 +67,14 @@ TRAMP connection or whether Emacs uses a graphical display."
   display-line-numbers-mode
   (lambda ()
     (when buffer-file-name
-      (display-line-numbers-mode 1))))
+      (display-line-numbers-mode 1)))
+  :group 'display-line-numbers)
 (bongjun/global-file-line-numbers-mode 1)
 (global-visual-line-mode -1)
 (blink-cursor-mode -1)
 (global-auto-revert-mode)
 (winner-mode 1)
 (which-key-mode)
-(repeat-mode 1)
 (setq-default truncate-lines t)
 (defun bongjun/scroll-with-window-context (scroll-function &rest args)
   "Keep 15% of the current window's height as context when scrolling."
@@ -84,18 +85,14 @@ TRAMP connection or whether Emacs uses a graphical display."
 (advice-add 'scroll-up-command :around #'bongjun/scroll-with-window-context)
 (advice-add 'scroll-down-command :around #'bongjun/scroll-with-window-context)
 
-(setq repeat-exit-timeout 5) ;; exit after 5 seconds of inactivity
-
 (setq vc-handled-backends '(Git))
 (setq confirm-kill-emacs 'yes-or-no-p)
 (setq auto-save-default nil)
 (setq inhibit-startup-screen t)
 (setq-default indent-tabs-mode nil)
 (setq-default tab-width 2)
-(setq compilation-scroll-output t)
 (setq split-height-threshold 120)
 (setq split-width-threshold 140)
-
 
 (setq frame-title-format
       '(buffer-file-name
@@ -142,6 +139,16 @@ TRAMP connection or whether Emacs uses a graphical display."
            ("C-c r w" . zotero-connect-copy-bibtex)
            ("C-c r c" . zotero-connect-insert-citation)
            ("C-c r e" . zotero-connect-export-library))))
+
+(use-package repeat
+  :custom
+  (repeat-exit-timeout 5)
+  :config
+  (repeat-mode 1))
+
+(use-package compile
+  :custom
+  (compilation-scroll-output t))
 
 ;; (use-package modus-themes
 ;;   :ensure t
@@ -239,6 +246,7 @@ TRAMP connection or whether Emacs uses a graphical display."
                (funcall on-success proc))))))
       process)))
 
+(require 'dired-aux)
 (defun bongjun/dired-do-compress-to-async ()
   "Asynchronously compress marked Dired files into one archive."
   (interactive nil dired-mode)
@@ -300,7 +308,6 @@ On a file or a non-file line, use the current Dired subdirectory."
   :ensure nil ;; built-tin
   :commands dired
   :init
-  (setq dired-omit-files "\\`\\.[^.].*\\'\\|\\`[.]?#\\|\\`[.][.]?\\'")
   (setq dired-listing-switches
         (if (eq system-type 'darwin)
             "-al"
@@ -310,8 +317,12 @@ On a file or a non-file line, use the current Dired subdirectory."
         ([remap find-file] . #'bongjun/dired-find-file)
         ("c" . #'bongjun/dired-do-compress-to-async))
   :hook
-  (dired-mode . dired-hide-details-mode)
-  (dired-mode . dired-omit-mode))
+  (dired-mode . dired-hide-details-mode))
+
+(use-package dired-x
+  :hook (dired-mode . dired-omit-mode)
+  :custom
+  (dired-omit-files "\\`\\.[^.].*\\'\\|\\`[.]?#\\|\\`[.][.]?\\'"))
 
 (use-package exec-path-from-shell
   :ensure t
