@@ -172,11 +172,11 @@ TRAMP connection or whether Emacs uses a graphical display."
   :ensure t
   :demand t
   :bind
-  ("<f5>" . doric-themes-toggle)
+  ("<f5>" . doric-themes-rotate)
   :config
   ;; These are the default values.
   (setq doric-themes-to-toggle '(doric-almond doric-obsidian))
-  (setq doric-themes-to-rotate doric-themes-collection)
+  (setq doric-themes-to-rotate '(doric-almond doric-lilac doric-marble doric-obsidian))
 
   (doric-themes-select 'doric-almond))
 
