@@ -75,7 +75,6 @@ TRAMP connection or whether Emacs uses a graphical display."
 (global-auto-revert-mode)
 (winner-mode 1)
 (which-key-mode)
-(setq-default truncate-lines t)
 (defun bongjun/scroll-with-window-context (scroll-function &rest args)
   "Keep 15% of the current window's height as context when scrolling."
   (let ((next-screen-context-lines
