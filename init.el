@@ -32,6 +32,15 @@ TRAMP connection or whether Emacs uses a graphical display."
 (setq enable-recursive-minibuffers t)
 (minibuffer-depth-indicate-mode 1)
 
+;; Do not pollute directories with backup, auto-save, and lockfiles.
+(setq backup-directory-alist
+      `(("." . ,(expand-file-name "backups/" user-emacs-directory))))
+(setq auto-save-file-name-transforms
+      `((".*" ,(expand-file-name "auto-saves/" user-emacs-directory) t)))
+(make-directory (expand-file-name "auto-saves/" user-emacs-directory) t)
+(setq lock-file-name-transforms
+      `((".*" ,(expand-file-name "lockfiles/" user-emacs-directory) t)))
+
 (add-to-list 'load-path (file-name-concat user-emacs-directory "lisp"))
 ;; Personal workstation tools; skip these on Linux experiment servers.
 (when (bongjun/local-machine-p)
