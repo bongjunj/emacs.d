@@ -20,6 +20,7 @@
               ("M-p" . flycheck-previous-error))
   :custom
   ;; Terminal frames have no fringe.
+  (flycheck-emacs-lisp-load-path 'inherit)
   (flycheck-indication-mode 'left-margin)
   :config
   (global-flycheck-mode 1)
