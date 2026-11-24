@@ -75,6 +75,7 @@ TRAMP connection or whether Emacs uses a graphical display."
 (global-auto-revert-mode)
 (winner-mode 1)
 (which-key-mode)
+(xterm-mouse-mode 1)
 (defun bongjun/scroll-with-window-context (scroll-function &rest args)
   "Keep 15% of the current window's height as context when scrolling."
   (let ((next-screen-context-lines
@@ -1013,6 +1014,7 @@ Like normal Emacs `C-k'.  Kill to end of line and put content in kill-ring."
         '("\\*Messages\\*"
           "Output\\*$"
           "\\*Async Shell Command\\*"
+          magit-mode
           agent-shell-mode
           vc-compilation-mode
           help-mode
