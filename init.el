@@ -939,13 +939,7 @@ Like normal Emacs `C-k'.  Kill to end of line and put content in kill-ring."
 (use-package multiple-cursors
   :ensure t
   :bind
-  (("C-M-j" . mc/mark-all-dwim)
-   ("C-c m e" . mc/edit-lines)
-   ("C-c m n" . mc/mark-next-like-this)
-   ("C-c m p" . mc/mark-previous-like-this)
-   (:repeat-map bongjun/multiple-cursors-repeat-map
-    ("n" . mc/mark-next-like-this)
-    ("p" . mc/mark-previous-like-this))))
+  (("C-M-y" . mc/mark-all-dwim)))
 
 (require 'ansi-color)
 (defun colorize-compilation-buffer ()
