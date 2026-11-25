@@ -60,7 +60,9 @@ TRAMP connection or whether Emacs uses a graphical display."
                       :family "Monoplex CJK Nerd Font"
                       :height 160
                       :weight 'regular
-                      :slant 'normal))
+                      :slant 'normal)
+  (set-face-attribute 'fixed-pitch nil
+                    :family "Monoplex CJK Nerd Font"))
 
 (global-display-line-numbers-mode -1)
 (define-globalized-minor-mode bongjun/global-file-line-numbers-mode
