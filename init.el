@@ -642,7 +642,7 @@ On a file or a non-file line, use the current Dired subdirectory."
   :custom
   (company-backends '(company-capf))
   (company-minimum-prefix-length 2)
-  (company-idle-delay 0.2)
+  (company-idle-delay nil)
   :config
   (global-company-mode 1))
 
@@ -885,43 +885,7 @@ Like normal Emacs `C-k'.  Kill to end of line and put content in kill-ring."
   ;; (add-hook 'context-menu-functions #'embark-context-menu 100)
 
   :config
-
-  ;; In Lisp or Tree-sitter buffers, repeated C-. cycles Expreg's region sizes.
-  (require 'bongjun-embark-expreg)
-  (bongjun/embark-expreg-setup)
-
-  (defun bongjun/embark-target-git-commit ()
-    "Target a Git commit hash of 7 to 40 hexadecimal digits at point."
-    (unless (minibufferp)
-      (when-let* ((bounds (bounds-of-thing-at-point 'symbol))
-                  (hash (buffer-substring-no-properties
-                         (car bounds) (cdr bounds))))
-        (when (string-match-p "\\`[[:xdigit:]]\\{7,40\\}\\'" hash)
-          `(git-commit ,hash ,(car bounds) . ,(cdr bounds))))))
-
-  (defun bongjun/embark-magit-show-commit (commit)
-    "Show COMMIT in Magit using the current buffer's repository."
-    (interactive "sCommit: ")
-    (require 'magit)
-    (unless (magit-toplevel)
-      (user-error "This buffer's default-directory is not in a Git repository"))
-    (magit-show-commit commit))
-
-  (defvar bongjun/embark-git-commit-map
-    (make-sparse-keymap)
-    "Embark actions for Git commit hashes.")
-  (set-keymap-parent bongjun/embark-git-commit-map embark-general-map)
-  (define-key bongjun/embark-git-commit-map (kbd "g")
-              #'bongjun/embark-magit-show-commit)
-  (add-to-list 'embark-keymap-alist
-               '(git-commit . bongjun/embark-git-commit-map))
-  (add-to-list 'embark-target-finders #'bongjun/embark-target-git-commit)
-
-  ;; Hide the mode line of the Embark live/completions buffers
-  (add-to-list 'display-buffer-alist
-               '("\\`\\*Embark Collect \\(Live\\|Completions\\)\\*"
-                 nil
-                 (window-parameters (mode-line-format . none)))))
+  (require 'bongjun-embark-extensions))
 
 (use-package embark-consult
   :ensure t)
@@ -1003,23 +967,26 @@ Like normal Emacs `C-k'.  Kill to end of line and put content in kill-ring."
 
 (use-package popper
   :ensure t
+  :demand t
+  :functions popper-group-by-project
   :bind (("C-="   . popper-toggle)
          ("M-="   . popper-cycle)
          ("C-M-=" . popper-toggle-type))
-  :init
-  (setq popper-reference-buffers
-        '("\\*Messages\\*"
-          "Output\\*$"
-          "\\*Async Shell Command\\*"
-          magit-mode
-          agent-shell-mode
-          vc-compilation-mode
-          help-mode
-          compilation-mode))
+  :custom
+  (popper-reference-buffers
+   '("\\*Messages\\*"
+     "Output\\*$"
+     "\\*Async Shell Command\\*"
+     magit-mode
+     agent-shell-mode
+     vc-compilation-mode
+     help-mode
+     compilation-mode))
+  :config
   (popper-mode +1)
   (popper-echo-mode +1)
-  (setq popper-window-height 15)
-  (setq popper-group-function #'popper-group-by-project))
+  (setopt popper-window-height 15
+          popper-group-function #'popper-group-by-project))
 
 (use-package smartparens
   :ensure smartparens  ;; install the package
