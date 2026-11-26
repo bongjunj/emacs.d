@@ -174,7 +174,9 @@ TRAMP connection or whether Emacs uses a graphical display."
   :ensure t
   :demand t
   :bind
-  ("<f5>" . doric-themes-rotate)
+  (("C-c t t" . doric-themes-rotate)
+   (:repeat-map doric-themes-repeat-map
+                ("t" . doric-themes-rotate)))
   :config
   ;; These are the default values.
   (setq doric-themes-to-toggle '(doric-almond doric-obsidian))
