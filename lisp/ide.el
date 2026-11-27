@@ -3,6 +3,7 @@
 ;;; Commentary:
 ;; Language servers, diagnostics, and language modes.  Completion uses the
 ;; CAPF frontend configured in init.el; all UI features work in emacs -nw.
+;; Start LSP with C-c e e or toggle Flycheck with C-c e c in a buffer.
 
 ;;; Code:
 
@@ -14,31 +15,30 @@
 
 (use-package flycheck
   :ensure t
-  :demand t
-  :bind (:map flycheck-mode-map
-              ("M-n" . flycheck-next-error)
-              ("M-p" . flycheck-previous-error))
+  :bind (("C-c e c" . flycheck-mode)
+         :map flycheck-mode-map
+         ("M-n" . flycheck-next-error)
+         ("M-p" . flycheck-previous-error))
   :custom
   ;; Terminal frames have no fringe.
   (flycheck-emacs-lisp-load-path 'inherit)
   (flycheck-indication-mode 'left-margin)
   :config
-  (global-flycheck-mode 1)
-  (global-flycheck-annotate-mode 1))
+  (add-hook 'flycheck-mode-hook
+            (lambda ()
+              (flycheck-annotate-mode (if flycheck-mode 1 -1)))))
 
 (defun bongjun/lsp-python-setup ()
-  "Start deferred LSP with ty for the current Python buffer."
+  "Use ty when LSP is started in the current Python buffer."
   (setq-local lsp-enabled-clients '(ty-ls))
   ;; Keep signature help available on demand via C-c l h s.
-  (setq-local lsp-signature-auto-activate nil)
-  (lsp-deferred))
+  (setq-local lsp-signature-auto-activate nil))
 
 (use-package lsp-mode
   :ensure t
   :commands (lsp lsp-deferred)
   :hook ((python-mode . bongjun/lsp-python-setup)
-         (python-ts-mode . bongjun/lsp-python-setup)
-         (neocaml-base-mode . lsp-deferred))
+         (python-ts-mode . bongjun/lsp-python-setup))
   :bind (("C-c e e" . lsp)
          :map lsp-mode-map
          ("C-c e a" . lsp-execute-code-action)
@@ -106,12 +106,11 @@
   :ensure t
   :hook (neocaml-base-mode . opam-switch-mode))
 
-;; Lean owns its LSP startup and goal display.
+;; Keep Lean's goal display available when LSP is started manually.
 (use-package lean4-mode
   :vc (:url "git@github.com:leanprover-community/lean4-mode.git" :rev :last-release)
   :config
   (remove-hook 'lean4-mode-hook #'lsp)
-  (add-hook 'lean4-mode-hook #'lsp-deferred)
   ;; Inlay hints are disabled; acknowledge Lean's refresh requests.
   (puthash "workspace/inlayHint/refresh"
            (lambda (_workspace _params) nil)
@@ -123,7 +122,10 @@
 (use-package boogie-friends
   :ensure t
   :after dash
-  :hook (dafny-mode . (lambda () (prettify-symbols-mode -1))))
+  :hook (dafny-mode . (lambda () (prettify-symbols-mode -1)))
+  :config
+  ;; The major modes register their checkers separately from this startup step.
+  (advice-add 'boogie-friends-setup-flycheck :override #'ignore))
 
 (provide 'ide)
 ;;; ide.el ends here
