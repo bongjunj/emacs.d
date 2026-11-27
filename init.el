@@ -182,7 +182,7 @@ TRAMP connection or whether Emacs uses a graphical display."
   (setq doric-themes-to-toggle '(doric-almond doric-obsidian))
   (setq doric-themes-to-rotate '(doric-almond doric-lilac doric-marble doric-obsidian))
 
-  (doric-themes-select 'doric-almond))
+  (doric-themes-select 'doric-marble))
 
   ;; ;; To load a random theme instead, use something like one of these:
   ;;
